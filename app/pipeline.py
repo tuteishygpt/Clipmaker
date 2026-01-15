@@ -68,7 +68,7 @@ class PipelineOrchestrator:
         self.render_service = RenderService()
 
     def run(self) -> None:
-        analysis = self._run_step("analysis", self.analysis_service.run)
+        analysis = self._run_step("analysis", lambda: self.analysis_service.run(self.ctx))
         segments = self._run_step("segments", lambda: self.storyboard_service.run(self.ctx, analysis))
         prompts = self._run_step("prompts", lambda: self.prompt_factory.run(self.ctx, segments))
         self._run_step("images", lambda: self.image_generation_service.run(self.ctx, prompts))
