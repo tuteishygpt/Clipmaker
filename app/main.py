@@ -1,5 +1,12 @@
 from __future__ import annotations
 
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
+
 import shutil
 from pathlib import Path
 from typing import Any
@@ -20,6 +27,7 @@ from .storage import (
     update_job,
     update_project,
     write_json,
+    list_projects,
 )
 
 app = FastAPI(title="Clipmaker MVP")
@@ -39,6 +47,11 @@ app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
 @app.get("/")
 async def index() -> FileResponse:
     return FileResponse(frontend_dir / "index.html")
+
+
+@app.get("/projects", response_model=list[ProjectResponse])
+async def list_projects_endpoint() -> list[dict[str, Any]]:
+    return list_projects()
 
 
 @app.post("/projects", response_model=ProjectResponse)
@@ -77,17 +90,52 @@ async def get_project(project_id: str) -> dict[str, Any]:
     return load_json(project_path, {})
 
 
+@app.get("/projects/{project_id}/audio")
+async def get_project_audio(project_id: str) -> FileResponse:
+    source_dir = DATA_DIR / project_id / "source"
+    if not source_dir.exists():
+        raise HTTPException(status_code=404, detail="Audio not found")
+    # Find any file starting with track.
+    for file_path in source_dir.glob("track.*"):
+        media_type = "audio/wav"
+        if file_path.suffix == ".mp3":
+            media_type = "audio/mpeg"
+        # Add other types if necessary
+        return FileResponse(file_path, media_type=media_type)
+    raise HTTPException(status_code=404, detail="Audio not found")
+
+
 @app.get("/projects/{project_id}/segments")
 async def get_segments(project_id: str) -> dict[str, Any]:
     segments_path = DATA_DIR / project_id / "segments.json"
     prompts_path = DATA_DIR / project_id / "prompts.json"
     if not segments_path.exists():
         raise HTTPException(status_code=404, detail="Segments not ready")
+    
     segments = load_json(segments_path, [])
+    # If segments is just a dict with raw data (old format), try to fix it or return empty
+    if isinstance(segments, list) and len(segments) == 1 and "raw" in segments[0]:
+        # This is the corrupted case we saw
+        logging.warning("Project %s has malformed segments.json", project_id)
+        # We could try to re-parse it here, but it's better to just return what we can
+        # For now, let's treat it as empty to avoid crash
+        return {"segments": []}
+
     prompts = load_json(prompts_path, {})
     enriched = []
     for segment in segments:
-        seg_id = segment["id"]
+        if not isinstance(segment, dict):
+            continue
+        seg_id = segment.get("id")
+        if not seg_id:
+            # Try to use segment_id if present
+            seg_id = segment.get("segment_id")
+            if seg_id:
+                segment["id"] = str(seg_id)
+                seg_id = str(seg_id)
+            else:
+                continue
+        
         prompt = prompts.get(seg_id, {})
         version = prompt.get("version", 1)
         segment["thumbnail"] = f"/projects/{project_id}/images/{seg_id}_v{version}.png"
@@ -136,11 +184,11 @@ async def regenerate_scene(project_id: str, seg_id: str) -> dict[str, Any]:
 
 
 @app.post("/projects/{project_id}/render", response_model=RunResponse)
-async def render_project(project_id: str) -> RunResponse:
+async def render_project(project_id: str, background: BackgroundTasks) -> RunResponse:
     if not project_exists(project_id):
         raise HTTPException(status_code=404, detail="Project not found")
-    render_only(project_id)
-    return RunResponse(status="OK", message="Render complete")
+    background.add_task(render_only, project_id)
+    return RunResponse(status="OK", message="Render started")
 
 
 @app.get("/projects/{project_id}/jobs")

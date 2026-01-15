@@ -82,3 +82,17 @@ def update_job(project_id: str, job_name: str, updates: dict[str, Any]) -> dict[
     job_data["updated_at"] = _utc_now()
     write_json(path, job_data)
     return job_data
+
+
+def list_projects() -> list[dict[str, Any]]:
+    projects = []
+    if not DATA_DIR.exists():
+        return projects
+    for project_dir in DATA_DIR.iterdir():
+        if project_dir.is_dir():
+            project_path = project_dir / "project.json"
+            if project_path.exists():
+                projects.append(load_json(project_path))
+    # Sort by updated_at desc
+    projects.sort(key=lambda x: x.get("updated_at", ""), reverse=True)
+    return projects

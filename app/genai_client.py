@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+
 import os
 import random
 from dataclasses import dataclass
@@ -7,11 +8,20 @@ from pathlib import Path
 from typing import Any
 
 from google import genai
+from google.genai import types
+
+
+import logging
+import json
+import re
+
+from dotenv import load_dotenv
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
 class GenAIConfig:
-    mode: str
     api_key: str | None
     model_text: str
     model_image: str
@@ -20,74 +30,143 @@ class GenAIConfig:
 class GenAIClient:
     def __init__(self, config: GenAIConfig) -> None:
         self.config = config
-        self._client = genai.Client(api_key=config.api_key) if config.mode == "live" else None
+        self._client = genai.Client(api_key=config.api_key)
 
     @classmethod
     def from_env(cls) -> "GenAIClient":
-        mode = os.getenv("GENAI_MODE", "stub")
+        load_dotenv()
         api_key = os.getenv("GENAI_API_KEY")
-        model_text = os.getenv("GENAI_TEXT_MODEL", "gemini-1.5-pro")
-        model_image = os.getenv("GENAI_IMAGE_MODEL", "gemini-2.5-flash-image")
-        return cls(GenAIConfig(mode=mode, api_key=api_key, model_text=model_text, model_image=model_image))
+        model_text = os.getenv("GENAI_TEXT_MODEL", "gemini-2.0-flash-exp")
+        model_image = os.getenv("GENAI_IMAGE_MODEL", "imagen-3.0-generate-001")
+        
+        if api_key:
+            logger.info("API token loaded successfully (length: %d)", len(api_key))
+        else:
+            logger.warning("API token NOT found in environment. GENAI_API_KEY is missing.")
+            
+        return cls(GenAIConfig(api_key=api_key, model_text=model_text, model_image=model_image))
+
+    def _extract_json(self, text: str) -> Any:
+        try:
+            # Try to find JSON in code blocks
+            match = re.search(r"```json\s*(.*?)\s*```", text, re.DOTALL)
+            if match:
+                return json.loads(match.group(1))
+            # Try to find anything that looks like JSON
+            match = re.search(r"({.*}|\[.*\])", text, re.DOTALL)
+            if match:
+                return json.loads(match.group(1))
+            return json.loads(text)
+        except Exception as e:
+            logger.error(f"Failed to parse JSON from response: {e}")
+            return {"error": "Failed to parse JSON", "raw": text}
 
     def analyze_audio(self, source_dir: Path) -> dict[str, Any]:
-        if self.config.mode != "live":
-            return {
-                "transcript": [
-                    {"start_ms": 0, "end_ms": 10000, "text": "Demo line 1"},
-                    {"start_ms": 10000, "end_ms": 20000, "text": "Demo line 2"},
-                ],
-                "summary": "Energetic intro with a hopeful mood.",
-                "emotions": ["uplifting", "nostalgic"],
-                "tempo_bpm": 120,
-            }
-        prompt = "Summarize the audio, return transcript with timestamps and emotions as JSON."
+        prompt = """
+        Analyze the audio track in this song for create a video clip. 
+        Provide a summary, and a list of segments with start_time, end_time, speaker, text, and emotion.
+        Return as a JSON object.
+        """
         response = self._client.models.generate_content(model=self.config.model_text, contents=[prompt])
-        return {"raw": response.text or ""}
+        return self._extract_json(response.text)
 
     def build_storyboard(self, analysis: dict[str, Any]) -> list[dict[str, Any]]:
-        if self.config.mode != "live":
-            return [
-                {
-                    "id": "seg_001",
-                    "start_ms": 0,
-                    "end_ms": 10000,
-                    "lyric_text": "Demo line 1",
-                    "visual_intent": "Sunrise over a city skyline",
-                    "mood": "uplifting",
-                },
-                {
-                    "id": "seg_002",
-                    "start_ms": 10000,
-                    "end_ms": 20000,
-                    "lyric_text": "Demo line 2",
-                    "visual_intent": "People walking through rain with neon lights",
-                    "mood": "nostalgic",
-                },
-            ]
-        prompt = f"Build storyboard JSON segments from analysis: {analysis}"
+        prompt = f"""
+        Based on this analysis: {analysis}
+        
+        Create a storyboard as a JSON list of segments.
+        Each segment MUST have:
+        - id: a unique string like "seg_1", "seg_2", etc.
+        - start_time: "MM:SS"
+        - end_time: "MM:SS"
+        - lyric_text: the transcript for this segment
+        - visual_intent: a detailed description of what should be on screen
+        - camera_angle: suggested camera shot (e.g. "Close-up", "Wide shot")
+        - emotion: the detected emotion
+        
+        Return ONLY the JSON list.
+        """
         response = self._client.models.generate_content(model=self.config.model_text, contents=[prompt])
-        return [{"raw": response.text or ""}]
+        data = self._extract_json(response.text)
+        if isinstance(data, dict) and "segments" in data:
+            return data["segments"]
+        if isinstance(data, list):
+            return data
+        return []
 
     def build_prompts(self, segments: list[dict[str, Any]]) -> dict[str, Any]:
-        if self.config.mode != "live":
-            prompts: dict[str, Any] = {}
-            for segment in segments:
-                prompts[segment["id"]] = {
-                    "version": 1,
-                    "image_prompt": f"{segment['visual_intent']} cinematic, high detail",
-                    "negative_prompt": "low quality, blurry, watermark",
-                    "style_hints": "soft lighting, shallow depth of field",
-                }
-            return prompts
-        prompt = f"Create image prompts JSON for segments: {segments}"
+        prompt = f"""
+        For each of these segments, create a detailed image generation prompt.
+        Segments: {segments}
+        
+        Return a JSON object where keys are the segment IDs ("seg_1", etc.) and values are objects containing:
+        - image_prompt: the detailed prompt for the AI image generator
+        - negative_prompt: what to avoid in the image (optional)
+        - style_hints: keywords about the style (optional)
+        - version: 1
+        
+        Return ONLY the JSON object.
+        """
         response = self._client.models.generate_content(model=self.config.model_text, contents=[prompt])
-        return {"raw": response.text or ""}
+        data = self._extract_json(response.text)
+        if isinstance(data, dict):
+            # If the LLM returned it wrapped in another key
+            if "prompts" in data and isinstance(data["prompts"], dict):
+                return data["prompts"]
+            return data
+        return {}
 
     def generate_image(self, prompt_payload: dict[str, Any]) -> bytes:
-        if self.config.mode != "live":
-            seed = random.randint(1000, 9999)
-            return f"Placeholder image for {prompt_payload} seed {seed}".encode("utf-8")
         prompt = prompt_payload.get("image_prompt", "Cinematic scene")
-        response = self._client.models.generate_content(model=self.config.model_image, contents=[prompt])
-        return (response.text or "").encode("utf-8")
+        try:
+            # Check if we are using an Imagen model (legacy/specific)
+            if "imagen" in self.config.model_image.lower():
+                response = self._client.models.generate_images(
+                    model=self.config.model_image,
+                    prompt=prompt
+                )
+                if response.generated_images:
+                    return response.generated_images[0].image.image_bytes
+                return b""
+
+            # Logic for Gemini 2.5+ Flash Image / Multimodal Generation
+            contents = [
+                types.Content(
+                    role="user",
+                    parts=[
+                        types.Part.from_text(text=prompt),
+                    ],
+                ),
+            ]
+            
+            # We request only IMAGE modality effectively by ignoring text output if possible, 
+            # but per user example: response_modalities=["IMAGE", "TEXT"]
+            generate_content_config = types.GenerateContentConfig(
+                response_modalities=["IMAGE"],
+            )
+
+            # Use stream as per user example, or regular generate_content. 
+            # Using stream to be safe and close to user example style.
+            for chunk in self._client.models.generate_content_stream(
+                model=self.config.model_image,
+                contents=contents,
+                config=generate_content_config,
+            ):
+                if (
+                    chunk.candidates is None
+                    or not chunk.candidates
+                    or chunk.candidates[0].content is None
+                    or chunk.candidates[0].content.parts is None
+                    or not chunk.candidates[0].content.parts
+                ):
+                    continue
+                
+                part = chunk.candidates[0].content.parts[0]
+                if part.inline_data and part.inline_data.data:
+                    return part.inline_data.data
+            
+            return b""
+        except Exception as e:
+            logger.error(f"Image generation failed: {e}")
+            # Try to print more info if available
+            return b""
