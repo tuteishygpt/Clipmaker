@@ -1,0 +1,1 @@
+"""Clipmaker MVP application package."""
