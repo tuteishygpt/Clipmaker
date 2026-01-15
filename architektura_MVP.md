@@ -9,6 +9,26 @@
 
 ## Кампаненты
 
+### Агульная схема (з Google GenAI)
+
+```
+Web/Mobile UI
+   │
+   ├─(Auth)──────────────────────────────┐
+   │                                     │
+API Gateway / Backend (Projects API)     │
+   │                                     │
+   ├─ Object Storage (Audio, Images, Video outputs)
+   ├─ JSON (Projects, Segments, Prompts, Versions)
+   ├─ Queue / Orchestrator (Jobs, retries, state machine)
+   │
+   ├─ Audio Analysis Service  ──► Gemini (audio→text+timestamps, summary, emotions)
+   ├─ Storyboard Service      ──► Gemini (segments/scenes + structured JSON)
+   ├─ Prompt Factory          ──► Gemini (final prompts per scene, negative prompts)
+   ├─ Image Generation        ──► Gemini Image (e.g. Gemini Flash Image) / Imagen
+   └─ Render Service          ──► ffmpeg (assemble scenes + subtitles + audio)
+```
+
 ### Frontend (JavaScript)
 - Экран Upload + налады (фармат, стыль, субцітры)
 - Экран Scenes/Storyboard (спіс сцэн з мініяцюрамі, форма рэдагавання)
@@ -20,7 +40,7 @@
 ### Backend (Python / FastAPI)
 - REST API для праектаў/сцэн/рэндэру
 - Запуск пайплайна (analysis → storyboard → prompts → images → render)
-- Інтэграцыя з Google Gen AI SDK (Gemini)
+- Інтэграцыя з Google GenAI SDK (Gemini)
 - ffmpeg для склейкі фінальнага MP4
 
 ### Storage (без DB)
