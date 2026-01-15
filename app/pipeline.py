@@ -1,98 +1,132 @@
 from __future__ import annotations
 
-import random
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
+from .genai_client import GenAIClient
 from .storage import DATA_DIR, load_json, update_job, update_project, write_json
 
 
+@dataclass
+class PipelineContext:
+    project_id: str
+    project_dir: Path
+    genai: GenAIClient
+
+
+class AudioAnalysisService:
+    def run(self, ctx: PipelineContext) -> dict[str, Any]:
+        analysis = ctx.genai.analyze_audio(ctx.project_dir / "source")
+        write_json(ctx.project_dir / "analysis.json", analysis)
+        return analysis
+
+
+class StoryboardService:
+    def run(self, ctx: PipelineContext, analysis: dict[str, Any]) -> list[dict[str, Any]]:
+        segments = ctx.genai.build_storyboard(analysis)
+        write_json(ctx.project_dir / "segments.json", segments)
+        return segments
+
+
+class PromptFactory:
+    def run(self, ctx: PipelineContext, segments: list[dict[str, Any]]) -> dict[str, Any]:
+        prompts = ctx.genai.build_prompts(segments)
+        write_json(ctx.project_dir / "prompts.json", prompts)
+        return prompts
+
+
+class ImageGenerationService:
+    def run(self, ctx: PipelineContext, prompts: dict[str, Any]) -> None:
+        images_dir = ctx.project_dir / "images"
+        images_dir.mkdir(parents=True, exist_ok=True)
+        for seg_id, payload in prompts.items():
+            version = payload.get("version", 1)
+            filename = images_dir / f"{seg_id}_v{version}.png"
+            image_bytes = ctx.genai.generate_image(payload)
+            filename.write_bytes(image_bytes)
+
+
+class RenderService:
+    def run(self, ctx: PipelineContext) -> Path:
+        renders_dir = ctx.project_dir / "renders"
+        renders_dir.mkdir(parents=True, exist_ok=True)
+        existing = sorted(renders_dir.glob("final_v*.mp4"))
+        next_version = len(existing) + 1
+        output = renders_dir / f"final_v{next_version}.mp4"
+        output.write_bytes(b"Placeholder MP4 content")
+        return output
+
+
+class PipelineOrchestrator:
+    def __init__(self, ctx: PipelineContext) -> None:
+        self.ctx = ctx
+        self.analysis_service = AudioAnalysisService()
+        self.storyboard_service = StoryboardService()
+        self.prompt_factory = PromptFactory()
+        self.image_generation_service = ImageGenerationService()
+        self.render_service = RenderService()
+
+    def run(self) -> None:
+        analysis = self._run_step("analysis", self.analysis_service.run)
+        segments = self._run_step("segments", lambda: self.storyboard_service.run(self.ctx, analysis))
+        prompts = self._run_step("prompts", lambda: self.prompt_factory.run(self.ctx, segments))
+        self._run_step("images", lambda: self.image_generation_service.run(self.ctx, prompts))
+        self._run_step("render", lambda: self.render_service.run(self.ctx))
+        update_job(self.ctx.project_id, "pipeline", {"status": "DONE", "step": "complete"})
+        update_project(self.ctx.project_id, {"status": "DONE"})
+
+    def _run_step(self, step: str, action: Callable[[], Any], attempts: int = 2) -> Any:
+        last_error: Exception | None = None
+        for attempt in range(1, attempts + 1):
+            update_job(
+                self.ctx.project_id,
+                "pipeline",
+                {"status": "RUNNING", "step": step, "attempt": attempt},
+            )
+            try:
+                return action()
+            except Exception as exc:  # noqa: BLE001 - keep pipeline alive in MVP
+                last_error = exc
+                update_job(
+                    self.ctx.project_id,
+                    "pipeline",
+                    {
+                        "status": "RETRYING",
+                        "step": step,
+                        "attempt": attempt,
+                        "error": str(exc),
+                    },
+                )
+        update_job(
+            self.ctx.project_id,
+            "pipeline",
+            {"status": "FAILED", "step": step, "error": str(last_error)},
+        )
+        update_project(self.ctx.project_id, {"status": "FAILED"})
+        raise last_error or RuntimeError(f"Pipeline step failed: {step}")
+
+
 def run_pipeline(project_id: str) -> None:
-    update_job(project_id, "pipeline", {"status": "RUNNING", "step": "analysis"})
-    analysis = _analyze_audio(project_id)
-    update_job(project_id, "pipeline", {"status": "RUNNING", "step": "segments"})
-    segments = _build_segments(project_id, analysis)
-    update_job(project_id, "pipeline", {"status": "RUNNING", "step": "prompts"})
-    prompts = _create_prompts(project_id, segments)
-    update_job(project_id, "pipeline", {"status": "RUNNING", "step": "images"})
-    _generate_images(project_id, prompts)
-    update_job(project_id, "pipeline", {"status": "RUNNING", "step": "render"})
-    _render_video(project_id)
-    update_job(project_id, "pipeline", {"status": "DONE", "step": "complete"})
-    update_project(project_id, {"status": "DONE"})
+    ctx = PipelineContext(
+        project_id=project_id,
+        project_dir=_project_dir(project_id),
+        genai=GenAIClient.from_env(),
+    )
+    PipelineOrchestrator(ctx).run()
 
 
 def _project_dir(project_id: str) -> Path:
     return DATA_DIR / project_id
 
 
-def _analyze_audio(project_id: str) -> dict[str, Any]:
-    analysis = {
-        "transcript": "(demo transcript)",
-        "mood": "uplifting",
-        "energy": "medium",
-    }
-    write_json(_project_dir(project_id) / "analysis.json", analysis)
-    return analysis
-
-
-def _build_segments(project_id: str, analysis: dict[str, Any]) -> list[dict[str, Any]]:
-    segments = []
-    start_ms = 0
-    for index in range(3):
-        end_ms = start_ms + 15000
-        segments.append(
-            {
-                "id": f"seg_{index + 1:03d}",
-                "start_ms": start_ms,
-                "end_ms": end_ms,
-                "lyric_text": f"Line {index + 1}",
-                "visual_intent": f"Visual idea {index + 1}",
-                "mood": analysis.get("mood", "neutral"),
-            }
-        )
-        start_ms = end_ms
-    write_json(_project_dir(project_id) / "segments.json", segments)
-    return segments
-
-
-def _create_prompts(project_id: str, segments: list[dict[str, Any]]) -> dict[str, Any]:
-    prompts: dict[str, Any] = {}
-    for segment in segments:
-        prompts[segment["id"]] = {
-            "version": 1,
-            "image_prompt": f"{segment['visual_intent']} in cinematic style",
-            "negative_prompt": "blurry, low quality",
-            "style_hints": "soft lighting",
-        }
-    write_json(_project_dir(project_id) / "prompts.json", prompts)
-    return prompts
-
-
-def _generate_images(project_id: str, prompts: dict[str, Any]) -> None:
-    images_dir = _project_dir(project_id) / "images"
-    images_dir.mkdir(parents=True, exist_ok=True)
-    for seg_id, payload in prompts.items():
-        version = payload.get("version", 1)
-        filename = images_dir / f"{seg_id}_v{version}.png"
-        seed = random.randint(1000, 9999)
-        filename.write_bytes(
-            f"Placeholder image for {seg_id} v{version} seed {seed}".encode("utf-8")
-        )
-
-
-def _render_video(project_id: str) -> Path:
-    renders_dir = _project_dir(project_id) / "renders"
-    renders_dir.mkdir(parents=True, exist_ok=True)
-    existing = sorted(renders_dir.glob("final_v*.mp4"))
-    next_version = len(existing) + 1
-    output = renders_dir / f"final_v{next_version}.mp4"
-    output.write_bytes(b"Placeholder MP4 content")
-    return output
-
-
 def regenerate_segment(project_id: str, seg_id: str) -> dict[str, Any]:
-    prompts_path = _project_dir(project_id) / "prompts.json"
+    ctx = PipelineContext(
+        project_id=project_id,
+        project_dir=_project_dir(project_id),
+        genai=GenAIClient.from_env(),
+    )
+    prompts_path = ctx.project_dir / "prompts.json"
     prompts = load_json(prompts_path, {})
     current = prompts.get(seg_id)
     if not current:
@@ -101,7 +135,7 @@ def regenerate_segment(project_id: str, seg_id: str) -> dict[str, Any]:
     current["version"] = current_version + 1
     prompts[seg_id] = current
     write_json(prompts_path, prompts)
-    _generate_images(project_id, {seg_id: current})
+    ImageGenerationService().run(ctx, {seg_id: current})
     update_job(
         project_id,
         "pipeline",
@@ -115,8 +149,13 @@ def regenerate_segment(project_id: str, seg_id: str) -> dict[str, Any]:
 
 
 def render_only(project_id: str) -> Path:
+    ctx = PipelineContext(
+        project_id=project_id,
+        project_dir=_project_dir(project_id),
+        genai=GenAIClient.from_env(),
+    )
     update_job(project_id, "render", {"status": "RUNNING", "step": "render"})
-    output = _render_video(project_id)
+    output = RenderService().run(ctx)
     update_job(
         project_id,
         "render",
