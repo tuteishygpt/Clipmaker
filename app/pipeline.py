@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable
+import random
 
 from .genai_client import GenAIClient
 from .storage import DATA_DIR, load_json, update_job, update_project, write_json
@@ -15,16 +16,63 @@ class PipelineContext:
     genai: GenAIClient
 
 
+def _get_audio_info(project_dir: Path) -> dict[str, Any]:
+    import moviepy.editor as mp
+    source_dir = project_dir / "source"
+    audio_files = list(source_dir.glob("track.*"))
+    audio_path = next(iter(audio_files), None)
+    if not audio_path:
+        return {"duration": 0.0}
+    
+    # We use a temporary clip to get duration
+    clip = mp.AudioFileClip(str(audio_path))
+    duration = clip.duration
+    clip.close()
+    return {"duration": duration, "path": audio_path}
+
+
 class AudioAnalysisService:
     def run(self, ctx: PipelineContext) -> dict[str, Any]:
-        analysis = ctx.genai.analyze_audio(ctx.project_dir / "source")
+        audio_info = _get_audio_info(ctx.project_dir)
+        analysis = ctx.genai.analyze_audio(ctx.project_dir / "source", duration=audio_info["duration"])
+        analysis["total_duration"] = audio_info["duration"]
         write_json(ctx.project_dir / "analysis.json", analysis)
         return analysis
 
 
 class StoryboardService:
     def run(self, ctx: PipelineContext, analysis: dict[str, Any]) -> list[dict[str, Any]]:
-        segments = ctx.genai.build_storyboard(analysis)
+        duration = analysis.get("total_duration", 0.0)
+        segments = ctx.genai.build_storyboard(analysis, total_duration=duration)
+        
+        # Normalize segments to perfectly fit the duration
+        if segments and duration > 0:
+            total_suggested = 0.0
+            for seg in segments:
+                s = parse_time(seg.get("start_time", 0))
+                e = parse_time(seg.get("end_time", 0))
+                seg["_orig_duration"] = max(0.1, e - s)
+                total_suggested += seg["_orig_duration"]
+            
+            # Scale durations to fit exactly
+            current_time = 0.0
+            for i, seg in enumerate(segments):
+                # Calculate proportional duration
+                weight = seg.pop("_orig_duration")
+                if total_suggested > 0:
+                    seg_duration = (weight / total_suggested) * duration
+                else:
+                    seg_duration = duration / len(segments)
+                
+                seg["start_time"] = current_time
+                # For the last segment, ensure it hits the exact end
+                if i == len(segments) - 1:
+                    seg["end_time"] = duration
+                else:
+                    seg["end_time"] = current_time + seg_duration
+                
+                current_time = seg["end_time"]
+
         write_json(ctx.project_dir / "segments.json", segments)
         return segments
 
@@ -55,81 +103,134 @@ class ImageGenerationService:
             update_job(ctx.project_id, "pipeline", {"progress": progress_base + progress_weight})
 
 
+try:
+    from proglog import TqdmProgressBarLogger
+except ImportError:
+    TqdmProgressBarLogger = object
+
+class MoviepyProgressLogger(TqdmProgressBarLogger):
+    def __init__(self, project_id: str, job_name: str, base: int, weight: int):
+        if TqdmProgressBarLogger is not object:
+            super().__init__()
+        self.project_id = project_id
+        self.job_name = job_name
+        self.base = base
+        self.weight = weight
+        self.is_video_phase = False
+
+    def message(self, message):
+        if TqdmProgressBarLogger is not object:
+            super().message(message)
+        if "Writing video" in message:
+            self.is_video_phase = True
+        elif "Writing audio" in message:
+            self.is_video_phase = False
+
+    def callback(self, **kwargs):
+        if TqdmProgressBarLogger is object:
+            return
+        
+        if not self.is_video_phase:
+             return
+
+        try:
+            best_p = 0
+            if hasattr(self, 'bars'):
+                for bar in self.bars.values():
+                    if bar.get("total"):
+                        p = (bar["index"] / bar["total"]) * 100
+                        if p > best_p:
+                            best_p = p
+            
+            if best_p > 0:
+                clamped_p = min(best_p, 99)
+                actual_progress = self.base + int((clamped_p / 100) * self.weight)
+                update_job(self.project_id, self.job_name, {"progress": actual_progress})
+        except Exception:
+            pass
+
+def parse_time(t_str: Any) -> float:
+    if not t_str: return 0.0
+    if isinstance(t_str, (int, float)): return float(t_str)
+    
+    t_str = str(t_str).replace(",", ".").strip()
+    parts = t_str.split(":")
+    try:
+        if len(parts) == 1: # seconds
+            return float(parts[0])
+        if len(parts) == 2: # MM:SS
+            return float(parts[0]) * 60 + float(parts[1])
+        if len(parts) == 3: # HH:MM:SS
+            return float(parts[0]) * 3600 + float(parts[1]) * 60 + float(parts[2])
+    except ValueError:
+        pass
+    return 0.0
+
+
 class RenderService:
     def run(self, ctx: PipelineContext, job_name: str = "render", progress_base: int = 0, progress_weight: int = 100) -> Path:
+        self._ensure_pil_compatibility()
+        
+        logger = self._get_logger(ctx.project_id, job_name, progress_base, progress_weight)
+        
+        # Load data
+        segments, prompts, project_info = self._load_project_data(ctx)
+        
+        # Prepare audio
+        import moviepy.editor as mp
+        audio_clip = None
+        clips = []
+        video = None
+        
+        try:
+            audio_clip = self._prepare_audio(ctx.project_dir, mp)
+            
+            # Sync segments with audio duration for extra safety
+            clips = self._create_clips(ctx, segments, prompts, project_info, mp)
+            
+            video = mp.concatenate_videoclips(clips, method="compose")
+            video.audio = audio_clip
+            
+            output_path = self._render_file(ctx.project_dir, video, logger)
+            return output_path
+        
+        finally:
+            self._cleanup(video, audio_clip, clips)
+
+    def _ensure_pil_compatibility(self):
         import PIL.Image
         if not hasattr(PIL.Image, 'ANTIALIAS'):
             PIL.Image.ANTIALIAS = PIL.Image.LANCZOS
-            
-        import moviepy.editor as mp
-        
-        logger = None
-        try:
-            from proglog import TqdmProgressBarLogger
 
-            class MoviepyProgressLogger(TqdmProgressBarLogger):
-                def __init__(self, project_id, job_name, base, weight):
-                    super().__init__()
-                    self.project_id = project_id
-                    self.job_name = job_name
-                    self.base = base
-                    self.weight = weight
-
-                def callback(self, **kwargs):
-                    try:
-                        best_progress = 0
-                        for bar in self.bars.values():
-                            if bar.get('total'):
-                                p = int((bar['index'] / bar['total']) * 100)
-                                if p > best_progress:
-                                    best_progress = p
-                        
-                        if best_progress > 0:
-                            actual_progress = self.base + int((best_progress / 100) * self.weight)
-                            update_job(self.project_id, self.job_name, {"progress": actual_progress})
-                    except Exception:
-                        pass
-
-            logger = MoviepyProgressLogger(ctx.project_id, job_name, progress_base, progress_weight)
-        except ImportError:
+    def _get_logger(self, project_id: str, job_name: str, base: int, weight: int):
+        if TqdmProgressBarLogger is object:
             print("Warning: proglog not found, progress bar will not be updated")
-        
-        renders_dir = ctx.project_dir / "renders"
-        renders_dir.mkdir(parents=True, exist_ok=True)
-        
+            return None
+        return MoviepyProgressLogger(project_id, job_name, base, weight)
+
+    def _load_project_data(self, ctx: PipelineContext):
         segments = load_json(ctx.project_dir / "segments.json", [])
         prompts = load_json(ctx.project_dir / "prompts.json", {})
         project_info = load_json(ctx.project_dir / "project.json", {})
-        
-        # Audio file
-        source_dir = ctx.project_dir / "source"
+        return segments, prompts, project_info
+
+    def _prepare_audio(self, project_dir: Path, mp):
+        source_dir = project_dir / "source"
         audio_files = list(source_dir.glob("track.*"))
         
         audio_path = next(iter(audio_files), None)
         if not audio_path:
             raise FileNotFoundError(f"Audio track ('track.*') not found in {source_dir}. Please upload audio first.")
             
-        audio_clip = mp.AudioFileClip(str(audio_path))
-        
-        # Determine format (9:16 or 16:9)
+        return mp.AudioFileClip(str(audio_path))
+
+    def _create_clips(self, ctx: PipelineContext, segments, prompts, project_info, mp):
         fmt = project_info.get("format", "9:16")
-        if fmt == "9:16":
-            size = (720, 1280)
-        else:
-            size = (1280, 720)
-            
+        size = (720, 1280) if fmt == "9:16" else (1280, 720)
+        
         clips = []
         images_dir = ctx.project_dir / "images"
         
-        def parse_time(t_str: str) -> float:
-            if not t_str: return 0.0
-            parts = t_str.split(":")
-            if len(parts) == 2: # MM:SS
-                return int(parts[0]) * 60 + int(parts[1])
-            elif len(parts) == 3: # HH:MM:SS
-                return int(parts[0]) * 3600 + int(parts[1]) * 60 + int(parts[2])
-            return float(t_str)
-
         for seg in segments:
             seg_id = seg.get("id")
             if not seg_id: continue
@@ -141,20 +242,144 @@ class RenderService:
             if not img_path.exists():
                 continue
                 
-            start_s = parse_time(seg.get("start_time", "00:00"))
-            end_s = parse_time(seg.get("end_time", "00:00"))
+            start_s = parse_time(seg.get("start_time", 0))
+            end_s = parse_time(seg.get("end_time", 0))
             duration = end_s - start_s
             if duration <= 0:
                 continue
                 
-            clip = mp.ImageClip(str(img_path)).set_duration(duration).resize(size)
+            effect = seg.get("effect") or "random"
+            if effect == "random":
+                effect = random.choice(["zoom_in", "zoom_out", "pan_left", "pan_right", "pan_up", "pan_down"])
+            
+            clip = self._apply_effect(img_path, duration, effect, size, mp)
             clips.append(clip)
             
         if not clips:
             raise ValueError("No valid image segments found to render")
             
-        video = mp.concatenate_videoclips(clips, method="compose")
-        video.audio = audio_clip
+        return clips
+
+    def _apply_effect(self, img_path: Path, duration: float, effect: str, target_size: tuple[int, int], mp):
+        try:
+            from PIL import Image
+            import numpy as np
+        except ImportError:
+            # Fallback if libraries are missing, though they are heavily expected
+            return mp.ImageClip(str(img_path)).resize(target_size).set_duration(duration)
+
+        # Open image to get dimensions and raw data
+        # We assume safe to open once as we will use array in closure
+        pil_img = Image.open(img_path).convert("RGB")
+        w, h = pil_img.size
+        # Convert to numpy array once to avoid disk I/O per frame
+        img_arr = np.array(pil_img)
+        
+        tw, th = target_size
+        
+        # Calculate maximum possible crop that matches target Aspect Ratio
+        if (w / h) > (tw / th):
+            # Image is wider than target
+            max_crop_h = h
+            max_crop_w = h * (tw / th)
+        else:
+            # Image is taller than target
+            max_crop_w = w
+            max_crop_h = w * (th / tw)
+            
+        zoom_level = 0.85 
+        
+        # Determine movement capability
+        has_pan_room_x = w > (max_crop_w * 1.05)
+        has_pan_room_y = h > (max_crop_h * 1.05)
+
+        def make_frame(t):
+            p = t / duration
+            
+            # Default: Static Centered (Scale 1.0 unless we want to force zoom)
+            scale = 1.0
+            cx, cy = w / 2, h / 2
+            
+            if effect == "zoom_in":
+                # From Full to Zoomed
+                scale = 1.0 - (1.0 - zoom_level) * p
+            
+            elif effect == "zoom_out":
+                # From Zoomed to Full
+                scale = zoom_level + (1.0 - zoom_level) * p
+                
+            elif effect in ["pan_left", "pan_right"]:
+                scale = 1.0 if has_pan_room_x else zoom_level
+                cw = max_crop_w * scale
+                
+                min_cx = cw / 2
+                max_cx = w - cw / 2
+                
+                if effect == "pan_left":
+                    # Start Right, End Left
+                    cx = max_cx - (max_cx - min_cx) * p
+                else:
+                    # Start Left, End Right
+                    cx = min_cx + (max_cx - min_cx) * p
+                    
+            elif effect in ["pan_up", "pan_down"]:
+                scale = 1.0 if has_pan_room_y else zoom_level
+                ch = max_crop_h * scale
+                
+                min_cy = ch / 2
+                max_cy = h - ch / 2
+                
+                if effect == "pan_up":
+                    # Start Bottom, End Top
+                    cy = max_cy - (max_cy - min_cy) * p
+                else: 
+                     # Start Top, End Bottom
+                    cy = min_cy + (max_cy - min_cy) * p
+            
+            # Final calculation
+            final_w = max_crop_w * scale
+            final_h = max_crop_h * scale
+            
+            # Calculate coordinates
+            x1 = int(cx - final_w / 2)
+            y1 = int(cy - final_h / 2)
+            x2 = x1 + int(final_w)
+            y2 = y1 + int(final_h)
+            
+            # Clamp to image boundaries
+            x1 = max(0, x1)
+            y1 = max(0, y1)
+            x2 = min(w, x2)
+            y2 = min(h, y2)
+            
+            # Handle edge case where crop is invalid
+            if x2 <= x1 or y2 <= y1:
+                # Return static resized frame
+                aux = Image.fromarray(img_arr).resize((tw, th), Image.LANCZOS)
+                return np.array(aux)
+
+            # Crop
+            part = img_arr[y1:y2, x1:x2]
+            
+            # Resize
+            # Creating Image from array is fast enough
+            part_img = Image.fromarray(part)
+            resized = part_img.resize((tw, th), Image.LANCZOS)
+            return np.array(resized)
+
+        # Create VideoClip directly
+        return mp.VideoClip(make_frame, duration=duration)
+
+    def _sync_audio_video(self, video, audio_clip, clips, mp):
+        # This is now redundant as StoryboardService handles it, 
+        # but we keep a simplified version just in case segments are manual
+        if abs(audio_clip.duration - video.duration) > 0.1:
+             return video.set_duration(audio_clip.duration)
+        return video
+
+    def _render_file(self, project_dir: Path, video, logger):
+        renders_dir = project_dir / "renders"
+        renders_dir.mkdir(parents=True, exist_ok=True)
         
         existing = sorted(renders_dir.glob("final_v*.mp4"))
         next_version = len(existing) + 1
@@ -167,14 +392,16 @@ class RenderService:
             audio_codec="aac",
             logger=logger
         )
-        
-        # Close clips to free resources
-        video.close()
-        audio_clip.close()
-        for c in clips:
-            c.close()
-            
         return output
+
+    def _cleanup(self, video, audio_clip, clips):
+        try:
+            if video: video.close()
+            if audio_clip: audio_clip.close()
+            for c in clips:
+                c.close()
+        except Exception:
+            pass
 
 
 class PipelineOrchestrator:
@@ -197,9 +424,9 @@ class PipelineOrchestrator:
         prompts = self._run_step("prompts", lambda: self.prompt_factory.run(self.ctx, segments))
         
         self._run_step("images", lambda: self.image_generation_service.run(self.ctx, prompts, progress_base=30, progress_weight=40))
-        self._run_step("render", lambda: self.render_service.run(self.ctx, job_name="pipeline", progress_base=70, progress_weight=30))
+        video_output = self._run_step("render", lambda: self.render_service.run(self.ctx, job_name="pipeline", progress_base=70, progress_weight=30))
         
-        update_job(self.ctx.project_id, "pipeline", {"status": "DONE", "step": "complete", "progress": 100})
+        update_job(self.ctx.project_id, "pipeline", {"status": "DONE", "step": "complete", "progress": 100, "output": str(video_output)})
         update_project(self.ctx.project_id, {"status": "DONE"})
 
     def _run_step(self, step: str, action: Callable[[], Any], attempts: int = 2) -> Any:
@@ -266,7 +493,7 @@ def regenerate_segment(project_id: str, seg_id: str) -> dict[str, Any]:
         project_id,
         "pipeline",
         {
-            "status": "RUNNING",
+            "status": "DONE",
             "step": "regenerate",
             "message": f"Regenerated {seg_id} v{current['version']}",
         },

@@ -61,28 +61,37 @@ class GenAIClient:
             logger.error(f"Failed to parse JSON from response: {e}")
             return {"error": "Failed to parse JSON", "raw": text}
 
-    def analyze_audio(self, source_dir: Path) -> dict[str, Any]:
-        prompt = """
+    def analyze_audio(self, source_dir: Path, duration: float = 0.0) -> dict[str, Any]:
+        prompt = f"""
         Analyze the audio track in this song for create a video clip. 
+        The total duration of the audio is {duration:.2f} seconds.
         Provide a summary, and a list of segments with start_time, end_time, speaker, text, and emotion.
+        Make sure segments cover the entire {duration:.2f} seconds without gaps.
         Return as a JSON object.
         """
         response = self._client.models.generate_content(model=self.config.model_text, contents=[prompt])
         return self._extract_json(response.text)
 
-    def build_storyboard(self, analysis: dict[str, Any]) -> list[dict[str, Any]]:
+    def build_storyboard(self, analysis: dict[str, Any], total_duration: float = 0.0) -> list[dict[str, Any]]:
         prompt = f"""
         Based on this analysis: {analysis}
         
         Create a storyboard as a JSON list of segments.
+        The total duration MUST be EXACTLY {total_duration:.2f} seconds.
+        
         Each segment MUST have:
         - id: a unique string like "seg_1", "seg_2", etc.
-        - start_time: "MM:SS"
-        - end_time: "MM:SS"
+        - start_time: "MM:SS" (or total seconds)
+        - end_time: "MM:SS" (or total seconds)
         - lyric_text: the transcript for this segment
         - visual_intent: a detailed description of what should be on screen
         - camera_angle: suggested camera shot (e.g. "Close-up", "Wide shot")
         - emotion: the detected emotion
+        
+        IMPORTANT: The segments MUST tile the entire {total_duration:.2f} seconds. 
+        The first segment must start at 00:00. 
+        The last segment must end at {total_duration:.2f}.
+        No gaps, no overlaps.
         
         Return ONLY the JSON list.
         """

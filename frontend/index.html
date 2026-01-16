@@ -15,82 +15,93 @@
       <p>Upload audio, generate scenes, and render a demo video.</p>
     </header>
 
-    <section class="panel">
-      <h2>Open Project</h2>
-      <div class="form-row">
-        <select id="project-list" style="flex-grow: 1;">
-          <option value="">Loading projects...</option>
-        </select>
-        <button id="open-project">Open</button>
+    <div class="grid-layout">
+      <div class="sidebar">
+        <section class="panel">
+          <h2>Project</h2>
+          <div class="form-row compact">
+            <select id="project-list" style="flex-grow: 1;">
+              <option value="">Loading projects...</option>
+            </select>
+            <button id="open-project">Open</button>
+          </div>
+          <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 16px 0;">
+          <h3 style="font-size: 1rem; margin-bottom: 12px; color: #475569;">Create New</h3>
+          <div class="form-row compact">
+            <label>Format <select id="format">
+                <option value="9:16">9:16 (Story)</option>
+                <option value="16:9">16:9 (Landscape)</option>
+              </select></label>
+            <label>Style <select id="style">
+                <option value="cinematic">Cinematic</option>
+                <option value="anime">Anime</option>
+                <option value="illustration">Illustration</option>
+                <option value="abstract">Abstract</option>
+              </select></label>
+          </div>
+          <div class="form-row compact">
+            <label class="checkbox"><input type="checkbox" id="subtitles" checked /> Subtitles</label>
+          </div>
+          <button id="create-project" style="width: 100%">Create Project</button>
+          <div id="project-info" class="muted"></div>
+        </section>
+
+        <section class="panel">
+          <h2>Audio</h2>
+          <input type="file" id="audio-file" accept="audio/*" />
+          <button id="upload-audio" style="margin-top: 10px; width: 100%">Upload</button>
+          <div id="upload-status" class="muted"></div>
+          <audio id="audio-player" controls style="width: 100%; margin-top: 10px; display: none;"></audio>
+        </section>
+
+        <section class="panel">
+          <h2>Actions</h2>
+          <button id="run-pipeline" style="width: 100%; margin-bottom: 10px;">Generate Scenes</button>
+          <button id="render-project" style="width: 100%">Render Video</button>
+          <div id="pipeline-progress-container" class="progress-container" style="display: none;">
+            <div class="progress-label">Pipeline: <span id="pipeline-progress-pct">0</span>%</div>
+            <div class="progress-bg">
+              <div id="pipeline-progress-fill" class="progress-fill"></div>
+            </div>
+            <div id="pipeline-step" class="muted" style="font-size: 0.8rem; margin-top: 4px;"></div>
+          </div>
+          <div id="render-progress-container" class="progress-container" style="display: none;">
+            <div class="progress-label">Rendering: <span id="render-progress-pct">0</span>%</div>
+            <div class="progress-bg">
+              <div id="render-progress-fill" class="progress-fill"></div>
+            </div>
+          </div>
+          <div id="render-output" class="muted"></div>
+          <button id="refresh-jobs" class="secondary-btn" style="width:100%; margin-top:10px;">Refresh Status</button>
+          <pre id="jobs-status" class="code-block" style="display:none;"></pre>
+        </section>
       </div>
-    </section>
 
-    <section class="panel">
-      <h2>Create project</h2>
-      <div class="form-row">
-        <label>
-          Format
-          <select id="format">
-            <option value="9:16">9:16 (Reels/TikTok)</option>
-            <option value="16:9">16:9 (YouTube)</option>
-          </select>
-        </label>
-        <label>
-          Style
-          <select id="style">
-            <option value="cinematic">Cinematic</option>
-            <option value="anime">Anime</option>
-            <option value="illustration">Illustration</option>
-            <option value="abstract">Abstract</option>
-          </select>
-        </label>
-        <label class="checkbox">
-          <input type="checkbox" id="subtitles" checked />
-          Subtitles
-        </label>
+      <div class="main-content">
+        <section class="panel cinema-panel">
+          <div id="preview-container" class="preview-box">
+            <div id="preview-placeholder">
+              <div class="placeholder-icon">🎬</div>
+              <p>Preview will appear here</p>
+            </div>
+            <img id="preview-image" src="" style="display: none;" />
+            <video id="preview-video" controls style="display: none;"></video>
+          </div>
+          <div class="timeline-wrapper">
+            <div id="timeline-markers" class="timeline-markers"></div>
+            <div id="timeline-progress" class="timeline-progress"></div>
+          </div>
+          <div class="preview-controls">
+            <a id="download-video" class="button-link" href="#" download style="display: none;">Download Video</a>
+          </div>
+        </section>
+
+        <section class="panel" style="background: transparent; box-shadow: none; border: none; padding: 0;">
+          <h2 style="margin-left: 10px; font-size: 1.5rem;">Scenes</h2>
+          <div id="scenes" class="scenes"></div>
+        </section>
       </div>
-      <button id="create-project">Create</button>
-      <div id="project-info" class="muted"></div>
-    </section>
-
-    <section class="panel">
-      <h2>Upload audio</h2>
-      <input type="file" id="audio-file" accept="audio/*" />
-      <button id="upload-audio">Upload</button>
-      <div id="upload-status" class="muted"></div>
-      <audio id="audio-player" controls style="width: 100%; margin-top: 10px; display: none;"></audio>
-    </section>
-
-    <section class="panel">
-      <h2>Generate</h2>
-      <button id="run-pipeline">Run pipeline</button>
-      <button id="refresh-jobs">Refresh status</button>
-      <div id="pipeline-progress-container" class="progress-container" style="display: none;">
-        <div class="progress-label">Pipeline: <span id="pipeline-progress-pct">0</span>%</div>
-        <div class="progress-bg">
-          <div id="pipeline-progress-fill" class="progress-fill"></div>
-        </div>
-        <div id="pipeline-step" class="muted" style="font-size: 0.8rem; margin-top: 4px;"></div>
-      </div>
-      <pre id="jobs-status" class="code-block"></pre>
-    </section>
-
-    <section class="panel">
-      <h2>Scenes</h2>
-      <div id="scenes" class="scenes"></div>
-    </section>
-
-    <section class="panel">
-      <h2>Render</h2>
-      <button id="render-project">Render video</button>
-      <div id="render-progress-container" class="progress-container" style="display: none;">
-        <div class="progress-label">Rendering: <span id="render-progress-pct">0</span>%</div>
-        <div class="progress-bg">
-          <div id="render-progress-fill" class="progress-fill"></div>
-        </div>
-      </div>
-      <div id="render-output" class="muted"></div>
-    </section>
+    </div>
   </main>
   <script src="/static/app.js"></script>
 </body>

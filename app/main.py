@@ -87,7 +87,17 @@ async def get_project(project_id: str) -> dict[str, Any]:
     project_path = DATA_DIR / project_id / "project.json"
     if not project_path.exists():
         raise HTTPException(status_code=404, detail="Project not found")
-    return load_json(project_path, {})
+    project = load_json(project_path, {})
+    
+    # Check for existing video render
+    renders_dir = DATA_DIR / project_id / "renders"
+    if renders_dir.exists():
+        # Find newest mp4 file
+        mp4_files = sorted(renders_dir.glob("*.mp4"), key=lambda f: f.stat().st_mtime, reverse=True)
+        if mp4_files:
+            project["video_output"] = f"/projects/{project_id}/renders/{mp4_files[0].name}"
+            
+    return project
 
 
 @app.get("/projects/{project_id}/audio")
@@ -168,6 +178,8 @@ async def update_segment(project_id: str, seg_id: str, payload: SegmentUpdate) -
         prompt["negative_prompt"] = payload.negative_prompt
     if payload.style_hints is not None:
         prompt["style_hints"] = payload.style_hints
+    if payload.effect is not None:
+        segment["effect"] = payload.effect
     prompts[seg_id] = prompt
     write_json(segments_path, segments)
     write_json(prompts_path, prompts)

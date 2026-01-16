@@ -19,6 +19,15 @@ class ProjectResponse(BaseModel):
     format: str
     style: str
     subtitles: bool
+    video_output: Optional[str] = None
+    
+class Segment(BaseModel):
+    id: str
+    start_time: float
+    end_time: float
+    text: str
+    visual_intent: Optional[str]
+    effect: Optional[str] = None
 
 
 class SegmentUpdate(BaseModel):
@@ -26,6 +35,7 @@ class SegmentUpdate(BaseModel):
     image_prompt: Optional[str] = None
     negative_prompt: Optional[str] = None
     style_hints: Optional[str] = None
+    effect: Optional[str] = None
 
 
 class RunResponse(BaseModel):
