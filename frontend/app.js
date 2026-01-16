@@ -138,6 +138,8 @@ async function openProject() {
     if (project.format) formatSelect.value = project.format;
     if (project.style) styleSelect.value = project.style;
     if (project.subtitles !== undefined) subtitlesToggle.checked = project.subtitles;
+    if (project.user_description) document.getElementById('user-description').value = project.user_description;
+    else document.getElementById('user-description').value = '';
 
     if (project.video_output) {
       updatePreview('video', project.video_output);
@@ -157,6 +159,7 @@ async function createProject() {
       format: formatSelect.value,
       style: styleSelect.value,
       subtitles: subtitlesToggle.checked,
+      user_description: document.getElementById('user-description').value,
     }),
   });
   const data = await response.json();

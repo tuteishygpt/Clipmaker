@@ -37,10 +37,20 @@
                 <option value="anime">Anime</option>
                 <option value="illustration">Illustration</option>
                 <option value="abstract">Abstract</option>
+                <option value="cyberpunk">Cyberpunk</option>
+                <option value="watercolor">Watercolor</option>
+                <option value="horror">Horror / Dark</option>
+                <option value="minimalist">Minimalist</option>
               </select></label>
           </div>
           <div class="form-row compact">
             <label class="checkbox"><input type="checkbox" id="subtitles" checked /> Subtitles</label>
+          </div>
+          <div class="form-row">
+            <label style="display:block; margin-bottom:4px">Clip Idea / Narrative</label>
+            <textarea id="user-description" rows="3"
+              placeholder="Describe what happens in the video (e.g. 'A robot exploring a ruined city', 'Abstract shapes dancing to the beat')..."
+              style="width:100%; resize: vertical; margin-bottom: 8px; input-border"></textarea>
           </div>
           <button id="create-project" style="width: 100%">Create Project</button>
           <div id="project-info" class="muted"></div>

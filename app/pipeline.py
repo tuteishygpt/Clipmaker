@@ -16,13 +16,14 @@ class PipelineContext:
     genai: GenAIClient
 
 
+
 def _get_audio_info(project_dir: Path) -> dict[str, Any]:
     import moviepy.editor as mp
     source_dir = project_dir / "source"
     audio_files = list(source_dir.glob("track.*"))
     audio_path = next(iter(audio_files), None)
     if not audio_path:
-        return {"duration": 0.0}
+        return {"duration": 0.0, "path": None}
     
     # We use a temporary clip to get duration
     clip = mp.AudioFileClip(str(audio_path))
@@ -31,11 +32,67 @@ def _get_audio_info(project_dir: Path) -> dict[str, Any]:
     return {"duration": duration, "path": audio_path}
 
 
+def _analyze_audio_technical(audio_path: Path) -> dict[str, Any]:
+    try:
+        import librosa
+        import numpy as np
+    except ImportError:
+        print("Warning: librosa or numpy not found. Skipping technical analysis.")
+        return {}
+    
+    try:
+        y, sr = librosa.load(str(audio_path), sr=None)
+        
+        # Tempo and Beats
+        tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr)
+        beat_times = librosa.frames_to_time(beat_frames, sr=sr)
+        
+        # Energy / Volume (RMS)
+        hop_length = 512
+        rms = librosa.feature.rms(y=y, frame_length=2048, hop_length=hop_length)[0]
+        
+        # Simple stats
+        avg_energy = float(np.mean(rms))
+        max_energy = float(np.max(rms))
+        
+        return {
+            "bpm": float(tempo),
+            "beat_times": beat_times.tolist(),
+            "energy_stats": {
+                "avg": avg_energy,
+                "max": max_energy
+            }
+        }
+    except Exception as e:
+        print(f"Technical analysis failed: {e}")
+        return {}
+
+
 class AudioAnalysisService:
     def run(self, ctx: PipelineContext) -> dict[str, Any]:
         audio_info = _get_audio_info(ctx.project_dir)
-        analysis = ctx.genai.analyze_audio(ctx.project_dir / "source", duration=audio_info["duration"])
+        audio_path = audio_info.get("path")
+        
+        technical_analysis = {}
+        if audio_path:
+             technical_analysis = _analyze_audio_technical(audio_path)
+             
+        project_info = load_json(ctx.project_dir / "project.json", {})
+        user_style = project_info.get("style", "cinematic")
+        user_description = project_info.get("user_description", "")
+
+        analysis = ctx.genai.analyze_audio(
+            audio_path=audio_path, 
+            duration=audio_info["duration"],
+            technical_analysis=technical_analysis,
+            user_style=user_style,
+            user_description=user_description
+        )
+        
         analysis["total_duration"] = audio_info["duration"]
+        # Merge technical stats into analysis for reference if needed
+        analysis["technical_stats"] = technical_analysis
+        
         write_json(ctx.project_dir / "analysis.json", analysis)
         return analysis
 
@@ -78,8 +135,8 @@ class StoryboardService:
 
 
 class PromptFactory:
-    def run(self, ctx: PipelineContext, segments: list[dict[str, Any]]) -> dict[str, Any]:
-        prompts = ctx.genai.build_prompts(segments)
+    def run(self, ctx: PipelineContext, segments: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str, Any]:
+        prompts = ctx.genai.build_prompts(segments, analysis)
         write_json(ctx.project_dir / "prompts.json", prompts)
         return prompts
 
@@ -421,7 +478,7 @@ class PipelineOrchestrator:
         segments = self._run_step("segments", lambda: self.storyboard_service.run(self.ctx, analysis))
         
         update_job(self.ctx.project_id, "pipeline", {"status": "RUNNING", "step": "prompts", "progress": 25})
-        prompts = self._run_step("prompts", lambda: self.prompt_factory.run(self.ctx, segments))
+        prompts = self._run_step("prompts", lambda: self.prompt_factory.run(self.ctx, segments, analysis))
         
         self._run_step("images", lambda: self.image_generation_service.run(self.ctx, prompts, progress_base=30, progress_weight=40))
         video_output = self._run_step("render", lambda: self.render_service.run(self.ctx, job_name="pipeline", progress_base=70, progress_weight=30))

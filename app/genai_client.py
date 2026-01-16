@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import os
 import random
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -61,15 +62,77 @@ class GenAIClient:
             logger.error(f"Failed to parse JSON from response: {e}")
             return {"error": "Failed to parse JSON", "raw": text}
 
-    def analyze_audio(self, source_dir: Path, duration: float = 0.0) -> dict[str, Any]:
+    def analyze_audio(self, audio_path: Path | None, duration: float = 0.0, technical_analysis: dict = None, user_style: str = "cinematic", user_description: str = "") -> dict[str, Any]:
+        file_ref = None
+        if audio_path and audio_path.exists():
+            try:
+                # Upload the file
+                logger.info(f"Uploading audio file: {audio_path}")
+                file_ref = self._client.files.upload(path=str(audio_path))
+                
+                # Wait for processing
+                while file_ref.state.name == "PROCESSING":
+                    time.sleep(1)
+                    file_ref = self._client.files.get(name=file_ref.name)
+                
+                if file_ref.state.name == "FAILED":
+                    logger.error("Audio file processing failed in Gemini.")
+                    file_ref = None
+                else:
+                    logger.info(f"Audio file uploaded and processed: {file_ref.name}")
+                    
+            except Exception as e:
+                logger.error(f"Failed to upload audio file: {e}")
+                file_ref = None
+
+        tech_context = ""
+        if technical_analysis:
+            tech_context = f"\nTechnical Analysis Data (librosa):\n{json.dumps(technical_analysis, indent=2)}\n"
+
         prompt = f"""
-        Analyze the audio track in this song for create a video clip. 
+        Analyze the audio track in this song to create a video clip. 
         The total duration of the audio is {duration:.2f} seconds.
-        Provide a summary, and a list of segments with start_time, end_time, speaker, text, and emotion.
-        Make sure segments cover the entire {duration:.2f} seconds without gaps.
-        Return as a JSON object.
+        
+        USER REQUEST / PLOT DESCRIPTION:
+        "{user_description}"
+        (This is the most important instruction. The narrative, metaphors, and events MUST follow this description if provided. If empty, invent a creative one).
+        
+        The user has requested the visual style: "{user_style}".
+        
+        {tech_context}
+        
+        Please provide:
+        1. A summary of the song's energy, mood, and style.
+        2. A "global_visual_narrative": A single, cohesive visual metaphor or story concept (e.g. "journey of an abandoned robot" or "a cyber-gothic dance in rain") that will persist throughout the video. If the user provided a plot description, adapt it here.
+        3. A "visual_style_anchor": A specific, consistent visual style description BASED ON "{user_style}" (e.g. if user said "Anime", generate "90s Cyberpunk Anime, high contrast").
+        4. A list of segments that cover the ENTIRE duration ({duration:.2f}s).
+        
+        For each segment, identify:
+        - start_time and end_time (0.0 to {duration:.2f})
+        - speaker (if vocals generally)
+        - text (lyrics)
+        - emotion
+        - instrumentation (e.g. "guitar solo", "heavy drums", "minimal synth")
+        - section_type (e.g. "intro", "verse", "chorus", "bridge", "drop", "climax", "outro")
+        - acoustic_environment (e.g. "studio", "live hall", "lo-fi", "underwater", "echoey")
+        
+        Ensure:
+        - Segments have NO GAPS and NO OVERLAPS.
+        - The sequence covers exactly from 0.0 to {duration:.2f}.
+        - Use the Technical Analysis (BPM, Energy) to align segments with beats and intense moments if possible.
+        
+        Return as a JSON object with keys: "summary", "global_visual_narrative", "visual_style_anchor", "segments".
         """
-        response = self._client.models.generate_content(model=self.config.model_text, contents=[prompt])
+        
+        contents = [prompt]
+        if file_ref:
+            contents.append(file_ref)
+            
+        logger.info("Sending analysis request to Gemini...")
+        response = self._client.models.generate_content(
+            model=self.config.model_text, 
+            contents=contents
+        )
         return self._extract_json(response.text)
 
     def build_storyboard(self, analysis: dict[str, Any], total_duration: float = 0.0) -> list[dict[str, Any]]:
@@ -79,13 +142,19 @@ class GenAIClient:
         Create a storyboard as a JSON list of segments.
         The total duration MUST be EXACTLY {total_duration:.2f} seconds.
         
+        Follow the "global_visual_narrative" defined in the analysis. The video must feel like a cohesive film with a clear Narrative Arc (Beginning, Development, Climax).
+        
+        Crucial: React to changes in music intensity (from technical analysis stats or section_type) by changing the INTENSITY of the plot/visuals. 
+        - If the music builds up (climax/drop), the visuals must become more massive, dynamic, or fast-paced.
+        - If the music is calm, the visuals should be steady and atmospheric.
+        
         Each segment MUST have:
         - id: a unique string like "seg_1", "seg_2", etc.
         - start_time: "MM:SS" (or total seconds)
         - end_time: "MM:SS" (or total seconds)
         - lyric_text: the transcript for this segment
-        - visual_intent: a detailed description of what should be on screen
-        - camera_angle: suggested camera shot (e.g. "Close-up", "Wide shot")
+        - visual_intent: a detailed description of what should be on screen, following the global narrative and current intensity.
+        - camera_angle: suggested camera shot (e.g. "Close-up", "Wide shot", "Drone shot")
         - emotion: the detected emotion
         
         IMPORTANT: The segments MUST tile the entire {total_duration:.2f} seconds. 
@@ -103,9 +172,17 @@ class GenAIClient:
             return data
         return []
 
-    def build_prompts(self, segments: list[dict[str, Any]]) -> dict[str, Any]:
+    def build_prompts(self, segments: list[dict[str, Any]], analysis: dict[str, Any] | None = None) -> dict[str, Any]:
+        style_anchor = ""
+        if analysis and "visual_style_anchor" in analysis:
+            style_anchor = analysis["visual_style_anchor"]
+            
         prompt = f"""
         For each of these segments, create a detailed image generation prompt.
+        
+        Global Style Anchor: "{style_anchor}" 
+        (YOU MUST APPEND THIS EXACT STYLE DESCRIPTION TO EVERY SINGLE PROMPT TO ENSURE CONSISTENCY).
+        
         Segments: {segments}
         
         Return a JSON object where keys are the segment IDs ("seg_1", etc.) and values are objects containing:

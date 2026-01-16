@@ -9,6 +9,7 @@ class ProjectCreate(BaseModel):
     format: str = Field(default="9:16")
     style: str = Field(default="cinematic")
     subtitles: bool = Field(default=True)
+    user_description: Optional[str] = None
 
 
 class ProjectResponse(BaseModel):
@@ -19,6 +20,7 @@ class ProjectResponse(BaseModel):
     format: str
     style: str
     subtitles: bool
+    user_description: Optional[str] = None
     video_output: Optional[str] = None
     
 class Segment(BaseModel):

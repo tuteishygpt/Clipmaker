@@ -42,6 +42,7 @@ def create_project(payload: dict[str, Any]) -> dict[str, Any]:
         "format": payload.get("format", "9:16"),
         "style": payload.get("style", "cinematic"),
         "subtitles": payload.get("subtitles", True),
+        "user_description": payload.get("user_description", ""),
     }
     write_json(paths["project"] / "project.json", project_data)
     return project_data
