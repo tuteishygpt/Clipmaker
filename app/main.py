@@ -100,6 +100,14 @@ async def get_project(project_id: str) -> dict[str, Any]:
     return project
 
 
+@app.get("/projects/{project_id}/analysis")
+async def get_analysis(project_id: str) -> dict[str, Any]:
+    analysis_path = DATA_DIR / project_id / "analysis.json"
+    if not analysis_path.exists():
+        raise HTTPException(status_code=404, detail="Analysis not ready")
+    return load_json(analysis_path, {})
+
+
 @app.get("/projects/{project_id}/audio")
 async def get_project_audio(project_id: str) -> FileResponse:
     source_dir = DATA_DIR / project_id / "source"
@@ -227,4 +235,26 @@ async def get_render(project_id: str, render_name: str) -> FileResponse:
     render_path = DATA_DIR / project_id / "renders" / render_name
     if not render_path.exists():
         raise HTTPException(status_code=404, detail="Render not found")
-    return FileResponse(render_path)
+    return FileResponse(render_path, media_type="video/mp4")
+
+
+@app.get("/projects/{project_id}/download")
+async def download_project_video(project_id: str) -> FileResponse:
+    renders_dir = DATA_DIR / project_id / "renders"
+    if not renders_dir.exists():
+        raise HTTPException(status_code=404, detail="No renders found")
+    
+    # Find newest mp4 file
+    mp4_files = sorted(renders_dir.glob("*.mp4"), key=lambda f: f.stat().st_mtime, reverse=True)
+    if not mp4_files:
+        raise HTTPException(status_code=404, detail="Video not found")
+        
+    video_path = mp4_files[0]
+    filename = video_path.name
+    
+    return FileResponse(
+        path=video_path,
+        media_type="video/mp4",
+        filename=filename,
+        headers={"Content-Type": "video/mp4"}
+    )

@@ -111,8 +111,12 @@ class StoryboardService:
                 seg["_orig_duration"] = max(0.1, e - s)
                 total_suggested += seg["_orig_duration"]
             
-            # Scale durations to fit exactly
+            # Scale durations to fit exactly and SNAP TO BEATS
             current_time = 0.0
+            beat_times = []
+            if "technical_stats" in analysis and "beat_times" in analysis["technical_stats"]:
+                beat_times = analysis["technical_stats"].get("beat_times", [])
+
             for i, seg in enumerate(segments):
                 # Calculate proportional duration
                 weight = seg.pop("_orig_duration")
@@ -126,7 +130,26 @@ class StoryboardService:
                 if i == len(segments) - 1:
                     seg["end_time"] = duration
                 else:
-                    seg["end_time"] = current_time + seg_duration
+                    ideal_end = current_time + seg_duration
+                    actual_end = ideal_end
+                    
+                    # Beat Snapping Logic
+                    if beat_times:
+                        # Filter beats that are reasonable (after start, before total end)
+                        # We want a beat that is close to ideal_end
+                        # Only consider beats that allow for at least 1.0s segment duration to avoid jitter
+                        valid_beats = [b for b in beat_times if current_time + 1.0 < b < duration - 1.0]
+                        
+                        if valid_beats:
+                            # Find beat closest to ideal_end
+                            closest_beat = min(valid_beats, key=lambda x: abs(x - ideal_end))
+                            
+                            # Tolerance: only snap if the beat is within 1.5 second of the suggestion
+                            # This allows "correction" but prevents completely changing the scene flow
+                            if abs(closest_beat - ideal_end) < 1.5:
+                                actual_end = closest_beat
+
+                    seg["end_time"] = actual_end
                 
                 current_time = seg["end_time"]
 

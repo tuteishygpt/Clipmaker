@@ -23,6 +23,8 @@ const jobsStatus = document.getElementById('jobs-status');
 const scenesContainer = document.getElementById('scenes');
 const renderButton = document.getElementById('render-project');
 const renderOutput = document.getElementById('render-output');
+const analysisContent = document.getElementById('analysis-content');
+const refreshAnalysisButton = document.getElementById('refresh-analysis');
 
 // Video preview elements
 const previewPlaceholder = document.getElementById('preview-placeholder');
@@ -71,14 +73,22 @@ function updatePreview(type, src) {
     previewImage.style.display = 'none';
     previewVideo.style.display = 'block';
 
-    // Set src if missing or Different
-    const currentSrc = previewVideo.getAttribute('src');
-    if (!currentSrc || !src.includes(currentSrc)) {
+    // Set src if missing or different
+    // Use the property .src which is the full URL for more reliable comparison
+    const fullSrc = new URL(src, window.location.origin).href;
+    if (previewVideo.src !== fullSrc) {
       previewVideo.src = src;
+      previewVideo.load();
     }
 
     downloadVideo.style.display = 'inline-block';
-    downloadVideo.href = src;
+
+    // Use the dedicated download endpoint
+    const downloadUrl = `/projects/${state.projectId}/download?t=${Date.now()}`;
+    downloadVideo.onclick = null;
+    downloadVideo.href = downloadUrl;
+    // Force download attribute to help browser recognize it as a file save
+    downloadVideo.setAttribute('download', '');
   }
 }
 
@@ -93,7 +103,12 @@ async function loadAudioPlayer(projectId) {
   audioPlayer.src = audioUrl;
 
   audioPlayer.onloadedmetadata = () => {
-    audioPlayer.style.display = 'block';
+    // Only show audio player if video is NOT ready
+    if (state.videoOutput) {
+      audioPlayer.style.display = 'none';
+    } else {
+      audioPlayer.style.display = 'block';
+    }
   };
 
   audioPlayer.onerror = () => {
@@ -146,6 +161,7 @@ async function openProject() {
     }
 
     await refreshJobs();
+    await loadAnalysis();
   } catch (e) {
     console.error('Failed to open project', e);
   }
@@ -243,6 +259,7 @@ async function refreshJobs() {
       pipePct.textContent = '100';
       pipeFill.style.width = '100%';
       pipeStep.textContent = 'Complete';
+      jobsStatus.textContent = 'Pipeline complete! Video is ready below.';
       setTimeout(() => {
         if (pipeJob.status === 'DONE') pipeContainer.style.display = 'none';
       }, 5000);
@@ -257,6 +274,13 @@ async function refreshJobs() {
   const renderJob = jobs.render;
   let videoReadyUrl = null;
 
+  if (pipeJob && pipeJob.status === 'DONE' && pipeJob.output) {
+    const parts = pipeJob.output.split(/[\\/]/);
+    const filename = parts[parts.length - 1];
+    videoReadyUrl = `/projects/${state.projectId}/renders/${filename}`;
+    state.videoOutput = videoReadyUrl;
+  }
+
   if (renderJob) {
     if (renderJob.status === 'RUNNING') {
       renderContainer.style.display = 'block';
@@ -267,6 +291,7 @@ async function refreshJobs() {
     } else if (renderJob.status === 'DONE') {
       renderPctValue.textContent = '100';
       renderFill.style.width = '100%';
+      renderOutput.textContent = 'Render complete! Video is ready.';
       setTimeout(() => {
         if (renderJob.status === 'DONE') renderContainer.style.display = 'none';
       }, 5000);
@@ -275,6 +300,7 @@ async function refreshJobs() {
         const parts = renderJob.output.split(/[\\/]/);
         const filename = parts[parts.length - 1];
         videoReadyUrl = `/projects/${state.projectId}/renders/${filename}`;
+        state.videoOutput = videoReadyUrl;
       }
     } else if (renderJob.status === 'FAILED') {
       renderContainer.style.display = 'block';
@@ -293,6 +319,9 @@ async function refreshJobs() {
 
   if (videoReadyUrl) {
     updatePreview('video', videoReadyUrl);
+    // Hide audio player if video is ready to avoid confusion
+    audioPlayer.style.display = 'none';
+    audioPlayer.pause();
   } else if (segments && segments.length > 0) {
     const withImages = segments.filter(s => s.thumbnail);
     if (withImages.length > 0) {
@@ -313,6 +342,102 @@ async function refreshJobs() {
   }
 
   jobsStatus.textContent = JSON.stringify(data, null, 2);
+
+  // Also refresh analysis if complete
+  if (pipeJob && pipeJob.status === 'DONE') {
+    loadAnalysis();
+  }
+}
+
+async function loadAnalysis() {
+  if (!state.projectId) {
+    console.warn('loadAnalysis called without projectId');
+    return;
+  }
+
+  try {
+    const response = await fetch(`/projects/${state.projectId}/analysis?t=${Date.now()}`);
+    if (!response.ok) {
+      analysisContent.innerHTML = '<p class="muted">Analysis not available yet (start generation first).</p>';
+      return;
+    }
+    const data = await response.json();
+
+    if (!data || Object.keys(data).length === 0) {
+      analysisContent.innerHTML = '<p class="muted">Analysis file is empty.</p>';
+      return;
+    }
+
+    let html = '<div class="analysis-dump">';
+
+    // Global Fields
+    const globals = [
+      { key: 'summary', label: 'Summary' },
+      { key: 'global_visual_narrative', label: 'Narrative' },
+      { key: 'visual_style_anchor', label: 'Visual Style' },
+      { key: 'total_duration', label: 'Duration' }
+    ];
+
+    let hasGlobals = false;
+    globals.forEach(item => {
+      if (data[item.key]) {
+        hasGlobals = true;
+        html += `<div style="margin-bottom: 16px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">
+                <strong style="color: #4f46e5; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em;">${item.label}</strong>
+                <div style="margin-top: 6px; font-size: 0.9rem; color: #334155;">${data[item.key]}</div>
+            </div>`;
+      }
+    });
+
+    // Technical Stats
+    if (data.technical_stats) {
+      hasGlobals = true;
+      html += `<div style="margin-bottom: 16px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">
+            <strong style="color: #4f46e5; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em;">Technical Stats</strong>
+            <div style="font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.75rem; margin-top: 8px; background: #f1f5f9; padding: 8px; border-radius: 6px;">
+                BPM: <span style="color: #059669; font-weight: 600;">${data.technical_stats.bpm ? Math.round(data.technical_stats.bpm) : 'N/A'}</span><br>
+                Beats: ${data.technical_stats.beat_times ? data.technical_stats.beat_times.length : 0}<br>
+                Energy: ${data.technical_stats.energy_stats ? data.technical_stats.energy_stats.avg.toFixed(4) : 'N/A'}
+            </div>
+        </div>`;
+    }
+
+    // Segments Table
+    if (data.segments && data.segments.length > 0) {
+      hasGlobals = true;
+      html += `<strong style="color: #4f46e5; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em; display: block; margin-bottom: 8px;">LLM Segments</strong>`;
+      html += `<div style="overflow-x: auto;"><table style="width: 100%; border-collapse: collapse; font-size: 0.7rem;">
+            <thead>
+                <tr style="text-align: left; background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                    <th style="padding: 8px 4px; border: 1px solid #e2e8f0;">Time</th>
+                    <th style="padding: 8px 4px; border: 1px solid #e2e8f0;">Section</th>
+                    <th style="padding: 8px 4px; border: 1px solid #e2e8f0;">Text / Lyrics</th>
+                </tr>
+            </thead>
+            <tbody>`;
+
+      data.segments.forEach(seg => {
+        html += `<tr style="border-bottom: 1px solid #f1f5f9;">
+                <td style="padding: 6px 4px; border: 1px solid #e2e8f0; white-space: nowrap; font-weight: 500;">${seg.start_time}-${seg.end_time}</td>
+                <td style="padding: 6px 4px; border: 1px solid #e2e8f0; color: #6366f1;">${seg.section_type || ''}</td>
+                <td style="padding: 6px 4px; border: 1px solid #e2e8f0;">${seg.text || seg.lyric_text || ''}</td>
+            </tr>`;
+      });
+      html += `</tbody></table></div>`;
+    }
+
+    // Fallback if no specific keys found but data exists
+    if (!hasGlobals) {
+      html += `<strong style="color: #4f46e5; text-transform: uppercase; font-size: 0.7rem;">Raw Analysis</strong>
+                 <pre style="font-size: 0.7rem; background: #f1f5f9; padding: 10px; border-radius: 6px; overflow: auto;">${JSON.stringify(data, null, 2)}</pre>`;
+    }
+
+    html += '</div>';
+    analysisContent.innerHTML = html;
+  } catch (e) {
+    console.error('Failed to load analysis', e);
+    analysisContent.innerHTML = `<p class="error">Failed to load analysis: ${e.message}</p>`;
+  }
 }
 
 async function loadScenes() {
@@ -437,6 +562,7 @@ uploadButton.addEventListener('click', uploadAudio);
 runButton.addEventListener('click', runPipeline);
 refreshButton.addEventListener('click', refreshJobs);
 renderButton.addEventListener('click', renderVideo);
+refreshAnalysisButton.addEventListener('click', loadAnalysis);
 
 // Initialize
 loadProjects();

@@ -321,6 +321,49 @@ button:active {
   box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
 
+.top-row {
+  display: flex;
+  gap: 24px;
+  align-items: stretch;
+  margin-bottom: 32px;
+  width: 100%;
+}
+
+@media (max-width: 1400px) {
+
+  /* If container is 1400 but sidebar + 2 columns don't fit well */
+  .top-row {
+    gap: 16px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .top-row {
+    flex-direction: column;
+  }
+}
+
+.analysis-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 450px;
+  background: #ffffff;
+}
+
+.analysis-scroll-area {
+  flex-grow: 1;
+  overflow-y: auto;
+  min-height: 300px;
+  max-height: 600px;
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
 /* Cinema Panel */
 .cinema-panel {
   background: #000;
@@ -331,8 +374,7 @@ button:active {
   border: 1px solid #334155;
   display: flex;
   flex-direction: column;
-  max-width: 640px;
-  margin-bottom: 32px;
+  flex: 1.2;
 }
 
 .preview-box {

@@ -50,7 +50,7 @@
             <label style="display:block; margin-bottom:4px">Clip Idea / Narrative</label>
             <textarea id="user-description" rows="3"
               placeholder="Describe what happens in the video (e.g. 'A robot exploring a ruined city', 'Abstract shapes dancing to the beat')..."
-              style="width:100%; resize: vertical; margin-bottom: 8px; input-border"></textarea>
+              style="width:100%; resize: vertical; margin-bottom: 8px; border: 1px solid #e2e8f0; border-radius: 4px; padding: 8px;"></textarea>
           </div>
           <button id="create-project" style="width: 100%">Create Project</button>
           <div id="project-info" class="muted"></div>
@@ -82,38 +82,55 @@
             </div>
           </div>
           <div id="render-output" class="muted"></div>
+        </section>
+
+        <section class="panel" style="display:none;">
+          <h2>Jobs Status</h2>
           <button id="refresh-jobs" class="secondary-btn" style="width:100%; margin-top:10px;">Refresh Status</button>
-          <pre id="jobs-status" class="code-block" style="display:none;"></pre>
+          <pre id="jobs-status" class="code-block"></pre>
         </section>
       </div>
 
       <div class="main-content">
-        <section class="panel cinema-panel">
-          <div id="preview-container" class="preview-box">
-            <div id="preview-placeholder">
-              <div class="placeholder-icon">🎬</div>
-              <p>Preview will appear here</p>
+        <div class="top-row">
+          <section class="panel cinema-panel">
+            <div id="preview-container" class="preview-box">
+              <div id="preview-placeholder">
+                <div class="placeholder-icon">🎬</div>
+                <p>Preview will appear here</p>
+              </div>
+              <img id="preview-image" src="" style="display: none;" />
+              <video id="preview-video" controls style="display: none;"></video>
             </div>
-            <img id="preview-image" src="" style="display: none;" />
-            <video id="preview-video" controls style="display: none;"></video>
-          </div>
-          <div class="timeline-wrapper">
-            <div id="timeline-markers" class="timeline-markers"></div>
-            <div id="timeline-progress" class="timeline-progress"></div>
-          </div>
-          <div class="preview-controls">
-            <a id="download-video" class="button-link" href="#" download style="display: none;">Download Video</a>
-          </div>
-        </section>
+            <div class="timeline-wrapper">
+              <div id="timeline-markers" class="timeline-markers"></div>
+              <div id="timeline-progress" class="timeline-progress"></div>
+            </div>
+            <div class="preview-controls">
+              <a id="download-video" class="button-link" href="#" download style="display: none;">Download Video</a>
+            </div>
+          </section>
+
+          <section class="panel analysis-panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+              <h2 style="margin: 0;">Analysis Data</h2>
+              <button id="refresh-analysis" class="secondary-btn"
+                style="padding: 6px 12px; font-size: 0.75rem;">Refresh</button>
+            </div>
+            <div id="analysis-content" class="analysis-scroll-area">
+              <p class="muted">No analysis data loaded.</p>
+            </div>
+          </section>
+        </div>
 
         <section class="panel" style="background: transparent; box-shadow: none; border: none; padding: 0;">
           <h2 style="margin-left: 10px; font-size: 1.5rem;">Scenes</h2>
-          <div id="scenes" class="scenes"></div>
+          <div id="scenes" class="scenes" style="margin-top: 20px;"></div>
         </section>
       </div>
     </div>
   </main>
-  <script src="/static/app.js"></script>
+  <script src="/static/app.js?v=20240117"></script>
 </body>
 
 </html>

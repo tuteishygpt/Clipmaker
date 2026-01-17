@@ -37,8 +37,8 @@ class GenAIClient:
     def from_env(cls) -> "GenAIClient":
         load_dotenv()
         api_key = os.getenv("GENAI_API_KEY")
-        model_text = os.getenv("GENAI_TEXT_MODEL", "gemini-2.0-flash-exp")
-        model_image = os.getenv("GENAI_IMAGE_MODEL", "imagen-3.0-generate-001")
+        model_text = os.getenv("GENAI_TEXT_MODEL", "gemini-2.5-flash")
+        model_image = os.getenv("GENAI_IMAGE_MODEL", "gemini-2.5-flash-image")
         
         if api_key:
             logger.info("API token loaded successfully (length: %d)", len(api_key))
@@ -147,6 +147,12 @@ class GenAIClient:
         Crucial: React to changes in music intensity (from technical analysis stats or section_type) by changing the INTENSITY of the plot/visuals. 
         - If the music builds up (climax/drop), the visuals must become more massive, dynamic, or fast-paced.
         - If the music is calm, the visuals should be steady and atmospheric.
+        
+        PACING INSTRUCTION:
+        - The user wants a dynamic video with MANY segments.
+        - Aim for segment durations between 2 and 5 seconds for most parts.
+        - Only use longer segments (up to 8s) for very slow, atmospheric parts.
+        - Avoid creating few long segments. We need a high "segment density".
         
         Each segment MUST have:
         - id: a unique string like "seg_1", "seg_2", etc.
