@@ -1,94 +1,98 @@
+"""Google GenAI client for text and image generation."""
 from __future__ import annotations
 
-
-import os
-import random
+import json
+import re
 import time
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 from google import genai
 from google.genai import types
 
+from ..core.config import settings
+from ..core.logging import get_logger
 
-import logging
-import json
-import re
-
-from dotenv import load_dotenv
-
-logger = logging.getLogger(__name__)
-
-
-@dataclass
-class GenAIConfig:
-    api_key: str | None
-    model_text: str
-    model_image: str
+logger = get_logger(__name__)
 
 
 class GenAIClient:
-    def __init__(self, config: GenAIConfig) -> None:
-        self.config = config
-        self._client = genai.Client(api_key=config.api_key)
-
-    @classmethod
-    def from_env(cls) -> "GenAIClient":
-        load_dotenv()
-        api_key = os.getenv("GENAI_API_KEY")
-        model_text = os.getenv("GENAI_TEXT_MODEL", "gemini-2.5-flash")
-        model_image = os.getenv("GENAI_IMAGE_MODEL", "gemini-2.5-flash-image")
+    """Client for Google Generative AI (Gemini)."""
+    
+    def __init__(
+        self,
+        api_key: str | None = None,
+        text_model: str | None = None,
+        image_model: str | None = None,
+    ) -> None:
+        self.api_key = api_key or settings.genai_api_key
+        self.text_model = text_model or settings.genai_text_model
+        self.image_model = image_model or settings.genai_image_model
         
-        if api_key:
-            logger.info("API token loaded successfully (length: %d)", len(api_key))
+        self._client = genai.Client(api_key=self.api_key)
+        
+        if self.api_key:
+            logger.info("GenAI client initialized (API key length: %d)", len(self.api_key))
         else:
-            logger.warning("API token NOT found in environment. GENAI_API_KEY is missing.")
-            
-        return cls(GenAIConfig(api_key=api_key, model_text=model_text, model_image=model_image))
-
+            logger.warning("GenAI client initialized without API key!")
+    
     def _extract_json(self, text: str) -> Any:
+        """Extract JSON from model response text."""
         try:
             # Try to find JSON in code blocks
             match = re.search(r"```json\s*(.*?)\s*```", text, re.DOTALL)
             if match:
                 return json.loads(match.group(1))
+            
             # Try to find anything that looks like JSON
             match = re.search(r"({.*}|\[.*\])", text, re.DOTALL)
             if match:
                 return json.loads(match.group(1))
+            
             return json.loads(text)
         except Exception as e:
             logger.error(f"Failed to parse JSON from response: {e}")
             return {"error": "Failed to parse JSON", "raw": text}
-
-    def analyze_audio(self, audio_path: Path | None, duration: float = 0.0, technical_analysis: dict = None, user_style: str = "cinematic", user_description: str = "") -> dict[str, Any]:
+    
+    def _upload_file(self, path: Path) -> Any | None:
+        """Upload a file to GenAI and wait for processing."""
+        try:
+            logger.info(f"Uploading file: {path}")
+            file_ref = self._client.files.upload(path=str(path))
+            
+            # Wait for processing
+            while file_ref.state.name == "PROCESSING":
+                time.sleep(1)
+                file_ref = self._client.files.get(name=file_ref.name)
+            
+            if file_ref.state.name == "FAILED":
+                logger.error("File processing failed in Gemini.")
+                return None
+            
+            logger.info(f"File uploaded and processed: {file_ref.name}")
+            return file_ref
+            
+        except Exception as e:
+            logger.error(f"Failed to upload file: {e}")
+            return None
+    
+    def analyze_audio(
+        self,
+        audio_path: Path | None,
+        duration: float = 0.0,
+        technical_analysis: dict | None = None,
+        user_style: str = "cinematic",
+        user_description: str = "",
+    ) -> dict[str, Any]:
+        """Analyze audio track for video clip creation."""
         file_ref = None
         if audio_path and audio_path.exists():
-            try:
-                # Upload the file
-                logger.info(f"Uploading audio file: {audio_path}")
-                file_ref = self._client.files.upload(path=str(audio_path))
-                
-                # Wait for processing
-                while file_ref.state.name == "PROCESSING":
-                    time.sleep(1)
-                    file_ref = self._client.files.get(name=file_ref.name)
-                
-                if file_ref.state.name == "FAILED":
-                    logger.error("Audio file processing failed in Gemini.")
-                    file_ref = None
-                else:
-                    logger.info(f"Audio file uploaded and processed: {file_ref.name}")
-                    
-            except Exception as e:
-                logger.error(f"Failed to upload audio file: {e}")
-                file_ref = None
-
+            file_ref = self._upload_file(audio_path)
+        
         tech_context = ""
         if technical_analysis:
             tech_context = f"\nTechnical Analysis Data (librosa):\n{json.dumps(technical_analysis, indent=2)}\n"
-
+        
         prompt = f"""
         Analyze the audio track in this song to create a video clip. 
         The total duration of the audio is {duration:.2f} seconds.
@@ -127,15 +131,20 @@ class GenAIClient:
         contents = [prompt]
         if file_ref:
             contents.append(file_ref)
-            
-        logger.info("Sending analysis request to Gemini...")
+        
+        logger.info("Sending audio analysis request to Gemini...")
         response = self._client.models.generate_content(
-            model=self.config.model_text, 
+            model=self.text_model,
             contents=contents
         )
         return self._extract_json(response.text)
-
-    def build_storyboard(self, analysis: dict[str, Any], total_duration: float = 0.0) -> list[dict[str, Any]]:
+    
+    def build_storyboard(
+        self,
+        analysis: dict[str, Any],
+        total_duration: float = 0.0,
+    ) -> list[dict[str, Any]]:
+        """Build storyboard segments from analysis."""
         prompt = f"""
         Based on this analysis: {analysis}
         
@@ -170,19 +179,29 @@ class GenAIClient:
         
         Return ONLY the JSON list.
         """
-        response = self._client.models.generate_content(model=self.config.model_text, contents=[prompt])
+        
+        response = self._client.models.generate_content(
+            model=self.text_model,
+            contents=[prompt]
+        )
         data = self._extract_json(response.text)
+        
         if isinstance(data, dict) and "segments" in data:
             return data["segments"]
         if isinstance(data, list):
             return data
         return []
-
-    def build_prompts(self, segments: list[dict[str, Any]], analysis: dict[str, Any] | None = None) -> dict[str, Any]:
+    
+    def build_prompts(
+        self,
+        segments: list[dict[str, Any]],
+        analysis: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Build image generation prompts for segments."""
         style_anchor = ""
         if analysis and "visual_style_anchor" in analysis:
             style_anchor = analysis["visual_style_anchor"]
-            
+        
         prompt = f"""
         For each of these segments, create a detailed image generation prompt.
         
@@ -199,29 +218,35 @@ class GenAIClient:
         
         Return ONLY the JSON object.
         """
-        response = self._client.models.generate_content(model=self.config.model_text, contents=[prompt])
+        
+        response = self._client.models.generate_content(
+            model=self.text_model,
+            contents=[prompt]
+        )
         data = self._extract_json(response.text)
+        
         if isinstance(data, dict):
-            # If the LLM returned it wrapped in another key
             if "prompts" in data and isinstance(data["prompts"], dict):
                 return data["prompts"]
             return data
         return {}
-
+    
     def generate_image(self, prompt_payload: dict[str, Any]) -> bytes:
+        """Generate an image from a prompt."""
         prompt = prompt_payload.get("image_prompt", "Cinematic scene")
+        
         try:
-            # Check if we are using an Imagen model (legacy/specific)
-            if "imagen" in self.config.model_image.lower():
+            # Check if we are using an Imagen model
+            if "imagen" in self.image_model.lower():
                 response = self._client.models.generate_images(
-                    model=self.config.model_image,
+                    model=self.image_model,
                     prompt=prompt
                 )
                 if response.generated_images:
                     return response.generated_images[0].image.image_bytes
                 return b""
-
-            # Logic for Gemini 2.5+ Flash Image / Multimodal Generation
+            
+            # Logic for Gemini Flash Image / Multimodal Generation
             contents = [
                 types.Content(
                     role="user",
@@ -231,16 +256,12 @@ class GenAIClient:
                 ),
             ]
             
-            # We request only IMAGE modality effectively by ignoring text output if possible, 
-            # but per user example: response_modalities=["IMAGE", "TEXT"]
             generate_content_config = types.GenerateContentConfig(
                 response_modalities=["IMAGE"],
             )
-
-            # Use stream as per user example, or regular generate_content. 
-            # Using stream to be safe and close to user example style.
+            
             for chunk in self._client.models.generate_content_stream(
-                model=self.config.model_image,
+                model=self.image_model,
                 contents=contents,
                 config=generate_content_config,
             ):
@@ -258,7 +279,7 @@ class GenAIClient:
                     return part.inline_data.data
             
             return b""
+            
         except Exception as e:
             logger.error(f"Image generation failed: {e}")
-            # Try to print more info if available
             return b""

@@ -1,0 +1,250 @@
+"""Project API routes."""
+from __future__ import annotations
+
+from typing import Any
+
+from fastapi import APIRouter, BackgroundTasks, File, HTTPException, UploadFile
+from fastapi.responses import FileResponse
+
+from ..schemas.project import ProjectCreate, ProjectResponse
+from ..schemas.segment import SegmentUpdate
+from ..schemas.common import RunResponse
+from ..repositories.project_repo import ProjectRepository
+from ..repositories.file_storage import FileStorage
+from ..services.pipeline_service import PipelineService
+from ..services.image_service import ImageService
+from ..core.logging import get_logger
+
+logger = get_logger(__name__)
+
+router = APIRouter(prefix="/projects", tags=["projects"])
+
+# Initialize dependencies
+project_repo = ProjectRepository()
+file_storage = FileStorage()
+pipeline_service = PipelineService(project_repo, file_storage)
+image_service = ImageService(project_repo=project_repo, file_storage=file_storage)
+
+
+@router.get("", response_model=list[ProjectResponse])
+async def list_projects() -> list[dict[str, Any]]:
+    """List all projects."""
+    return project_repo.list_all()
+
+
+@router.post("", response_model=ProjectResponse)
+async def create_project(payload: ProjectCreate) -> dict[str, Any]:
+    """Create a new project."""
+    return project_repo.create(payload.model_dump())
+
+
+@router.get("/{project_id}", response_model=ProjectResponse)
+async def get_project(project_id: str) -> dict[str, Any]:
+    """Get project details."""
+    project = project_repo.get(project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Check for existing video render
+    latest_render = file_storage.get_latest_render(project_id)
+    if latest_render:
+        project["video_output"] = f"/projects/{project_id}/renders/{latest_render.name}"
+    
+    return project
+
+
+@router.post("/{project_id}/upload", response_model=RunResponse)
+async def upload_audio(project_id: str, audio: UploadFile = File(...)) -> RunResponse:
+    """Upload audio file for a project."""
+    if not project_repo.exists(project_id):
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    project_repo.ensure_dirs(project_id)
+    file_storage.save_audio(project_id, audio.file, audio.filename or "track.wav")
+    project_repo.update(project_id, {"status": "UPLOADED"})
+    
+    return RunResponse(status="OK", message="Audio uploaded")
+
+
+@router.post("/{project_id}/run", response_model=RunResponse)
+async def run_project(project_id: str, background: BackgroundTasks) -> RunResponse:
+    """Start the video generation pipeline."""
+    if not project_repo.exists(project_id):
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    project_repo.update(project_id, {"status": "RUNNING"})
+    project_repo.update_job(project_id, "pipeline", {"status": "RUNNING", "step": "queued"})
+    
+    background.add_task(pipeline_service.run_full_pipeline, project_id)
+    
+    return RunResponse(status="OK", message="Pipeline started")
+
+
+@router.get("/{project_id}/analysis")
+async def get_analysis(project_id: str) -> dict[str, Any]:
+    """Get audio analysis results."""
+    analysis = project_repo.get_analysis(project_id)
+    if not analysis:
+        raise HTTPException(status_code=404, detail="Analysis not ready")
+    return analysis
+
+
+@router.get("/{project_id}/audio")
+async def get_project_audio(project_id: str) -> FileResponse:
+    """Get the project's audio file."""
+    audio_path = file_storage.get_audio_path(project_id)
+    if not audio_path:
+        raise HTTPException(status_code=404, detail="Audio not found")
+    
+    media_type = "audio/wav"
+    if audio_path.suffix == ".mp3":
+        media_type = "audio/mpeg"
+    
+    return FileResponse(audio_path, media_type=media_type)
+
+
+@router.get("/{project_id}/segments")
+async def get_segments(project_id: str) -> dict[str, Any]:
+    """Get storyboard segments."""
+    segments = project_repo.get_segments(project_id)
+    if not segments:
+        raise HTTPException(status_code=404, detail="Segments not ready")
+    
+    # Handle malformed segments
+    if isinstance(segments, list) and len(segments) == 1 and "raw" in segments[0]:
+        logger.warning("Project %s has malformed segments.json", project_id)
+        return {"segments": []}
+    
+    prompts = project_repo.get_prompts(project_id)
+    enriched = []
+    
+    for segment in segments:
+        if not isinstance(segment, dict):
+            continue
+        
+        seg_id = segment.get("id") or segment.get("segment_id")
+        if not seg_id:
+            continue
+        
+        segment["id"] = str(seg_id)
+        prompt = prompts.get(str(seg_id), {})
+        version = prompt.get("version", 1)
+        
+        segment["thumbnail"] = f"/projects/{project_id}/images/{seg_id}_v{version}.png"
+        segment["prompt"] = prompt
+        enriched.append(segment)
+    
+    return {"segments": enriched}
+
+
+@router.patch("/{project_id}/segments/{seg_id}")
+async def update_segment(
+    project_id: str,
+    seg_id: str,
+    payload: SegmentUpdate,
+) -> dict[str, Any]:
+    """Update a segment's properties."""
+    segments = project_repo.get_segments(project_id)
+    prompts = project_repo.get_prompts(project_id)
+    
+    if not segments:
+        raise HTTPException(status_code=404, detail="Segments not found")
+    
+    updated_segment = None
+    for segment in segments:
+        if segment.get("id") == seg_id:
+            if payload.visual_intent is not None:
+                segment["visual_intent"] = payload.visual_intent
+            if payload.effect is not None:
+                segment["effect"] = payload.effect
+            updated_segment = segment
+            break
+    
+    if updated_segment is None:
+        raise HTTPException(status_code=404, detail="Segment not found")
+    
+    # Update prompts
+    prompt = prompts.get(seg_id, {"version": 1})
+    if payload.image_prompt is not None:
+        prompt["image_prompt"] = payload.image_prompt
+    if payload.negative_prompt is not None:
+        prompt["negative_prompt"] = payload.negative_prompt
+    if payload.style_hints is not None:
+        prompt["style_hints"] = payload.style_hints
+    
+    prompts[seg_id] = prompt
+    
+    project_repo.save_segments(project_id, segments)
+    project_repo.save_prompts(project_id, prompts)
+    
+    return {"segment": updated_segment, "prompt": prompt}
+
+
+@router.post("/{project_id}/segments/{seg_id}/regenerate")
+async def regenerate_scene(project_id: str, seg_id: str) -> dict[str, Any]:
+    """Regenerate image for a segment."""
+    try:
+        prompt = image_service.regenerate_segment(project_id, seg_id)
+        
+        project_repo.update_job(project_id, "pipeline", {
+            "status": "DONE",
+            "step": "regenerate",
+            "message": f"Regenerated {seg_id} v{prompt.get('version', 1)}",
+        })
+        
+        return {"segment_id": seg_id, "prompt": prompt}
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Segment not found")
+
+
+@router.post("/{project_id}/render", response_model=RunResponse)
+async def render_project(project_id: str, background: BackgroundTasks) -> RunResponse:
+    """Start video rendering."""
+    if not project_repo.exists(project_id):
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    background.add_task(pipeline_service.render_only, project_id)
+    
+    return RunResponse(status="OK", message="Render started")
+
+
+@router.get("/{project_id}/jobs")
+async def get_jobs(project_id: str) -> dict[str, Any]:
+    """Get job statuses."""
+    jobs = project_repo.get_jobs(project_id)
+    if not jobs:
+        raise HTTPException(status_code=404, detail="Jobs not found")
+    return {"jobs": jobs}
+
+
+@router.get("/{project_id}/images/{image_name}")
+async def get_image(project_id: str, image_name: str) -> FileResponse:
+    """Get a generated image."""
+    image_path = file_storage.get_image_path(project_id, image_name)
+    if not image_path:
+        raise HTTPException(status_code=404, detail="Image not found")
+    return FileResponse(image_path)
+
+
+@router.get("/{project_id}/renders/{render_name}")
+async def get_render(project_id: str, render_name: str) -> FileResponse:
+    """Get a rendered video."""
+    render_path = file_storage.get_render_path(project_id, render_name)
+    if not render_path:
+        raise HTTPException(status_code=404, detail="Render not found")
+    return FileResponse(render_path, media_type="video/mp4")
+
+
+@router.get("/{project_id}/download")
+async def download_project_video(project_id: str) -> FileResponse:
+    """Download the latest rendered video."""
+    video_path = file_storage.get_latest_render(project_id)
+    if not video_path:
+        raise HTTPException(status_code=404, detail="Video not found")
+    
+    return FileResponse(
+        path=video_path,
+        media_type="video/mp4",
+        filename=video_path.name,
+        headers={"Content-Type": "video/mp4"},
+    )
