@@ -30,21 +30,52 @@ def _analyze_audio_technical(audio_path: Path) -> dict[str, Any]:
     except ImportError:
         logger.warning("librosa or numpy not found. Skipping technical analysis.")
         return {}
-    
+
     try:
         y, sr = librosa.load(str(audio_path), sr=None)
-        
+
         # Tempo and Beats
         tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr)
         beat_times = librosa.frames_to_time(beat_frames, sr=sr)
-        
+
+        # Onset Detection
+        onset_env = librosa.onset.onset_strength(y=y, sr=sr)
+        onset_frames = librosa.onset.onset_detect(onset_envelope=onset_env, sr=sr)
+        onset_times = librosa.frames_to_time(onset_frames, sr=sr)
+
+        # Beat confidence estimation
+        tempo_stability = 0.0
+        if len(beat_times) > 2:
+            intervals = np.diff(beat_times)
+            mean_interval = float(np.mean(intervals))
+            if mean_interval > 0:
+                tempo_stability = float(
+                    max(0.0, 1.0 - min(1.0, float(np.std(intervals)) / mean_interval))
+                )
+
+        beat_strength = 0.0
+        if len(beat_frames) > 0 and len(onset_env) > 0:
+            valid_frames = beat_frames[beat_frames < len(onset_env)]
+            if len(valid_frames) > 0:
+                beat_strengths = onset_env[valid_frames]
+                beat_strength = float(
+                    np.mean(beat_strengths) / (float(np.max(onset_env)) + 1e-6)
+                )
+
+        beat_confidence = float(
+            max(0.0, min(1.0, 0.6 * tempo_stability + 0.4 * beat_strength))
+        )
+
         # Energy / Volume (RMS)
         hop_length = 512
         rms = librosa.feature.rms(y=y, frame_length=2048, hop_length=hop_length)[0]
-        
+
         return {
             "bpm": float(tempo),
             "beat_times": beat_times.tolist(),
+            "onset_times": onset_times.tolist(),
+            "beat_confidence": beat_confidence,
+            "tempo_stability": tempo_stability,
             "energy_stats": {
                 "avg": float(np.mean(rms)),
                 "max": float(np.max(rms)),

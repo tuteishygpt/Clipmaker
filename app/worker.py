@@ -5,7 +5,10 @@ import argparse
 from .pipeline import run_pipeline
 
 
+from .core.logging import setup_logging
+
 def main() -> None:
+    setup_logging()
     parser = argparse.ArgumentParser(description="Clipmaker worker")
     parser.add_argument("--project_id", required=True)
     args = parser.parse_args()

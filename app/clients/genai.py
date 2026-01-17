@@ -36,6 +36,24 @@ class GenAIClient:
         else:
             logger.warning("GenAI client initialized without API key!")
     
+    def _log_interaction(self, method: str, request: Any, response: Any) -> None:
+        """Log request and response from Gemini."""
+        try:
+            # We don't want to log huge images in the text log
+            log_response = response
+            if isinstance(response, bytes):
+                log_response = f"<binary data: {len(response)} bytes>"
+            elif hasattr(response, "text"):
+                log_response = response.text
+            
+            logger.info("-" * 40)
+            logger.info(f"GEMINI INTERACTION: {method}")
+            logger.info(f"REQUEST:\n{request}")
+            logger.info(f"RESPONSE:\n{log_response}")
+            logger.info("-" * 40)
+        except Exception as e:
+            logger.error(f"Failed to log interaction: {e}")
+
     def _extract_json(self, text: str) -> Any:
         """Extract JSON from model response text."""
         try:
@@ -137,6 +155,7 @@ class GenAIClient:
             model=self.text_model,
             contents=contents
         )
+        self._log_interaction("analyze_audio", contents, response)
         return self._extract_json(response.text)
     
     def build_storyboard(
@@ -184,6 +203,7 @@ class GenAIClient:
             model=self.text_model,
             contents=[prompt]
         )
+        self._log_interaction("build_storyboard", [prompt], response)
         data = self._extract_json(response.text)
         
         if isinstance(data, dict) and "segments" in data:
@@ -223,6 +243,7 @@ class GenAIClient:
             model=self.text_model,
             contents=[prompt]
         )
+        self._log_interaction("build_prompts", [prompt], response)
         data = self._extract_json(response.text)
         
         if isinstance(data, dict):
@@ -242,6 +263,7 @@ class GenAIClient:
                     model=self.image_model,
                     prompt=prompt
                 )
+                self._log_interaction("generate_image (Imagen)", prompt, "<Image response generated>")
                 if response.generated_images:
                     return response.generated_images[0].image.image_bytes
                 return b""
@@ -260,6 +282,7 @@ class GenAIClient:
                 response_modalities=["IMAGE"],
             )
             
+            total_bytes = b""
             for chunk in self._client.models.generate_content_stream(
                 model=self.image_model,
                 contents=contents,
@@ -276,9 +299,10 @@ class GenAIClient:
                 
                 part = chunk.candidates[0].content.parts[0]
                 if part.inline_data and part.inline_data.data:
-                    return part.inline_data.data
+                    total_bytes += part.inline_data.data
             
-            return b""
+            self._log_interaction("generate_image (Multimodal Stream)", prompt, f"<Generated {len(total_bytes)} bytes>")
+            return total_bytes
             
         except Exception as e:
             logger.error(f"Image generation failed: {e}")
