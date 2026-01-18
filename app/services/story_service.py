@@ -70,24 +70,32 @@ class StoryboardService:
         """Normalize segment times to exactly fit the duration."""
         # Calculate original durations
         total_suggested = 0.0
-        suggested_durations: list[float] = []
         for seg in segments:
             s = _parse_time(seg.get("start_time", 0))
             e = _parse_time(seg.get("end_time", 0))
             seg_duration = max(0.1, e - s)
             seg["_orig_duration"] = seg_duration
-            suggested_durations.append(seg_duration)
             total_suggested += seg_duration
 
-        # Get beat/onset times and confidence for snapping
+        # Get beat/onset times and strength
         beat_times: list[float] = []
+        beat_strengths: list[float] = []
         onset_times: list[float] = []
         beat_confidence = 0.0
         if "technical_stats" in analysis:
             tech_stats = analysis["technical_stats"] or {}
             beat_times = tech_stats.get("beat_times", [])
+            beat_strengths = tech_stats.get("beat_strengths", [])
             onset_times = tech_stats.get("onset_times", [])
             beat_confidence = float(tech_stats.get("beat_confidence") or 0.0)
+
+        # Create localized strength map
+        beat_strength_map = {}
+        if beat_times and beat_strengths and len(beat_times) == len(beat_strengths):
+            beat_strength_map = dict(zip(beat_times, beat_strengths))
+        elif beat_times:
+             # Default strength if missing
+            beat_strength_map = {b: 0.5 for b in beat_times}
 
         # Structural peaks derived from analysis segments
         structural_points = []
@@ -97,35 +105,18 @@ class StoryboardService:
         structural_points = sorted({t for t in structural_points if 0.0 <= t <= duration})
 
         # Timing mode selection
-        if beat_times and beat_confidence >= 0.66:
+        if beat_times and beat_confidence >= 0.4:  # Lowered threshold slightly
             timing_mode = "beat-driven"
-        elif beat_times and beat_confidence >= 0.33:
+        elif beat_times and beat_confidence >= 0.2:
             timing_mode = "beat-assisted"
         else:
             timing_mode = "structure-driven"
 
         beat_grid = sorted({0.0, *beat_times, duration}) if beat_times else [0.0, duration]
-        beat_intervals = [
-            beat_grid[i + 1] - beat_grid[i] for i in range(len(beat_grid) - 1)
-            if beat_grid[i + 1] - beat_grid[i] > 0
-        ]
-        beat_interval = median(beat_intervals) if beat_intervals else 0.5
-
-        if structural_points:
-            structural_intervals = [
-                structural_points[i + 1] - structural_points[i]
-                for i in range(len(structural_points) - 1)
-                if structural_points[i + 1] - structural_points[i] > 0
-            ]
-            structural_median = median(structural_intervals) if structural_intervals else 3.0
-            min_seconds = max(1.5, 0.6 * structural_median)
-            max_seconds = min(6.0, 1.8 * structural_median)
-        else:
-            min_seconds = 1.5
-            max_seconds = 6.0
-
-        min_beats = 2
-        max_beats = 24
+        
+        # Helper functionality
+        def _get_strength(t: float) -> float:
+            return beat_strength_map.get(t, 0.0)
 
         def _nearest_time(target: float, candidates: list[float]) -> float:
             return min(candidates, key=lambda x: abs(x - target))
@@ -133,37 +124,51 @@ class StoryboardService:
         def _snap_to_beat(time_value: float) -> float:
             if not beat_grid:
                 return time_value
+            # Snap to nearest beat
             return _nearest_time(time_value, beat_grid)
 
-        def _beat_index(time_value: float) -> int:
-            if not beat_grid:
-                return 0
-            return min(range(len(beat_grid)), key=lambda i: abs(beat_grid[i] - time_value))
-
-        def _select_beat_end(start_time: float, ideal_end: float) -> float:
+        def _select_smart_beat_end(start_time: float, ideal_end: float) -> float:
+            """Smartly select end beat based on strength and proximity."""
             if not beat_grid:
                 return ideal_end
-            start_idx = _beat_index(start_time)
-            min_idx = min(start_idx + min_beats, len(beat_grid) - 1)
-            max_idx = min(start_idx + max_beats, len(beat_grid) - 1)
-            candidate_indices = range(min_idx, max_idx + 1)
-            candidates = [beat_grid[i] for i in candidate_indices]
+            
+            # Find closest beat index to ideal_end
+            candidates = [b for b in beat_grid if b > start_time + 0.5]
             if not candidates:
                 return beat_grid[-1]
-            return _nearest_time(ideal_end, candidates)
+            
+            # Window of interest: +/- 1.5 seconds around ideal_end
+            window = 1.5
+            window_candidates = [c for c in candidates if abs(c - ideal_end) <= window]
+            
+            if not window_candidates:
+                return _nearest_time(ideal_end, candidates)
+            
+            # Score candidates
+            best_t = window_candidates[0]
+            best_score = -1.0
+            
+            for t in window_candidates:
+                dist = abs(t - ideal_end)
+                dist_score = 1.0 - (dist / window)  # 0 to 1
+                strength = _get_strength(t)
+                
+                # Weighted score: prioritize strong beats significantly
+                score = 0.4 * dist_score + 0.6 * strength
+                
+                # Bonus for exact structural matches (if any)
+                if any(abs(t - sp) < 0.1 for sp in structural_points):
+                     score += 0.3
+                
+                if score > best_score:
+                    best_score = score
+                    best_t = t
+            
+            return best_t
 
-        def _apply_onset_adjustment(beat_end: float) -> float:
-            if not onset_times:
-                return beat_end
-            window = 0.2
-            nearby = [t for t in onset_times if abs(t - beat_end) <= window]
-            if not nearby:
-                return beat_end
-            return _nearest_time(beat_end, nearby)
-
-        # Apply timing based on mode with minimal adjustments
+        # Calculate segments
         current_time = 0.0
-
+        
         for i, seg in enumerate(segments):
             weight = seg.pop("_orig_duration")
             if total_suggested > 0:
@@ -171,55 +176,43 @@ class StoryboardService:
             else:
                 seg_duration = duration / len(segments)
 
+            # Snap start time
             if timing_mode in {"beat-driven", "beat-assisted"}:
                 current_time = _snap_to_beat(current_time)
-
+            
             seg["start_time"] = current_time
 
+            # Last segment fix
             if i == len(segments) - 1:
                 seg["end_time"] = duration
-                current_time = seg["end_time"]
                 continue
 
             ideal_end = current_time + seg_duration
 
             if timing_mode == "beat-driven":
-                actual_end = _select_beat_end(current_time, ideal_end)
+                actual_end = _select_smart_beat_end(current_time, ideal_end)
             elif timing_mode == "beat-assisted":
-                beat_end = _select_beat_end(current_time, ideal_end)
-                actual_end = _apply_onset_adjustment(beat_end)
+                # Check nearest beat
+                beat_end = _select_smart_beat_end(current_time, ideal_end)
+                # Check nearest onset
+                if onset_times:
+                    onset_candidates = [o for o in onset_times if abs(o - beat_end) < 0.2]
+                    if onset_candidates:
+                        beat_end = _nearest_time(beat_end, onset_candidates)
+                actual_end = beat_end
             else:
+                # Structure driven fallback
                 actual_end = ideal_end
-                if structural_points:
-                    candidates = [
-                        t for t in structural_points
-                        if current_time + min_seconds <= t <= current_time + max_seconds
-                    ]
-                    if candidates:
-                        actual_end = _nearest_time(ideal_end, candidates)
-                actual_end = max(current_time + min_seconds, actual_end)
-                actual_end = min(current_time + max_seconds, actual_end)
-
+                
+            # Validations
+            actual_end = max(actual_end, current_time + 0.5)
             actual_end = min(actual_end, duration)
-            if actual_end <= current_time:
-                actual_end = min(current_time + min_seconds, duration)
-
+            
             seg["end_time"] = actual_end
-            current_time = seg["end_time"]
+            current_time = actual_end
 
-        # Hard-fix end time without global rescaling
-        if segments:
-            segments[-1]["end_time"] = duration
-            if segments[-1]["start_time"] >= duration:
-                min_segment = min_seconds if timing_mode == "structure-driven" else max(
-                    min_beats * beat_interval, 0.5
-                )
-                if len(segments) > 1:
-                    prev = segments[-2]
-                    prev_end = max(prev["start_time"] + min_segment, duration - min_segment)
-                    prev["end_time"] = min(prev_end, duration - min_segment)
-                    segments[-1]["start_time"] = prev["end_time"]
-                else:
-                    segments[-1]["start_time"] = max(0.0, duration - min_segment)
-
+        # Final sanity check for gaps/overlaps
+        for i in range(len(segments) - 1):
+            segments[i+1]["start_time"] = segments[i]["end_time"]
+            
         return segments

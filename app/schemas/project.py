@@ -11,6 +11,7 @@ class ProjectCreate(BaseModel):
     style: str = Field(default="cinematic", description="Visual style preset")
     subtitles: bool = Field(default=True, description="Whether to include subtitles")
     user_description: str = Field(default="", description="User's description of the clip idea")
+    character_description: str = Field(default="", description="Description of the consistent character")
 
 
 class ProjectResponse(BaseModel):
@@ -23,6 +24,7 @@ class ProjectResponse(BaseModel):
     style: str
     subtitles: bool
     user_description: str = ""
+    character_description: str = ""
     video_output: Optional[str] = None
     
     class Config:
@@ -35,4 +37,5 @@ class ProjectUpdate(BaseModel):
     style: Optional[str] = None
     subtitles: Optional[bool] = None
     user_description: Optional[str] = None
+    character_description: Optional[str] = None
     status: Optional[str] = None

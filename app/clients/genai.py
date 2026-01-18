@@ -101,6 +101,7 @@ class GenAIClient:
         technical_analysis: dict | None = None,
         user_style: str = "cinematic",
         user_description: str = "",
+        character_description: str = "",
     ) -> dict[str, Any]:
         """Analyze audio track for video clip creation."""
         file_ref = None
@@ -120,6 +121,10 @@ class GenAIClient:
         (This is the most important instruction. The narrative, metaphors, and events MUST follow this description if provided. If empty, invent a creative one).
         
         The user has requested the visual style: "{user_style}".
+
+        CHARACTER DESCRIPTION:
+        "{character_description}"
+        (If provided, this character MUST be the protagonist of the video).
         
         {tech_context}
         
@@ -227,6 +232,10 @@ class GenAIClient:
         
         Global Style Anchor: "{style_anchor}" 
         (YOU MUST APPEND THIS EXACT STYLE DESCRIPTION TO EVERY SINGLE PROMPT TO ENSURE CONSISTENCY).
+
+        CHARACTER CONSISTENCY:
+        Character Description: "{analysis.get('character_description', '')}"
+        (If the character appears, they MUST match this description. If the scene allows, feature this character).
         
         Segments: {segments}
         

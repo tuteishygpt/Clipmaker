@@ -156,6 +156,9 @@ async function openProject() {
     if (project.user_description) document.getElementById('user-description').value = project.user_description;
     else document.getElementById('user-description').value = '';
 
+    if (project.character_description) document.getElementById('character-description').value = project.character_description;
+    else document.getElementById('character-description').value = '';
+
     if (project.video_output) {
       updatePreview('video', project.video_output);
     }
@@ -176,6 +179,7 @@ async function createProject() {
       style: styleSelect.value,
       subtitles: subtitlesToggle.checked,
       user_description: document.getElementById('user-description').value,
+      character_description: document.getElementById('character-description').value,
     }),
   });
   const data = await response.json();

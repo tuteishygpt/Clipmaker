@@ -54,13 +54,22 @@ def _analyze_audio_technical(audio_path: Path) -> dict[str, Any]:
                 )
 
         beat_strength = 0.0
+        # Per-beat strength
+        beat_per_strength = []
         if len(beat_frames) > 0 and len(onset_env) > 0:
-            valid_frames = beat_frames[beat_frames < len(onset_env)]
-            if len(valid_frames) > 0:
-                beat_strengths = onset_env[valid_frames]
-                beat_strength = float(
-                    np.mean(beat_strengths) / (float(np.max(onset_env)) + 1e-6)
-                )
+            # Ensure beat_frames are within bounds
+            valid_mask = beat_frames < len(onset_env)
+            valid_beat_frames = beat_frames[valid_mask]
+            
+            if len(valid_beat_frames) > 0:
+                # Raw strengths at beat locations
+                raw_strengths = onset_env[valid_beat_frames]
+                # Normalize relative to max energy in the track
+                max_env = float(np.max(onset_env)) + 1e-6
+                beat_per_strength = (raw_strengths / max_env).tolist()
+                
+                # Update global beat strength metric
+                beat_strength = float(np.mean(beat_per_strength))
 
         beat_confidence = float(
             max(0.0, min(1.0, 0.6 * tempo_stability + 0.4 * beat_strength))
@@ -73,6 +82,7 @@ def _analyze_audio_technical(audio_path: Path) -> dict[str, Any]:
         return {
             "bpm": float(tempo),
             "beat_times": beat_times.tolist(),
+            "beat_strengths": beat_per_strength,
             "onset_times": onset_times.tolist(),
             "beat_confidence": beat_confidence,
             "tempo_stability": tempo_stability,
@@ -116,6 +126,7 @@ class AudioAnalysisService:
         project = self.project_repo.get(project_id) or {}
         user_style = project.get("style", "cinematic")
         user_description = project.get("user_description", "")
+        character_description = project.get("character_description", "")
         
         # GenAI analysis
         analysis = self.genai.analyze_audio(
@@ -124,11 +135,14 @@ class AudioAnalysisService:
             technical_analysis=technical_analysis,
             user_style=user_style,
             user_description=user_description,
+            character_description=character_description,
         )
         
         # Add metadata
         analysis["total_duration"] = duration
+        analysis["total_duration"] = duration
         analysis["technical_stats"] = technical_analysis
+        analysis["character_description"] = character_description
         
         # Save results
         self.project_repo.save_analysis(project_id, analysis)
