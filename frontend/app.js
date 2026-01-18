@@ -469,27 +469,169 @@ async function loadScenes() {
     // Scene Card
     const card = document.createElement('div');
     card.className = 'scene-card';
-    card.style.cursor = 'pointer';
-    card.innerHTML = `
-      <img src="${segment.thumbnail}" alt="${segment.id}" loading="lazy" />
-      <div class="scene-details">
-        <h3>${segment.id} (${segment.start_time} - ${segment.end_time})</h3>
-        <p class="lyric">${segment.lyric_text || segment.text || ''}</p>
-        <p class="intent muted">${segment.visual_intent || segment.visual_description || ''}</p>
-        <button class="regenerate-btn">Regenerate</button>
-      </div>
-    `;
+    card.style.position = 'relative';
 
-    card.onclick = (e) => {
-      if (e.target.tagName === 'BUTTON') return;
-      jumpToTime(parseTimeToSeconds(segment.start_time));
+    // Image (Prominent)
+    const img = document.createElement('img');
+    img.src = segment.thumbnail;
+    img.alt = segment.id;
+    img.loading = 'lazy';
+    img.style.cursor = 'zoom-in';
+    img.onclick = (e) => {
+      e.stopPropagation();
+      showLightbox(segment.thumbnail);
+    };
+    card.appendChild(img);
+
+    const details = document.createElement('div');
+    details.className = 'scene-details';
+
+    // Header Row with Edit Toggle
+    const headerRow = document.createElement('div');
+    headerRow.className = 'edit-toggle-row';
+
+    const h3 = document.createElement('h3');
+    h3.style.marginBottom = '0';
+    h3.textContent = segment.id;
+    headerRow.appendChild(h3);
+
+    const editBtn = document.createElement('button');
+    editBtn.className = 'edit-toggle-btn';
+    editBtn.textContent = 'Edit Details';
+
+    headerRow.appendChild(editBtn);
+    details.appendChild(headerRow);
+
+    // Prompt info if available
+    const promptData = segment.prompt || {};
+
+    // Collapsible Editor Container
+    const collapseDiv = document.createElement('div');
+    collapseDiv.className = 'collapsible-content';
+
+    // Toggle Logic
+    editBtn.onclick = (e) => {
+      e.stopPropagation();
+      if (collapseDiv.style.display === 'block') {
+        collapseDiv.style.display = 'none';
+        editBtn.textContent = 'Edit Details';
+      } else {
+        collapseDiv.style.display = 'block';
+        editBtn.textContent = 'Hide Details';
+      }
     };
 
-    const button = card.querySelector('.regenerate-btn');
-    button.onclick = async (e) => {
+    // Times
+    const timeGroup = document.createElement('div');
+    timeGroup.className = 'scene-input-group';
+    timeGroup.innerHTML = `
+        <label style="font-size:0.8rem; color:#64748b;">Start</label>
+        <input class="scene-time-input start-input" value="${segment.start_time}" placeholder="0:00" />
+        <label style="font-size:0.8rem; color:#64748b; margin-left:8px;">End</label>
+        <input class="scene-time-input end-input" value="${segment.end_time}" placeholder="0:00" />
+    `;
+    collapseDiv.appendChild(timeGroup);
+
+    // Helper to create textarea inputs
+    const createText = (label, value, rows = 2) => {
+      const l = document.createElement('label');
+      l.className = 'scene-label';
+      l.textContent = label;
+      const t = document.createElement('textarea');
+      t.className = 'scene-text-input';
+      t.rows = rows;
+      t.value = value || '';
+      return { label: l, input: t };
+    };
+
+    // Text / Lyric
+    const lyricUI = createText('Text / Lyric', segment.lyric_text || segment.text);
+    collapseDiv.appendChild(lyricUI.label);
+    collapseDiv.appendChild(lyricUI.input);
+
+    // Visual Description
+    const intentUI = createText('Visual Description', segment.visual_intent || segment.visual_description, 3);
+    collapseDiv.appendChild(intentUI.label);
+    collapseDiv.appendChild(intentUI.input);
+
+    // Image Prompt
+    const promptUI = createText('Image Prompt', promptData.image_prompt, 3);
+    promptUI.label.style.color = '#4f46e5';
+    collapseDiv.appendChild(promptUI.label);
+    collapseDiv.appendChild(promptUI.input);
+
+    // Extra Fields Row
+    const extrasDiv = document.createElement('div');
+    extrasDiv.style.display = 'grid';
+    extrasDiv.style.gridTemplateColumns = '1fr 1fr';
+    extrasDiv.style.gap = '8px';
+    extrasDiv.style.marginTop = '8px';
+
+    const camUI = createText('Camera Angle', segment.camera_angle, 1);
+    const emoUI = createText('Emotion', segment.emotion, 1);
+
+    const wrap1 = document.createElement('div'); wrap1.appendChild(camUI.label); wrap1.appendChild(camUI.input);
+    const wrap2 = document.createElement('div'); wrap2.appendChild(emoUI.label); wrap2.appendChild(emoUI.input);
+
+    extrasDiv.appendChild(wrap1);
+    extrasDiv.appendChild(wrap2);
+    collapseDiv.appendChild(extrasDiv);
+
+    // Buttons
+    const btnRow = document.createElement('div');
+    btnRow.className = 'btn-row';
+
+    const saveBtn = document.createElement('button');
+    saveBtn.className = 'regenerate-btn save-btn';
+    saveBtn.textContent = 'Save Changes';
+    saveBtn.style.background = '#e0e7ff';
+    saveBtn.style.color = '#4338ca';
+    saveBtn.style.flex = '1';
+
+    const regenBtn = document.createElement('button');
+    regenBtn.className = 'regenerate-btn regen-btn';
+    regenBtn.textContent = 'Regenerate Image';
+    regenBtn.style.flex = '1';
+
+    // Save Action
+    const doSave = async () => {
+      const payload = {
+        start_time: timeGroup.querySelector('.start-input').value,
+        end_time: timeGroup.querySelector('.end-input').value,
+        lyric_text: lyricUI.input.value,
+        visual_intent: intentUI.input.value,
+        image_prompt: promptUI.input.value,
+        camera_angle: camUI.input.value,
+        emotion: emoUI.input.value
+      };
+      saveBtn.disabled = true;
+      const oldText = saveBtn.textContent;
+      saveBtn.textContent = 'Saving...';
+
+      const res = await updateSegment(segment.id, payload);
+
+      saveBtn.disabled = false;
+      if (res) {
+        saveBtn.textContent = 'Saved!';
+        setTimeout(() => saveBtn.textContent = oldText, 2000);
+      } else {
+        saveBtn.textContent = 'Error';
+        setTimeout(() => saveBtn.textContent = oldText, 2000);
+      }
+      return res;
+    };
+
+    saveBtn.onclick = async (e) => { e.stopPropagation(); await doSave(); };
+
+    // Regenerate Action
+    regenBtn.onclick = async (e) => {
       e.stopPropagation();
-      button.disabled = true;
-      button.textContent = '...';
+      // Save first
+      const saved = await doSave();
+      if (!saved) return;
+
+      regenBtn.disabled = true;
+      regenBtn.textContent = 'Queued...';
       try {
         await fetch(`/projects/${state.projectId}/segments/${segment.id}/regenerate`, { method: 'POST' });
         startPolling();
@@ -499,6 +641,20 @@ async function loadScenes() {
         await refreshJobs();
       }
     };
+
+    btnRow.appendChild(saveBtn);
+    btnRow.appendChild(regenBtn);
+    collapseDiv.appendChild(btnRow);
+
+    details.appendChild(collapseDiv);
+    card.appendChild(details);
+
+    // Card click (open edit if closed)
+    card.onclick = (e) => {
+      if (['BUTTON', 'INPUT', 'TEXTAREA', 'IMG', 'LABEL'].includes(e.target.tagName)) return;
+      jumpToTime(parseTimeToSeconds(segment.start_time));
+    };
+
     scenesContainer.appendChild(card);
 
     // Timeline Marker (Point)
@@ -571,3 +727,54 @@ refreshAnalysisButton.addEventListener('click', loadAnalysis);
 // Initialize
 loadProjects();
 updateTimelineProgress();
+initLightbox();
+
+// Helpers
+async function updateSegment(segmentId, payload) {
+  try {
+    const response = await fetch(`/projects/${state.projectId}/segments/${segmentId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!response.ok) throw new Error('Failed to update segment');
+    return await response.json();
+  } catch (e) {
+    console.error(e);
+    alert('Error saving segment: ' + e.message);
+    return null;
+  }
+}
+
+function initLightbox() {
+  if (document.getElementById('lightbox')) return;
+  const lightbox = document.createElement('div');
+  lightbox.className = 'lightbox';
+  lightbox.id = 'lightbox';
+  lightbox.innerHTML = `
+        <span class="lightbox-close">&times;</span>
+        <img class="lightbox-img" id="lightbox-img" />
+    `;
+  document.body.appendChild(lightbox);
+
+  lightbox.querySelector('.lightbox-close').onclick = () => {
+    lightbox.style.display = 'none';
+    document.getElementById('lightbox-img').src = '';
+  };
+
+  lightbox.onclick = (e) => {
+    if (e.target === lightbox) {
+      lightbox.style.display = 'none';
+      document.getElementById('lightbox-img').src = '';
+    }
+  };
+}
+
+function showLightbox(src) {
+  const lb = document.getElementById('lightbox');
+  const img = document.getElementById('lightbox-img');
+  if (lb && img) {
+    img.src = src;
+    lb.style.display = 'flex';
+  }
+}

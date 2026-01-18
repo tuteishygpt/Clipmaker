@@ -157,6 +157,18 @@ async def update_segment(
                 segment["visual_intent"] = payload.visual_intent
             if payload.effect is not None:
                 segment["effect"] = payload.effect
+            if payload.start_time is not None:
+                segment["start_time"] = payload.start_time
+            if payload.end_time is not None:
+                segment["end_time"] = payload.end_time
+            if payload.lyric_text is not None:
+                segment["lyric_text"] = payload.lyric_text
+            if payload.text is not None:
+                segment["text"] = payload.text
+            if payload.camera_angle is not None:
+                segment["camera_angle"] = payload.camera_angle
+            if payload.emotion is not None:
+                segment["emotion"] = payload.emotion
             updated_segment = segment
             break
     

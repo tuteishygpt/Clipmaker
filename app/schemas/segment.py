@@ -1,7 +1,7 @@
 """Segment-related Pydantic schemas."""
 from __future__ import annotations
 
-from typing import Optional, List
+from typing import Optional, List, Any
 from pydantic import BaseModel, Field
 
 
@@ -25,7 +25,13 @@ class SegmentResponse(SegmentBase):
 
 class SegmentUpdate(BaseModel):
     """Schema for updating a segment."""
+    start_time: Optional[Any] = None
+    end_time: Optional[Any] = None
+    lyric_text: Optional[str] = None
+    text: Optional[str] = None
     visual_intent: Optional[str] = None
+    camera_angle: Optional[str] = None
+    emotion: Optional[str] = None
     image_prompt: Optional[str] = None
     negative_prompt: Optional[str] = None
     style_hints: Optional[str] = None
