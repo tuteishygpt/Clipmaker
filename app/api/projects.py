@@ -209,6 +209,108 @@ async def regenerate_scene(project_id: str, seg_id: str) -> dict[str, Any]:
         raise HTTPException(status_code=404, detail="Segment not found")
 
 
+@router.post("/{project_id}/recalculate-timings", response_model=RunResponse)
+async def recalculate_timings(project_id: str) -> RunResponse:
+    """Recalculate segment timings to evenly distribute across audio duration."""
+    if not project_repo.exists(project_id):
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Get current segments and analysis
+    segments = project_repo.get_segments(project_id)
+    analysis = project_repo.get_analysis(project_id)
+    
+    if not segments:
+        raise HTTPException(status_code=404, detail="No segments found")
+    
+    if not analysis:
+        raise HTTPException(status_code=404, detail="No analysis found")
+    
+    duration = analysis.get("total_duration", 0.0)
+    if duration <= 0:
+        raise HTTPException(status_code=400, detail="Invalid audio duration")
+    
+    # Helper for time parsing
+    def parse_t(t_val) -> float:
+        if isinstance(t_val, (int, float)):
+            return float(t_val)
+        if not t_val:
+            return 0.0
+        try:
+            t_str = str(t_val).replace(",", ".").strip()
+            parts = t_str.split(":")
+            if len(parts) == 1: return float(parts[0])
+            if len(parts) == 2: return float(parts[0]) * 60 + float(parts[1])
+            if len(parts) == 3: return float(parts[0]) * 3600 + float(parts[1]) * 60 + float(parts[2])
+        except: pass
+        return 0.0
+
+    MAX_DURATION = 6.0
+    MIN_DURATION = 0.5
+    
+    # Calculate proportional timings
+    num_segments = len(segments)
+    if num_segments == 0:
+        return RunResponse(status="OK", message="No segments to recalculate")
+
+    # If the track is very long, we might need to increase MAX_DURATION to fill it
+    # but we should do it uniformly.
+    ideal_avg = duration / num_segments
+    effective_max = max(MAX_DURATION, ideal_avg * 1.5)
+    
+    # First, calculate weights based on current duration or default to 1.0
+    weights = []
+    for seg in segments:
+        s = parse_t(seg.get("start_time", 0))
+        e = parse_t(seg.get("end_time", 0))
+        d = e - s
+        if d < 0.1: d = 3.0 # Default weight for broken segments
+        weights.append(d)
+    
+    total_weight = sum(weights)
+    
+    # Step 1: Assign initial durations based on weights, but clamp to effective_max
+    durations = []
+    for w in weights:
+        d = (w / total_weight) * duration if total_weight > 0 else ideal_avg
+        d = max(MIN_DURATION, min(d, effective_max))
+        durations.append(d)
+    
+    # Step 2: Recalculate and distribute the difference to hit exactly total_duration
+    # This prevents the last segment from being huge
+    for _ in range(3): # Iterate a few times to settle
+        current_total = sum(durations)
+        diff = duration - current_total
+        if abs(diff) < 0.01: break
+        
+        # Distribute diff among segments that are NOT at their limits (if possible)
+        # or just distribute among all
+        per_seg_diff = diff / num_segments
+        for j in range(num_segments):
+            durations[j] = max(MIN_DURATION, min(durations[j] + per_seg_diff, effective_max))
+
+    # Step 3: Apply timings
+    current_time = 0.0
+    for i, seg in enumerate(segments):
+        seg["start_time"] = current_time
+        seg_dur = durations[i]
+        
+        # Last segment MUST hit the end exactly
+        if i == num_segments - 1:
+            seg["end_time"] = duration
+        else:
+            seg["end_time"] = current_time + seg_dur
+            
+        current_time = seg["end_time"]
+    
+    # Save updated segments
+    project_repo.save_segments(project_id, segments)
+    
+    return RunResponse(
+        status="OK", 
+        message=f"Recalculated timings for {num_segments} segments (Avg: {duration/num_segments:.2f}s, Max set to {effective_max:.1f}s)"
+    )
+
+
 @router.post("/{project_id}/render", response_model=RunResponse)
 async def render_project(project_id: str, background: BackgroundTasks) -> RunResponse:
     """Start video rendering."""

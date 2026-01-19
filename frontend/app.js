@@ -25,6 +25,7 @@ const renderButton = document.getElementById('render-project');
 const renderOutput = document.getElementById('render-output');
 const analysisContent = document.getElementById('analysis-content');
 const refreshAnalysisButton = document.getElementById('refresh-analysis');
+const recalculateTimingsButton = document.getElementById('recalculate-timings');
 
 // Video preview elements
 const previewPlaceholder = document.getElementById('preview-placeholder');
@@ -229,6 +230,37 @@ async function renderVideo() {
   const data = await response.json();
   renderOutput.textContent = data.message;
   startPolling();
+}
+
+async function recalculateTimings() {
+  if (!state.projectId) {
+    alert('Select a project first');
+    return;
+  }
+  if (!confirm('This will evenly redistribute all existing scenes across the audio duration. Continue?')) {
+    return;
+  }
+
+  try {
+    recalculateTimingsButton.disabled = true;
+    recalculateTimingsButton.textContent = 'Recalculating...';
+
+    const response = await fetch(`/projects/${state.projectId}/recalculate-timings`, { method: 'POST' });
+    const data = await response.json();
+
+    if (response.ok) {
+      alert(data.message);
+      await loadScenes(); // Refresh the UI
+    } else {
+      alert('Error: ' + data.detail);
+    }
+  } catch (e) {
+    console.error(e);
+    alert('Failed to recalculate: ' + e.message);
+  } finally {
+    recalculateTimingsButton.disabled = false;
+    recalculateTimingsButton.textContent = 'Recalculate Timings';
+  }
 }
 
 function startPolling() {
@@ -723,6 +755,7 @@ runButton.addEventListener('click', runPipeline);
 refreshButton.addEventListener('click', refreshJobs);
 renderButton.addEventListener('click', renderVideo);
 refreshAnalysisButton.addEventListener('click', loadAnalysis);
+recalculateTimingsButton.addEventListener('click', recalculateTimings);
 
 // Initialize
 loadProjects();

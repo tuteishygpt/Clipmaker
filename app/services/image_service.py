@@ -41,22 +41,43 @@ class ImageService:
         prompts: dict[str, Any],
         progress_callback: Callable[[int], None] | None = None,
     ) -> None:
-        """Generate images for all segments."""
+        """Generate images for all segments in parallel."""
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+
         total = len(prompts)
+        completed = 0
         
-        for i, (seg_id, payload) in enumerate(prompts.items()):
-            if progress_callback:
-                progress = int((i / total) * 100)
-                progress_callback(progress)
-            
+        def _generate_task(item):
+            seg_id, payload = item
             version = payload.get("version", 1)
-            image_bytes = self.genai.generate_image(payload)
+            try:
+                image_bytes = self.genai.generate_image(payload)
+                if image_bytes:
+                    self.file_storage.save_image(project_id, seg_id, version, image_bytes)
+                    return True
+                else:
+                    logger.warning(f"Failed to generate image for {seg_id}")
+                    return False
+            except Exception as e:
+                logger.error(f"Exception generating image for {seg_id}: {e}")
+                return False
+
+        # Run up to 5 generations in parallel
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            futures = [executor.submit(_generate_task, item) for item in prompts.items()]
             
-            if image_bytes:
-                self.file_storage.save_image(project_id, seg_id, version, image_bytes)
-            else:
-                logger.warning(f"Failed to generate image for {seg_id}")
-        
+            for future in as_completed(futures):
+                completed += 1
+                if progress_callback:
+                    progress = int((completed / total) * 100)
+                    progress_callback(progress)
+                
+                # Check for exceptions raised during execution
+                try:
+                    future.result()
+                except Exception as e:
+                     logger.error(f"Task failed with error: {e}")
+
         if progress_callback:
             progress_callback(100)
     
