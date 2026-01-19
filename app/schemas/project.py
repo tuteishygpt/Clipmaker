@@ -12,6 +12,7 @@ class ProjectCreate(BaseModel):
     subtitles: bool = Field(default=True, description="Whether to include subtitles")
     user_description: str = Field(default="", description="User's description of the clip idea")
     character_description: str = Field(default="", description="Description of the consistent character")
+    render_preset: str = Field(default="fast", description="Encoding preset: fast, veryfast, ultrafast")
 
 
 class ProjectResponse(BaseModel):
@@ -25,6 +26,7 @@ class ProjectResponse(BaseModel):
     subtitles: bool
     user_description: str = ""
     character_description: str = ""
+    render_preset: str = "fast"
     video_output: Optional[str] = None
     
     class Config:
@@ -39,3 +41,4 @@ class ProjectUpdate(BaseModel):
     user_description: Optional[str] = None
     character_description: Optional[str] = None
     status: Optional[str] = None
+    render_preset: Optional[str] = None

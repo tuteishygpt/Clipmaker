@@ -55,6 +55,7 @@ class ProjectRepository:
             "subtitles": payload.get("subtitles", True),
             "user_description": payload.get("user_description", ""),
             "character_description": payload.get("character_description", ""),
+            "render_preset": payload.get("render_preset", "fast"),
         }
         
         repo = self._get_repo(project_id)

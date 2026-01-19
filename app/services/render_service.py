@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import random
+import time
 from pathlib import Path
 from typing import Any, Callable
 
@@ -50,12 +51,35 @@ class RenderService:
         self,
         project_id: str,
         progress_callback: Callable[[int], None] | None = None,
-    ) -> Path:
-        """Render video for a project."""
+    ) -> tuple[Path, float]:
+        """Render video for a project. Returns (output_path, render_duration_seconds)."""
+        start_time = time.time()
         self._ensure_pil_compatibility()
         
         import moviepy.editor as mp
         
+        try:
+            from proglog import ProgressBarLogger
+            class MoviePyProgressLogger(ProgressBarLogger):
+                def __init__(self, cb):
+                    super().__init__()
+                    self.cb = cb
+                    self.last_pct = -1
+                def callback(self, **changes):
+                    bars = self.state.get('bars', {})
+                    if not bars: return
+                    # Prioritize 't' bar (main rendering bar)
+                    main_bar = bars.get('t') or next(iter(bars.values()), None)
+                    if main_bar and main_bar.get('total'):
+                        pct = min(int(100 * main_bar['index'] / main_bar['total']), 100)
+                        if pct != self.last_pct:
+                            self.cb(pct)
+                            self.last_pct = pct
+            
+            logger_obj = MoviePyProgressLogger(progress_callback) if progress_callback else None
+        except (ImportError, Exception):
+            logger_obj = None
+
         # Load data
         segments = self.project_repo.get_segments(project_id)
         prompts = self.project_repo.get_prompts(project_id)
@@ -87,15 +111,23 @@ class RenderService:
             # Render
             output_path = self.file_storage.get_next_render_path(project_id)
             
+            # Get render preset from project settings
+            render_preset = project.get("render_preset", "fast")
+            if render_preset not in ("fast", "veryfast", "ultrafast"):
+                render_preset = "fast"
+            
             video.write_videofile(
                 str(output_path),
                 fps=24,
                 codec="libx264",
                 audio_codec="aac",
-                logger=None,
+                logger=logger_obj,
+                threads=4,
+                preset=render_preset,
             )
             
-            return output_path
+            render_duration = time.time() - start_time
+            return output_path, render_duration
         
         finally:
             self._cleanup(video, audio_clip, clips)
@@ -227,12 +259,12 @@ class RenderService:
             y2 = min(h, y1 + int(final_h))
             
             if x2 <= x1 or y2 <= y1:
-                aux = Image.fromarray(img_arr).resize((tw, th), Image.LANCZOS)
+                aux = Image.fromarray(img_arr).resize((tw, th), Image.BICUBIC)
                 return np.array(aux)
             
             part = img_arr[y1:y2, x1:x2]
             part_img = Image.fromarray(part)
-            resized = part_img.resize((tw, th), Image.LANCZOS)
+            resized = part_img.resize((tw, th), Image.BICUBIC)
             return np.array(resized)
         
         return mp.VideoClip(make_frame, duration=duration)

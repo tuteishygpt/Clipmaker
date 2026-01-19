@@ -160,6 +160,9 @@ async function openProject() {
     if (project.character_description) document.getElementById('character-description').value = project.character_description;
     else document.getElementById('character-description').value = '';
 
+    const renderPresetSelect = document.getElementById('render-preset');
+    if (renderPresetSelect && project.render_preset) renderPresetSelect.value = project.render_preset;
+
     if (project.video_output) {
       updatePreview('video', project.video_output);
     }
@@ -172,6 +175,7 @@ async function openProject() {
 }
 
 async function createProject() {
+  const renderPresetSelect = document.getElementById('render-preset');
   const response = await fetch('/projects', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -181,6 +185,7 @@ async function createProject() {
       subtitles: subtitlesToggle.checked,
       user_description: document.getElementById('user-description').value,
       character_description: document.getElementById('character-description').value,
+      render_preset: renderPresetSelect ? renderPresetSelect.value : 'fast',
     }),
   });
   const data = await response.json();
@@ -327,7 +332,21 @@ async function refreshJobs() {
     } else if (renderJob.status === 'DONE') {
       renderPctValue.textContent = '100';
       renderFill.style.width = '100%';
-      renderOutput.textContent = 'Render complete! Video is ready.';
+
+      // Show render duration if available
+      let durationText = '';
+      if (renderJob.render_duration_seconds) {
+        const secs = renderJob.render_duration_seconds;
+        if (secs >= 60) {
+          const mins = Math.floor(secs / 60);
+          const remainSecs = Math.round(secs % 60);
+          durationText = ` (${mins}m ${remainSecs}s)`;
+        } else {
+          durationText = ` (${Math.round(secs)}s)`;
+        }
+      }
+      renderOutput.textContent = `Render complete! Video is ready.${durationText}`;
+
       setTimeout(() => {
         if (renderJob.status === 'DONE') renderContainer.style.display = 'none';
       }, 5000);

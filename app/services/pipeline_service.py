@@ -93,7 +93,7 @@ class PipelineService:
                     "progress": 70 + int(p * 0.3)
                 })
             
-            output_path = self._run_step(
+            output_path, render_duration = self._run_step(
                 project_id, "render",
                 lambda: self.render_service.render(project_id, render_progress)
             )
@@ -104,6 +104,7 @@ class PipelineService:
                 "step": "complete",
                 "progress": 100,
                 "output": str(output_path),
+                "render_duration_seconds": round(render_duration, 1),
             })
             self.project_repo.update(project_id, {"status": "DONE"})
             
@@ -124,13 +125,19 @@ class PipelineService:
                 "status": "RUNNING", "step": "render", "progress": 0
             })
             
-            output_path = self.render_service.render(project_id)
+            def render_progress(p: int):
+                self._update_job(project_id, "render", {
+                    "progress": p
+                })
+            
+            output_path, render_duration = self.render_service.render(project_id, render_progress)
             
             self._update_job(project_id, "render", {
                 "status": "DONE",
                 "step": "complete",
                 "progress": 100,
                 "output": str(output_path),
+                "render_duration_seconds": round(render_duration, 1),
             })
             self.project_repo.update(project_id, {"status": "DONE"})
             
