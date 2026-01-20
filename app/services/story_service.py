@@ -45,12 +45,55 @@ class StoryboardService:
         self.genai = genai_client or GenAIClient()
         self.project_repo = project_repo or ProjectRepository()
 
-    def generate(self, project_id: str, analysis: dict[str, Any]) -> list[dict[str, Any]]:
+    def generate(self, project_id: str, analysis: dict[str, Any], use_batch: bool = True) -> list[dict[str, Any]]:
         """Generate storyboard segments from analysis."""
         duration = analysis.get("total_duration", 0.0)
 
         # Generate segments via GenAI
-        segments = self.genai.build_storyboard(analysis, total_duration=duration)
+        if not use_batch:
+            segments = self.genai.build_storyboard(analysis, total_duration=duration, use_batch=False)
+        else:
+            # --- Batch Mode ---
+            from .batch_service import BatchService
+            batch_service = BatchService()
+            
+            req_body = self.genai.build_storyboard(analysis, total_duration=duration, use_batch=True)
+            
+            job_result = batch_service.submit_batch_job(
+                requests=[req_body],
+                model_name=self.genai.text_model,
+                job_name=f"Storyboard-{project_id}"
+            )
+            
+            job_name = job_result.get("job_id")
+            if not job_name:
+                raise RuntimeError("Failed to submit batch job for storyboard")
+            
+            batch_service.wait_for_job(job_name)
+            
+            results = batch_service.download_results(job_name)
+            if not results:
+                raise RuntimeError("Batch storyboard failed to return results")
+            
+            # BatchService.download_results now returns the parsed content directly
+            data = results[0]
+            
+            # If data is string (extraction failed or was raw text), try to extract JSON
+            if isinstance(data, dict) and "text" in data and "custom_id" in data:
+                # This suggests it wasn't parsed as JSON in the service
+                data = self.genai._extract_json(data["text"])
+            
+            # If it's still a string, try extract again (redundant but safe)
+            if isinstance(data, str):
+                data = self.genai._extract_json(data)
+            
+            if isinstance(data, dict) and "segments" in data:
+                segments = data["segments"]
+            elif isinstance(data, list):
+                segments = data
+            else:
+                logger.warning(f"Unexpected storyboard structure: {type(data)}")
+                segments = []
 
         # Normalize segments to perfectly fit the duration
         if segments and duration > 0:

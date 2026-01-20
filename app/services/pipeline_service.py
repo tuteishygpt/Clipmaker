@@ -11,6 +11,7 @@ from .story_service import StoryboardService
 from .image_service import ImageService
 from .render_service import RenderService
 from ..core.logging import get_logger
+from ..core.config import settings
 
 logger = get_logger(__name__)
 
@@ -41,13 +42,19 @@ class PipelineService:
     def run_full_pipeline(self, project_id: str) -> str:
         """Run the complete video generation pipeline."""
         try:
+            # Determine execution modes from settings
+            use_text_batch = settings.genai_text_mode == "batch"
+            use_image_batch = settings.genai_image_mode == "batch"
+            
+            logger.info(f"Pipeline started for {project_id}. Text Mode: {settings.genai_text_mode}, Image Mode: {settings.genai_image_mode}")
+
             # Step 1: Audio Analysis
             self._update_job(project_id, "pipeline", {
                 "status": "RUNNING", "step": "analysis", "progress": 5
             })
             analysis = self._run_step(
                 project_id, "analysis",
-                lambda: self.audio_service.analyze(project_id)
+                lambda: self.audio_service.analyze(project_id, use_batch=use_text_batch)
             )
             
             # Step 2: Storyboard Generation
@@ -56,7 +63,7 @@ class PipelineService:
             })
             segments = self._run_step(
                 project_id, "segments",
-                lambda: self.story_service.generate(project_id, analysis)
+                lambda: self.story_service.generate(project_id, analysis, use_batch=use_text_batch)
             )
             
             # Step 3: Prompt Generation
@@ -66,7 +73,7 @@ class PipelineService:
             prompts = self._run_step(
                 project_id, "prompts",
                 lambda: self.image_service.generate_prompts(
-                    project_id, segments, analysis
+                    project_id, segments, analysis, use_batch=use_text_batch
                 )
             )
             
@@ -79,7 +86,7 @@ class PipelineService:
             self._run_step(
                 project_id, "images",
                 lambda: self.image_service.generate_all_images(
-                    project_id, prompts, image_progress
+                    project_id, prompts, image_progress, use_batch=use_image_batch
                 )
             )
             

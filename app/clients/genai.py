@@ -76,7 +76,8 @@ class GenAIClient:
         """Upload a file to GenAI and wait for processing."""
         try:
             logger.info(f"Uploading file: {path}")
-            file_ref = self._client.files.upload(path=str(path))
+            # Fix: The SDK expects 'file' instead of 'path'
+            file_ref = self._client.files.upload(file=str(path))
             
             # Wait for processing
             while file_ref.state.name == "PROCESSING":
@@ -102,7 +103,8 @@ class GenAIClient:
         user_style: str = "cinematic",
         user_description: str = "",
         character_description: str = "",
-    ) -> dict[str, Any]:
+        use_batch: bool = False,
+    ) -> dict[str, Any] | str:
         """Analyze audio track for video clip creation."""
         file_ref = None
         if audio_path and audio_path.exists():
@@ -153,8 +155,26 @@ class GenAIClient:
         
         contents = [prompt]
         if file_ref:
+            # For Batch API, we need the resource name in a specific format if we construct manually.
+            # But here we are building for direct generate_content first.
             contents.append(file_ref)
         
+        if use_batch:
+            # Construct a request body suitable for Batch API
+            # Batch API requires a list of parts in 'contents'
+            batch_parts = [{"text": prompt}]
+            if file_ref:
+                batch_parts.append({
+                    "file_data": {
+                        "file_uri": file_ref.uri,
+                        "mime_type": file_ref.mime_type
+                    }
+                })
+            
+            return {
+                "contents": [{"role": "user", "parts": batch_parts}]
+            }
+
         logger.info("Sending audio analysis request to Gemini...")
         response = self._client.models.generate_content(
             model=self.text_model,
@@ -167,7 +187,8 @@ class GenAIClient:
         self,
         analysis: dict[str, Any],
         total_duration: float = 0.0,
-    ) -> list[dict[str, Any]]:
+        use_batch: bool = False,
+    ) -> list[dict[str, Any]] | dict[str, Any]:
         """Build storyboard segments from analysis."""
         prompt = f"""
         Based on this analysis: {analysis}
@@ -204,6 +225,11 @@ class GenAIClient:
         Return ONLY the JSON list.
         """
         
+        if use_batch:
+            return {
+                "contents": [{"role": "user", "parts": [{"text": prompt}]}]
+            }
+
         response = self._client.models.generate_content(
             model=self.text_model,
             contents=[prompt]
@@ -221,6 +247,7 @@ class GenAIClient:
         self,
         segments: list[dict[str, Any]],
         analysis: dict[str, Any] | None = None,
+        use_batch: bool = False,
     ) -> dict[str, Any]:
         """Build image generation prompts for segments."""
         style_anchor = ""
@@ -248,6 +275,11 @@ class GenAIClient:
         Return ONLY the JSON object.
         """
         
+        if use_batch:
+            return {
+                "contents": [{"role": "user", "parts": [{"text": prompt}]}]
+            }
+
         response = self._client.models.generate_content(
             model=self.text_model,
             contents=[prompt]
@@ -313,6 +345,98 @@ class GenAIClient:
             self._log_interaction("generate_image (Multimodal Stream)", prompt, f"<Generated {len(total_bytes)} bytes>")
             return total_bytes
             
+            self._log_interaction("generate_image (Multimodal Stream)", prompt, f"<Generated {len(total_bytes)} bytes>")
+            return total_bytes
+            
         except Exception as e:
             logger.error(f"Image generation failed: {e}")
             return b""
+
+    def create_batch_job(
+        self,
+        dataset_name: str,
+        source_file_path: Path,
+        model_name: str | None = None,
+    ) -> Any | None:
+        """
+        Create a batch job using a local JSONL file.
+        
+        Args:
+            dataset_name: A display name for the batch job.
+            source_file_path: Path to the local .jsonl file containing requests.
+            model_name: Target model (e.g. "gemini-1.5-flash-002"). Defaults to self.text_model.
+            
+        Returns:
+            The created batch job object or None if failed.
+        """
+        try:
+            model = model_name or self.text_model
+            logger.info(f"Creating batch job '{dataset_name}' for model {model} from {source_file_path}")
+            
+            # 1. Upload the file
+            # Batch API requires a specific file upload or referencing a file.
+            # Usually we use client.files.upload and then reference it.
+            # Or client.batches.create might accept a local path depending on SDK version.
+            # Assuming standard Google GenAI SDK flow:
+            
+            # Fix: Use 'file' param and explicit mime_type for JSONL files
+            # Reverting to application/json as it's standard, and using 'dataset' param in create
+            file_ref = self._client.files.upload(
+                file=str(source_file_path),
+                config={"mime_type": "application/json"}
+            )
+            logger.info(f"Uploaded batch file: {file_ref.name}")
+            
+            # Wait for file to be processed (ACTIVE state)
+            while file_ref.state.name == "PROCESSING":
+                time.sleep(1)
+                file_ref = self._client.files.get(name=file_ref.name)
+
+            if file_ref.state.name == "FAILED":
+                raise RuntimeError(f"Batch file processing failed: {file_ref.error.message if hasattr(file_ref, 'error') else 'Unknown error'}")
+
+            logger.info(f"Batch file ready: {file_ref.name} (State: {file_ref.state.name})")
+
+            # 2. Create the batch job
+            # The 'src' parameter implies GCS. For File API, we should use 'dataset'.
+            batch_job = self._client.batches.create(
+                model=model,
+                dataset=file_ref.name,
+                config=types.CreateBatchJobConfig(
+                    display_name=dataset_name
+                )
+            )
+            
+            logger.info(f"Batch job created: {batch_job.name} (State: {batch_job.state})")
+            return batch_job
+            
+        except Exception as e:
+            logger.error(f"Failed to create batch job: {e}")
+            return None
+
+    def get_batch_job(self, job_name: str) -> Any | None:
+        """Get the status of a batch job."""
+        try:
+            return self._client.batches.get(name=job_name)
+        except Exception as e:
+            logger.error(f"Failed to get batch job {job_name}: {e}")
+            return None
+
+    def list_batch_jobs(self, limit: int = 50) -> list[Any]:
+        """List recent batch jobs."""
+        try:
+            return list(self._client.batches.list(page_size=limit))
+        except Exception as e:
+            logger.error(f"Failed to list batch jobs: {e}")
+            return []
+
+    def cancel_batch_job(self, job_name: str) -> Any | None:
+        """Cancel a batch job."""
+        try:
+            # SDK might have .cancel() on the job object or client.batches.cancel(name=...)
+            # Looking at common patterns: client.batches.cancel(name=...)
+            return self._client.batches.cancel(name=job_name)
+        except Exception as e:
+            logger.error(f"Failed to cancel batch job {job_name}: {e}")
+            return None
+

@@ -109,7 +109,7 @@ class AudioAnalysisService:
         self.project_repo = project_repo or ProjectRepository()
         self.file_storage = file_storage or FileStorage()
     
-    def analyze(self, project_id: str) -> dict[str, Any]:
+    def analyze(self, project_id: str, use_batch: bool = True) -> dict[str, Any]:
         """Analyze audio for a project."""
         # Get audio file
         audio_path = self.file_storage.get_audio_path(project_id)
@@ -128,18 +128,63 @@ class AudioAnalysisService:
         user_description = project.get("user_description", "")
         character_description = project.get("character_description", "")
         
-        # GenAI analysis
-        analysis = self.genai.analyze_audio(
-            audio_path=audio_path,
-            duration=duration,
-            technical_analysis=technical_analysis,
-            user_style=user_style,
-            user_description=user_description,
-            character_description=character_description,
-        )
+        # GenAI analysis logic
+        if not use_batch:
+            analysis = self.genai.analyze_audio(
+                audio_path=audio_path,
+                duration=duration,
+                technical_analysis=technical_analysis,
+                user_style=user_style,
+                user_description=user_description,
+                character_description=character_description,
+                use_batch=False
+            )
+        else:
+            # --- Batch Mode ---
+            from .batch_service import BatchService
+            batch_service = BatchService()
+            
+            # 1. Construct the request part
+            req_body = self.genai.analyze_audio(
+                audio_path=audio_path,
+                duration=duration,
+                technical_analysis=technical_analysis,
+                user_style=user_style,
+                user_description=user_description,
+                character_description=character_description,
+                use_batch=True
+            )
+            
+            # 2. Submit Batch Job
+            job_result = batch_service.submit_batch_job(
+                requests=[req_body],
+                model_name=self.genai.text_model,
+                job_name=f"Analysis-{project_id}"
+            )
+            
+            job_name = job_result.get("job_id")
+            if not job_name:
+                raise RuntimeError("Failed to submit batch job for analysis")
+            
+            # 3. Wait for completion
+            batch_service.wait_for_job(job_name)
+            
+            # 4. Process Results
+            results = batch_service.download_results(job_name)
+            if not results:
+                raise RuntimeError("Batch analysis failed to return results")
+            
+            # Parse response - BatchService returns parsed content directly now
+            data = results[0]
+            if isinstance(data, dict) and "text" in data and "custom_id" in data:
+                # Was wrapped as text
+                analysis = self.genai._extract_json(data["text"])
+            elif isinstance(data, str):
+                 analysis = self.genai._extract_json(data)
+            else:
+                 analysis = data
         
         # Add metadata
-        analysis["total_duration"] = duration
         analysis["total_duration"] = duration
         analysis["technical_stats"] = technical_analysis
         analysis["character_description"] = character_description
