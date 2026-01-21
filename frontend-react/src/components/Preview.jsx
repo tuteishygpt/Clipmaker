@@ -9,6 +9,11 @@ function Preview() {
     const videoRef = useRef(null)
     const [imgError, setImgError] = useState(false)
 
+    // Reset error when project or segments change
+    useEffect(() => {
+        setImgError(false)
+    }, [projectId, segments])
+
     // Determine what to show
     const hasVideo = !!videoOutput
     const lastImage = segments.filter(s => s.thumbnail).slice(-1)[0]?.thumbnail

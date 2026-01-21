@@ -8,6 +8,7 @@ import AudioUpload from './components/AudioUpload'
 import GenerationControls from './components/GenerationControls'
 import Preview from './components/Preview'
 import Scenes from './components/Scenes'
+import Analysis from './components/Analysis'
 import Lightbox from './components/Lightbox'
 import Toast from './components/common/Toast'
 import './styles/index.css'
@@ -62,9 +63,9 @@ function App() {
                 {/* Right Panel - Workflow & Status */}
                 <aside className="details-panel">
                     {projectId && (
-                        <div className="sticky-wrapper">
+                        <div className="sticky-wrapper" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                             <WorkflowStepper />
-                            {/* Additional status info can go here */}
+                            <Analysis />
                         </div>
                     )}
                     {!projectId && (

@@ -105,10 +105,12 @@ function Analysis() {
 }
 
 function AnalysisField({ label, value }) {
+    const displayValue = typeof value === 'object' ? JSON.stringify(value, null, 2) : value
+
     return (
         <div className="analysis-section">
             <div className="analysis-label">{label}</div>
-            <div className="analysis-value">{value}</div>
+            <div className="analysis-value" style={{ whiteSpace: 'pre-wrap' }}>{displayValue}</div>
         </div>
     )
 }

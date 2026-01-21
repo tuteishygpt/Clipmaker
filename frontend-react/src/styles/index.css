@@ -119,6 +119,7 @@ body {
     font-weight: 700;
     background: var(--color-gradient-main);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
@@ -1313,6 +1314,118 @@ body {
 .image-placeholder .icon {
     font-size: 2.5rem;
     filter: grayscale(1) opacity(0.3);
+}
+
+/* ===== Analysis Panel ===== */
+.analysis-panel {
+    background: var(--color-bg-card);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 350px);
+    /* Adjust based on WorkflowStepper height */
+    overflow: hidden;
+}
+
+.analysis-header {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.analysis-header h2 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--color-text-primary);
+}
+
+.analysis-scroll-area {
+    padding: var(--spacing-md);
+    overflow-y: auto;
+    flex: 1;
+}
+
+.analysis-section {
+    margin-bottom: var(--spacing-lg);
+}
+
+.analysis-label {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: var(--spacing-xs);
+}
+
+.analysis-value {
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+}
+
+.technical-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: var(--spacing-sm);
+    background: var(--color-bg-tertiary);
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+}
+
+.stat-value {
+    color: var(--color-text-primary);
+    font-weight: 600;
+}
+
+.segments-table-wrapper {
+    margin-top: var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+}
+
+.segments-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+}
+
+.segments-table th {
+    background: var(--color-bg-tertiary);
+    text-align: left;
+    padding: 8px;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    font-size: 0.65rem;
+}
+
+.segments-table td {
+    padding: 8px;
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: top;
+}
+
+.segments-table tr:last-child td {
+    border-bottom: none;
+}
+
+.time-cell {
+    font-family: monospace;
+    color: var(--color-primary);
+}
+
+.section-cell {
+    font-weight: 600;
+    color: var(--color-text-primary);
 }
 
 /* ===== Responsive ===== */

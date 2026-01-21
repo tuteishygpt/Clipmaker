@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useProjectStore } from '../stores/projectStore'
 import { fixImageUrl } from '../utils'
 
@@ -9,6 +9,11 @@ function SceneCard({ segment }) {
     const [saving, setSaving] = useState(false)
     const [regenerating, setRegenerating] = useState(false)
     const [imgError, setImgError] = useState(false)
+
+    // Reset error when segment or thumbnail changes (e.g. project load or regeneration)
+    useEffect(() => {
+        setImgError(false)
+    }, [segment.id, segment.thumbnail])
 
     // Form state
     const [startTime, setStartTime] = useState(segment.start_time)
