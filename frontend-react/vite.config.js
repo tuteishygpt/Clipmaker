@@ -6,6 +6,11 @@ export default defineConfig({
     server: {
         port: 3000,
         proxy: {
+            '/api': {
+                target: 'http://127.0.0.1:8000',
+                changeOrigin: true,
+                rewrite: (path) => path.replace(/^\/api/, '')
+            },
             '/projects': {
                 target: 'http://127.0.0.1:8000',
                 changeOrigin: true
@@ -13,6 +18,16 @@ export default defineConfig({
             '/static': {
                 target: 'http://127.0.0.1:8000',
                 changeOrigin: true
+            }
+        }
+    },
+    preview: {
+        port: 4173,
+        proxy: {
+            '/api': {
+                target: 'http://127.0.0.1:8000',
+                changeOrigin: true,
+                rewrite: (path) => path.replace(/^\/api/, '')
             }
         }
     },
