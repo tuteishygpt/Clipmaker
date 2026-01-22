@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import * as api from '../api'
+import { BASE_URL } from '../api'
 
 export const useProjectStore = create((set, get) => ({
     // State
@@ -228,13 +229,13 @@ export const useProjectStore = create((set, get) => ({
             if (pipeJob?.status === 'DONE' && pipeJob.output) {
                 const parts = pipeJob.output.split(/[\\/]/)
                 const filename = parts[parts.length - 1]
-                videoOutput = `/projects/${projectId}/renders/${filename}`
+                videoOutput = `${BASE_URL}/projects/${projectId}/renders/${filename}`
             }
 
             if (renderJob?.status === 'DONE' && renderJob.output) {
                 const parts = renderJob.output.split(/[\\/]/)
                 const filename = parts[parts.length - 1]
-                videoOutput = `/projects/${projectId}/renders/${filename}`
+                videoOutput = `${BASE_URL}/projects/${projectId}/renders/${filename}`
 
                 // Show completion toast once
                 if (!get().videoOutput && videoOutput) {

@@ -27,15 +27,22 @@ export function formatTime(seconds) {
 }
 
 /**
- * Ensures image URL matches Vite proxy rules (starts with /static if applicable)
+ * Ensures image URL matches Vite proxy rules (starts with /api/static if applicable)
  */
 export function fixImageUrl(path) {
     if (!path) return null;
     if (path.startsWith('http')) return path;
 
-    // Convert relative static path to absolute for proxy
-    if (path.startsWith('static/')) return '/' + path;
-    if (path.startsWith('./static/')) return path.substring(1);
+    const base = import.meta.env.VITE_API_BASE ?? '';
 
-    return path;
+    // Convert relative static path to absolute for proxy
+    if (path.startsWith('static/')) return base + '/' + path;
+    if (path.startsWith('./static/')) return base + '/' + path.substring(2);
+
+    // If it's already absolute but missing the base, add it
+    if (path.startsWith('/') && base && !path.startsWith(base)) {
+        return base + path;
+    }
+
+    return (path.startsWith('/') || !base) ? path : base + '/' + path;
 }
