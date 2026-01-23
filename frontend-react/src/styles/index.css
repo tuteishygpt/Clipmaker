@@ -2167,3 +2167,229 @@ body {
         grid-template-columns: repeat(4, 1fr);
     }
 }
+
+/* ===== User Cabinet Integration Styles ===== */
+
+/* Header Actions */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.header-credits {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: rgba(99, 102, 241, 0.15);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: 20px;
+}
+
+.header-credits .credits-icon {
+    font-size: 1rem;
+}
+
+.header-credits .credits-value {
+    font-weight: 600;
+    color: white;
+}
+
+.btn-cabinet {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border);
+    border-radius: 24px;
+    color: var(--color-text-primary);
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.btn-cabinet:hover {
+    background: var(--color-bg-card);
+    border-color: var(--color-primary);
+}
+
+.user-initial {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.cabinet-label {
+    font-size: 0.9rem;
+}
+
+.btn-sign-in {
+    padding: 10px 24px;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    border-radius: 20px;
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.btn-sign-in:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px -4px rgba(99, 102, 241, 0.5);
+}
+
+/* Generation Warning Banner */
+.generation-warning-banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 12px 24px;
+    background: rgba(245, 158, 11, 0.15);
+    border-bottom: 1px solid rgba(245, 158, 11, 0.3);
+    color: #f59e0b;
+    font-size: 0.9rem;
+}
+
+.generation-warning-banner .warning-icon {
+    font-size: 1.1rem;
+}
+
+.btn-warning-action {
+    margin-left: 8px;
+    padding: 6px 16px;
+    background: rgba(245, 158, 11, 0.2);
+    border-radius: 15px;
+    color: #f59e0b;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+}
+
+.btn-warning-action:hover {
+    background: rgba(245, 158, 11, 0.3);
+}
+
+/* Generation Controls - Credits Info */
+.credits-info-box {
+    padding: 14px 16px;
+    background: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.25);
+    border-radius: 12px;
+    margin-bottom: 16px;
+}
+
+.credits-info-box.warning {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.credits-display-inline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.credits-display-inline .credits-icon {
+    font-size: 1.1rem;
+}
+
+.credits-display-inline .credits-count {
+    font-weight: 600;
+    color: white;
+}
+
+.credits-warning {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #ef4444;
+    font-size: 0.85rem;
+}
+
+.credits-hint {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+}
+
+.control-step.blocked {
+    opacity: 0.7;
+}
+
+.control-step.blocked .btn-primary {
+    background: var(--color-bg-tertiary);
+    box-shadow: none;
+}
+
+.lock-icon {
+    margin-right: 6px;
+}
+
+.btn-upgrade-inline {
+    display: block;
+    text-align: center;
+    margin-top: 12px;
+    padding: 10px;
+    color: var(--color-primary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.btn-upgrade-inline:hover {
+    color: var(--color-accent);
+}
+
+/* Loading Screen */
+.loading-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: var(--color-bg-primary);
+    gap: 20px;
+}
+
+.loading-screen p {
+    color: var(--color-text-muted);
+    font-size: 1rem;
+}
+
+/* Mobile adjustments for cabinet integration */
+@media (max-width: 768px) {
+    .header-actions {
+        gap: 10px;
+    }
+
+    .header-credits {
+        padding: 6px 10px;
+    }
+
+    .cabinet-label {
+        display: none;
+    }
+
+    .btn-cabinet {
+        padding: 6px;
+        border-radius: 50%;
+    }
+
+    .generation-warning-banner {
+        flex-wrap: wrap;
+        text-align: center;
+        padding: 10px 16px;
+        font-size: 0.85rem;
+    }
+}

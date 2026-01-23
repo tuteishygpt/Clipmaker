@@ -8,6 +8,7 @@ from fastapi.staticfiles import StaticFiles
 from .core.config import settings
 from .core.logging import setup_logging
 from .api.projects import router as projects_router
+from .api.cabinet import router as cabinet_router
 from .api.web import router as web_router
 
 # Setup logging
@@ -31,3 +32,4 @@ app.mount("/static", StaticFiles(directory=settings.frontend_dir), name="static"
 # Include routers
 app.include_router(web_router)
 app.include_router(projects_router)
+app.include_router(cabinet_router)

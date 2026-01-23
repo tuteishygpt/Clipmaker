@@ -1,6 +1,8 @@
 import { create } from 'zustand'
 import * as api from '../api'
 import { BASE_URL } from '../api'
+import { useBillingStore } from './billingStore'
+import { useAuthStore } from './authStore'
 
 export const useProjectStore = create((set, get) => ({
     // State
@@ -175,11 +177,31 @@ export const useProjectStore = create((set, get) => ({
         try {
             const result = await api.runPipeline(projectId)
             get().startPolling()
-            get().addToast('Scene generation started...', 'info')
+            get().addToast(result.message || 'Scene generation started...', 'info')
+
+            // Refresh billing data after credits are deducted
+            const { user } = useAuthStore.getState()
+            if (user) {
+                useBillingStore.getState().loadBillingData(user.id)
+            }
+
             return result
         } catch (error) {
             set({ error: error.message })
-            get().addToast('Failed to start generation', 'error')
+
+            // Check if it's a billing error (402 Payment Required)
+            if (error.status === 402) {
+                get().addToast(error.message || 'Insufficient credits or subscription required', 'error')
+                // Refresh billing data to show current status
+                const { user } = useAuthStore.getState()
+                if (user) {
+                    useBillingStore.getState().loadBillingData(user.id)
+                }
+            } else if (error.status === 401) {
+                get().addToast('Please log in to generate content', 'error')
+            } else {
+                get().addToast('Failed to start generation', 'error')
+            }
         }
     },
 
@@ -336,12 +358,37 @@ export const useProjectStore = create((set, get) => ({
         if (!projectId) return
 
         try {
-            await api.regenerateSegment(projectId, segmentId)
+            const result = await api.regenerateSegment(projectId, segmentId)
             get().startPolling()
-            get().addToast('Regenerating image...', 'info')
+
+            // Show credits used if returned
+            if (result.credits_used) {
+                get().addToast(`Regenerating image (${result.credits_used} credit used)...`, 'info')
+            } else {
+                get().addToast('Regenerating image...', 'info')
+            }
+
+            // Refresh billing data after credits are deducted
+            const { user } = useAuthStore.getState()
+            if (user) {
+                useBillingStore.getState().loadBillingData(user.id)
+            }
         } catch (error) {
             set({ error: error.message })
-            get().addToast('Failed to regenerate', 'error')
+
+            // Check if it's a billing error (402 Payment Required)
+            if (error.status === 402) {
+                get().addToast(error.message || 'Insufficient credits', 'error')
+                // Refresh billing data
+                const { user } = useAuthStore.getState()
+                if (user) {
+                    useBillingStore.getState().loadBillingData(user.id)
+                }
+            } else if (error.status === 401) {
+                get().addToast('Please log in to regenerate', 'error')
+            } else {
+                get().addToast('Failed to regenerate', 'error')
+            }
         }
     },
 

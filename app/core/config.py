@@ -21,6 +21,12 @@ class Settings:
     genai_text_mode: str = "standard"
     genai_image_mode: str = "standard"
     
+    # Supabase
+    supabase_url: str | None = None
+    supabase_key: str | None = None  # Service role key for backend
+    supabase_jwt_secret: str | None = None
+    supabase_jwt_public_key: str | None = None
+    
     # Paths
     base_dir: Path = Path(__file__).resolve().parent.parent.parent
     data_dir: Path = base_dir / "data" / "projects"
@@ -36,10 +42,19 @@ class Settings:
             genai_image_model=os.getenv("GENAI_IMAGE_MODEL", "gemini-2.5-flash-image"),
             genai_text_mode=os.getenv("GENAI_TEXT_MODE", "standard"),
             genai_image_mode=os.getenv("GENAI_IMAGE_MODE", "standard"),
+            supabase_url=os.getenv("SUPABASE_URL"),
+            supabase_key=os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY"),
+            supabase_jwt_secret=(os.getenv("SUPABASE_JWT_SECRET") or "").strip().strip('"').strip("'"),
+            supabase_jwt_public_key=(os.getenv("SUPABASE_JWT_PUBLIC_KEY") or "").replace("\\n", "\n").strip().strip('"').strip("'"),
             base_dir=base_dir,
             data_dir=base_dir / "data" / "projects",
             frontend_dir=base_dir / "frontend",
         )
+    
+    @property
+    def supabase_configured(self) -> bool:
+        """Check if Supabase is properly configured."""
+        return bool(self.supabase_url and self.supabase_key)
 
 
 # Global settings instance

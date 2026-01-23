@@ -1,9 +1,9 @@
 """Project API routes."""
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Optional
 
-from fastapi import APIRouter, BackgroundTasks, File, HTTPException, UploadFile
+from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 
 from ..schemas.project import ProjectCreate, ProjectResponse
@@ -13,7 +13,16 @@ from ..repositories.project_repo import ProjectRepository
 from ..repositories.file_storage import FileStorage
 from ..services.pipeline_service import PipelineService
 from ..services.image_service import ImageService
+from ..services.billing_service import billing_service
 from ..core.logging import get_logger
+from ..core.billing import (
+    BillingContext,
+    get_billing_context,
+    require_can_generate,
+    deduct_generation_credits,
+    refund_generation_credits,
+)
+from ..core.auth import AuthenticatedUser, get_optional_user
 
 logger = get_logger(__name__)
 
@@ -27,15 +36,33 @@ image_service = ImageService(project_repo=project_repo, file_storage=file_storag
 
 
 @router.get("", response_model=list[ProjectResponse])
-async def list_projects() -> list[dict[str, Any]]:
-    """List all projects."""
+async def list_projects(
+    user: Optional[AuthenticatedUser] = Depends(get_optional_user)
+) -> list[dict[str, Any]]:
+    """List projects (optionally filtered by user)."""
+    # For now, we still list all local projects for simplicity, 
+    # but we could filter by user.id if records exist in Supabase.
     return project_repo.list_all()
 
 
 @router.post("", response_model=ProjectResponse)
-async def create_project(payload: ProjectCreate) -> dict[str, Any]:
-    """Create a new project."""
-    return project_repo.create(payload.model_dump())
+async def create_project(
+    payload: ProjectCreate,
+    user: Optional[AuthenticatedUser] = Depends(get_optional_user)
+) -> dict[str, Any]:
+    """Create a new project and link it to user if authenticated."""
+    project = project_repo.create(payload.model_dump())
+    
+    if user:
+        await billing_service.link_user_project(
+            user_id=user.id,
+            project_id=project["id"],
+            title=project.get("title") or f"Project {project['id'][:8]}",
+            settings=payload.model_dump()
+        )
+        logger.info(f"Linked new project {project['id']} to user {user.id}")
+        
+    return project
 
 
 @router.get("/{project_id}", response_model=ProjectResponse)
@@ -67,17 +94,51 @@ async def upload_audio(project_id: str, audio: UploadFile = File(...)) -> RunRes
 
 
 @router.post("/{project_id}/run", response_model=RunResponse)
-async def run_project(project_id: str, background: BackgroundTasks) -> RunResponse:
-    """Start the video generation pipeline."""
+async def run_project(
+    project_id: str,
+    background: BackgroundTasks,
+    billing: BillingContext = Depends(require_can_generate)
+) -> RunResponse:
+    """
+    Start the video generation pipeline.
+    
+    Requires authentication and sufficient credits when billing is enabled.
+    Credits will be deducted based on the number of segments.
+    """
     if not project_repo.exists(project_id):
         raise HTTPException(status_code=404, detail="Project not found")
     
-    project_repo.update(project_id, {"status": "RUNNING"})
+    # Get segments to calculate credit cost
+    segments = project_repo.get_segments(project_id)
+    segment_count = len(segments) if segments else 10  # Default estimate
+    credits_needed = segment_count  # 1 credit per image
+    
+    # Verify user has enough credits for all segments
+    billing.require_credits(credits_needed)
+    
+    # Deduct credits upfront
+    transaction_id = await deduct_generation_credits(
+        billing,
+        amount=credits_needed,
+        description=f"Pipeline generation: {segment_count} images",
+        reference_id=project_id
+    )
+    
+    # Store transaction_id in project for potential refunds
+    project_repo.update(project_id, {
+        "status": "RUNNING",
+        "billing_transaction_id": transaction_id,
+        "billing_credits_used": credits_needed,
+        "billing_user_id": billing.user.id if billing.user else None
+    })
     project_repo.update_job(project_id, "pipeline", {"status": "RUNNING", "step": "queued"})
     
     background.add_task(pipeline_service.run_full_pipeline, project_id)
     
-    return RunResponse(status="OK", message="Pipeline started")
+    return RunResponse(
+        status="OK",
+        message=f"Pipeline started ({credits_needed} credits)"
+    )
 
 
 @router.get("/{project_id}/analysis")
@@ -193,8 +254,27 @@ async def update_segment(
 
 
 @router.post("/{project_id}/segments/{seg_id}/regenerate")
-async def regenerate_scene(project_id: str, seg_id: str) -> dict[str, Any]:
-    """Regenerate image for a segment."""
+async def regenerate_scene(
+    project_id: str,
+    seg_id: str,
+    billing: BillingContext = Depends(require_can_generate)
+) -> dict[str, Any]:
+    """
+    Regenerate image for a segment.
+    
+    Requires 1 credit per regeneration.
+    """
+    if not project_repo.exists(project_id):
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Deduct 1 credit for regeneration
+    transaction_id = await deduct_generation_credits(
+        billing,
+        amount=1,
+        description=f"Regenerate segment {seg_id}",
+        reference_id=f"{project_id}:{seg_id}"
+    )
+    
     try:
         prompt = image_service.regenerate_segment(project_id, seg_id)
         
@@ -204,9 +284,27 @@ async def regenerate_scene(project_id: str, seg_id: str) -> dict[str, Any]:
             "message": f"Regenerated {seg_id} v{prompt.get('version', 1)}",
         })
         
-        return {"segment_id": seg_id, "prompt": prompt}
+        return {
+            "segment_id": seg_id,
+            "prompt": prompt,
+            "credits_used": 1,
+            "transaction_id": transaction_id
+        }
     except KeyError:
+        # Refund on error
+        await refund_generation_credits(
+            billing, amount=1, transaction_id=transaction_id,
+            reason=f"Segment {seg_id} not found - refund"
+        )
         raise HTTPException(status_code=404, detail="Segment not found")
+    except Exception as e:
+        # Refund on any generation error
+        await refund_generation_credits(
+            billing, amount=1, transaction_id=transaction_id,
+            reason=f"Regeneration failed: {str(e)}"
+        )
+        logger.error(f"Regeneration failed for {seg_id}: {e}")
+        raise HTTPException(status_code=500, detail="Regeneration failed")
 
 
 @router.post("/{project_id}/recalculate-timings", response_model=RunResponse)
@@ -312,10 +410,22 @@ async def recalculate_timings(project_id: str) -> RunResponse:
 
 
 @router.post("/{project_id}/render", response_model=RunResponse)
-async def render_project(project_id: str, background: BackgroundTasks) -> RunResponse:
-    """Start video rendering."""
+async def render_project(
+    project_id: str,
+    background: BackgroundTasks,
+    billing: BillingContext = Depends(get_billing_context)
+) -> RunResponse:
+    """
+    Start video rendering.
+    
+    Rendering is free (no additional credits), but still tracks the user.
+    """
     if not project_repo.exists(project_id):
         raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Log who initiated the render (for analytics)
+    if billing.user:
+        logger.info(f"User {billing.user.id} started render for {project_id}")
     
     background.add_task(pipeline_service.render_only, project_id)
     
