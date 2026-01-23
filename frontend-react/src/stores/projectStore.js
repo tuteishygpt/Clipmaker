@@ -174,8 +174,10 @@ export const useProjectStore = create((set, get) => ({
         const { projectId } = get()
         if (!projectId) return
 
+        set({ isLoading: true })
         try {
             const result = await api.runPipeline(projectId)
+            await get().refreshJobs()
             get().startPolling()
             get().addToast(result.message || 'Scene generation started...', 'info')
 
@@ -202,6 +204,8 @@ export const useProjectStore = create((set, get) => ({
             } else {
                 get().addToast('Failed to start generation', 'error')
             }
+        } finally {
+            set({ isLoading: false })
         }
     },
 
@@ -209,14 +213,18 @@ export const useProjectStore = create((set, get) => ({
         const { projectId } = get()
         if (!projectId) return
 
+        set({ isLoading: true })
         try {
             const result = await api.renderVideo(projectId)
+            await get().refreshJobs()
             get().startPolling()
             get().addToast('Video rendering started...', 'info')
             return result
         } catch (error) {
             set({ error: error.message })
             get().addToast('Failed to start render', 'error')
+        } finally {
+            set({ isLoading: false })
         }
     },
 

@@ -13,7 +13,8 @@ function GenerationControls() {
         runPipeline,
         renderVideo,
         recalculateTimings,
-        addToast
+        addToast,
+        isLoading
     } = useProjectStore()
 
     const { user } = useAuthStore()
@@ -104,7 +105,7 @@ function GenerationControls() {
                     <button
                         className={`btn-primary full-width ${hasScenes ? 'btn-outline' : ''}`}
                         onClick={handleRunPipeline}
-                        disabled={!projectId || isPipelineRunning || isRenderRunning || isGenerationBlocked}
+                        disabled={!projectId || isPipelineRunning || isRenderRunning || isGenerationBlocked || isLoading}
                     >
                         {isGenerationBlocked ? (
                             <>
@@ -131,7 +132,7 @@ function GenerationControls() {
                     <button
                         className="btn-text"
                         onClick={recalculateTimings}
-                        disabled={isPipelineRunning || isRenderRunning}
+                        disabled={isPipelineRunning || isRenderRunning || isLoading}
                     >
                         ⏱️ Recalculate Timings
                     </button>
@@ -159,7 +160,7 @@ function GenerationControls() {
                     <button
                         className="btn-accent full-width"
                         onClick={handleRenderVideo}
-                        disabled={!hasScenes || isRenderRunning || isPipelineRunning}
+                        disabled={!hasScenes || isRenderRunning || isPipelineRunning || isLoading}
                     >
                         Render Final Video
                     </button>

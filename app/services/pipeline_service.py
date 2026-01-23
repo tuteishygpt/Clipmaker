@@ -12,6 +12,7 @@ from .image_service import ImageService
 from .render_service import RenderService
 from ..core.logging import get_logger
 from ..core.config import settings
+from .billing_service import billing_service
 
 logger = get_logger(__name__)
 
@@ -39,7 +40,7 @@ class PipelineService:
         )
         self.render_service = RenderService(self.project_repo, self.file_storage)
     
-    def run_full_pipeline(self, project_id: str) -> str:
+    async def run_full_pipeline(self, project_id: str) -> str:
         """Run the complete video generation pipeline."""
         try:
             # Determine execution modes from settings
@@ -65,6 +66,39 @@ class PipelineService:
                 project_id, "segments",
                 lambda: self.story_service.generate(project_id, analysis, use_batch=use_text_batch)
             )
+            
+            # BILLING: Deduct credits based on segment count
+            try:
+                project = self.project_repo.get(project_id)
+                user_id = project.get("billing_user_id")
+                
+                if user_id:
+                    count = len(segments)
+                    logger.info(f"Deducting {count} credits for user {user_id}")
+                    
+                    result = await billing_service.deduct_credits(
+                        user_id=user_id,
+                        amount=count,
+                        description=f"Generate {count} images",
+                        reference_id=project_id
+                    )
+                    
+                    if not result.success:
+                        raise RuntimeError(f"Insufficient credits: {result.error}")
+                        
+                    # Update project with billing info
+                    self.project_repo.update(project_id, {
+                        "billing_transaction_id": result.transaction_id,
+                        "billing_credits_used": count
+                    })
+            except Exception as e:
+                logger.error(f"Billing failed: {e}")
+                self._update_job(project_id, "pipeline", {
+                    "status": "FAILED", "error": f"Billing error: {str(e)}"
+                })
+                self.project_repo.update(project_id, {"status": "FAILED"})
+                # Abort pipeline
+                return ""
             
             # Step 3: Prompt Generation
             self._update_job(project_id, "pipeline", {

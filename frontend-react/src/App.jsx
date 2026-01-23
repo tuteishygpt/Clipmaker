@@ -46,14 +46,17 @@ function ProtectedRoute({ children }) {
 
 // Editor view (existing functionality)
 function EditorView() {
-    const { loadProjects, stopPolling, projectId } = useProjectStore()
+    const { loadProjects, stopPolling, projectId, refreshJobs } = useProjectStore()
     const { user } = useAuthStore()
     const { canGenerate, generationBlockReason = null } = useBillingStore()
 
     useEffect(() => {
         loadProjects()
+        if (projectId) {
+            refreshJobs()
+        }
         return () => stopPolling()
-    }, [loadProjects, stopPolling])
+    }, [loadProjects, stopPolling, projectId, refreshJobs])
 
     return (
         <div className="app">

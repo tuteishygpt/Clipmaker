@@ -108,27 +108,13 @@ async def run_project(
     if not project_repo.exists(project_id):
         raise HTTPException(status_code=404, detail="Project not found")
     
-    # Get segments to calculate credit cost
-    segments = project_repo.get_segments(project_id)
-    segment_count = len(segments) if segments else 10  # Default estimate
-    credits_needed = segment_count  # 1 credit per image
+    # Verify user has minimum credits to start (e.g. 5)
+    # The actual amount will be deducted in the pipeline once segments are generated
+    billing.require_credits(5)
     
-    # Verify user has enough credits for all segments
-    billing.require_credits(credits_needed)
-    
-    # Deduct credits upfront
-    transaction_id = await deduct_generation_credits(
-        billing,
-        amount=credits_needed,
-        description=f"Pipeline generation: {segment_count} images",
-        reference_id=project_id
-    )
-    
-    # Store transaction_id in project for potential refunds
+    # Store billing info for the pipeline
     project_repo.update(project_id, {
         "status": "RUNNING",
-        "billing_transaction_id": transaction_id,
-        "billing_credits_used": credits_needed,
         "billing_user_id": billing.user.id if billing.user else None
     })
     project_repo.update_job(project_id, "pipeline", {"status": "RUNNING", "step": "queued"})
@@ -137,7 +123,7 @@ async def run_project(
     
     return RunResponse(
         status="OK",
-        message=f"Pipeline started ({credits_needed} credits)"
+        message="Pipeline started (credits will be deducted during generation)"
     )
 
 
