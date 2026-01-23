@@ -11757,3 +11757,399 @@ First-person POV shot looking out from inside a damaged sci-fi helmet. The inter
 2026-01-20 15:29:41,140 - app.clients.genai - INFO - RESPONSE:
 <Generated 1747755 bytes>
 2026-01-20 15:29:41,141 - app.clients.genai - INFO - ----------------------------------------
+2026-01-21 17:50:16,215 - app.services.pipeline_service - INFO - Pipeline started for 31ebc6be7530427986c23b3f283c135a. Text Mode: standard, Image Mode: batch
+2026-01-21 17:50:34,978 - app.clients.genai - INFO - Uploading file: D:\googlePRJ\clipmaker\Clipmaker\data\projects\31ebc6be7530427986c23b3f283c135a\source\track.wav
+2026-01-21 17:50:37,663 - app.clients.genai - INFO - File uploaded and processed: files/9aji2wzj9b7y
+2026-01-21 17:50:37,663 - app.clients.genai - INFO - Sending audio analysis request to Gemini...
+2026-01-21 17:50:37,664 - root - INFO - AFC is enabled with max remote calls: 10.
+2026-01-21 17:51:03,644 - app.clients.genai - INFO - ----------------------------------------
+2026-01-21 17:51:03,644 - app.clients.genai - INFO - GEMINI INTERACTION: analyze_audio
+2026-01-21 17:51:03,645 - app.clients.genai - INFO - REQUEST:
+['\n        Analyze the audio track in this song to create a video clip. \n        The total duration of the audio is 5.28 seconds.\n        \n        USER REQUEST / PLOT DESCRIPTION:\n        ""\n        (This is the most important instruction. The narrative, metaphors, and events MUST follow this description if provided. If empty, invent a creative one).\n        \n        The user has requested the visual style: "cinematic".\n\n        CHARACTER DESCRIPTION:\n        ""\n        (If provided, this character MUST be the protagonist of the video).\n        \n        \nTechnical Analysis Data (librosa):\n{\n  "bpm": 191.40625,\n  "beat_times": [\n    0.33668934240362813,\n    0.6501587301587302,\n    0.9520181405895691,\n    1.2887074829931973,\n    1.6253968253968254,\n    1.9504761904761905,\n    2.2755555555555556,\n    2.6006349206349206,\n    2.948934240362812,\n    3.297233560090703,\n    3.610702947845805,\n    3.912562358276644,\n    4.2260317460317465,\n    4.539501133786848,\n    4.829750566893424\n  ],\n  "beat_strengths": [\n    0.34870973229408264,\n    0.832187294960022,\n    0.4519956111907959,\n    0.06420387327671051,\n    0.8736666440963745,\n    0.5198363661766052,\n    0.0837445855140686,\n    0.8490664958953857,\n    0.03575202450156212,\n    0.5253130197525024,\n    0.9999998807907104,\n    0.4440905451774597,\n    0.07885102927684784,\n    0.6350892782211304,\n    0.4921402335166931\n  ],\n  "onset_times": [\n    0.18575963718820862,\n    0.26702947845804986,\n    0.33668934240362813,\n    0.46439909297052157,\n    0.5108390022675737,\n    0.603718820861678,\n    0.6501587301587302,\n    0.9404081632653061,\n    1.474467120181406,\n    1.6137868480725623,\n    1.787936507936508,\n    1.9388662131519274,\n    2.3336054421768706,\n    2.4380952380952383,\n    2.589024943310658,\n    2.6354648526077096,\n    2.75156462585034,\n    2.9257142857142857,\n    3.2624036281179136,\n    3.3901133786848074,\n    3.599092970521542,\n    3.645532879818594,\n    3.7616326530612243,\n    3.912562358276644,\n    4.156371882086168,\n    4.446621315192743,\n    4.539501133786848,\n    4.6788208616780045,\n    4.713650793650793,\n    4.818140589569161,\n    4.9806802721088435,\n    5.061950113378685,\n    5.178049886621316\n  ],\n  "beat_confidence": 0.7615692610165391,\n  "tempo_stability": 0.947742252154634,\n  "energy_stats": {\n    "avg": 0.08149248361587524,\n    "max": 0.3839966058731079\n  }\n}\n\n        \n        Please provide:\n        1. A summary of the song\'s energy, mood, and style.\n        2. A "global_visual_narrative": A single, cohesive visual metaphor or story concept (e.g. "journey of an abandoned robot" or "a cyber-gothic dance in rain") that will persist throughout the video. If the user provided a plot description, adapt it here.\n        3. A "visual_style_anchor": A specific, consistent visual style description BASED ON "cinematic" (e.g. if user said "Anime", generate "90s Cyberpunk Anime, high contrast").\n        4. A list of segments that cover the ENTIRE duration (5.28s).\n        \n        For each segment, identify:\n        - start_time and end_time (0.0 to 5.28)\n        - speaker (if vocals generally)\n        - text (lyrics)\n        - emotion\n        - instrumentation (e.g. "guitar solo", "heavy drums", "minimal synth")\n        - section_type (e.g. "intro", "verse", "chorus", "bridge", "drop", "climax", "outro")\n        - acoustic_environment (e.g. "studio", "live hall", "lo-fi", "underwater", "echoey")\n        \n        Ensure:\n        - Segments have NO GAPS and NO OVERLAPS.\n        - The sequence covers exactly from 0.0 to 5.28.\n        - Use the Technical Analysis (BPM, Energy) to align segments with beats and intense moments if possible.\n        \n        Return as a JSON object with keys: "summary", "global_visual_narrative", "visual_style_anchor", "segments".\n        ', File(name='files/9aji2wzj9b7y', display_name=None, mime_type='audio/wav', size_bytes=466092, create_time=datetime.datetime(2026, 1, 21, 15, 55, 12, 234116, tzinfo=TzInfo(0)), expiration_time=datetime.datetime(2026, 1, 23, 15, 55, 11, 788370, tzinfo=TzInfo(0)), update_time=datetime.datetime(2026, 1, 21, 15, 55, 12, 234116, tzinfo=TzInfo(0)), sha256_hash='ODI5YmViNDAzM2I0NDUwMjc1Y2ZmZjNkNDJmMmY0NjBhYmFlMjgyOGFhM2FhNGY1MTRkYWY3NTE3ZjVjMzg4OQ==', uri='https://generativelanguage.googleapis.com/v1beta/files/9aji2wzj9b7y', download_uri=None, state=<FileState.ACTIVE: 'ACTIVE'>, source=<FileSource.UPLOADED: 'UPLOADED'>, video_metadata=None, error=None)]
+2026-01-21 17:51:03,647 - app.clients.genai - INFO - RESPONSE:
+```json
+{
+  "summary": "A solemn and atmospheric spoken-word introduction, likely the beginning of an audiobook or cinematic prologue. The mood is historical, epic, and calm, characterized by a deep narrative voice setting a scene of antiquity. The energy is restrained, focusing on clarity and setting the stage.",
+  "global_visual_narrative": "The opening sequence of a historical epic set in 17th-century Eastern Europe. The camera pans over a wild, mist-covered river landscape at dawn, revealing a secluded settlement on a river island ('ostrów'), establishing a tone of solitude and ancient rustic life.",
+  "visual_style_anchor": "17th Century Historical Cinematic, 35mm film grain, muted earth tones, soft volumetric fog, ultra-realistic 8k, widescreen aspect ratio",
+  "segments": [
+    {
+      "start_time": 0.0,
+      "end_time": 1.62,
+      "speaker": "Narrator",
+      "text": "Część pierwsza",
+      "emotion": "Solemn, Formal",
+      "instrumentation": "Deep male voice, subtle wind ambience",
+      "section_type": "intro",
+      "acoustic_environment": "studio close-mic",
+      "visual_description": "A black screen slowly fades into a weathered, ancient parchment texture. Elegant, archaic typography fades in: 'CZĘŚĆ PIERWSZA'. Dust motes dance in a shaft of light hitting the paper."
+    },
+    {
+      "start_time": 1.62,
+      "end_time": 3.20,
+      "speaker": "Narrator",
+      "text": "Rozdział pierwszy",
+      "emotion": "Anticipatory, Calm",
+      "instrumentation": "Deep male voice, faint river sounds fading in",
+      "section_type": "intro",
+      "acoustic_environment": "studio close-mic",
+      "visual_description": "The parchment dissolves into a wide, cinematic drone shot of a wide river winding through wild steppes. The lighting is moody, pre-dawn blue turning to gold. Mist clings to the water's surface."
+    },
+    {
+      "start_time": 3.20,
+      "end_time": 5.28,
+      "speaker": "Narrator",
+      "text": "Chaty były na ostrowie",
+      "emotion": "Descriptive, Nostalgic",
+      "instrumentation": "Deep male voice, clear articulation",
+      "section_type": "verse",
+      "acoustic_environment": "studio close-mic",
+      "visual_description": "The camera pushes in towards a specific island in the river. We see rustic wooden huts (chaty) with thatched roofs. Smoke rises gently from a chimney. The scene is peaceful but isolated."
+    }
+  ]
+}
+```
+2026-01-21 17:51:03,648 - app.clients.genai - INFO - ----------------------------------------
+2026-01-21 17:51:03,672 - root - INFO - AFC is enabled with max remote calls: 10.
+2026-01-21 17:51:33,353 - app.clients.genai - INFO - ----------------------------------------
+2026-01-21 17:51:33,353 - app.clients.genai - INFO - GEMINI INTERACTION: build_storyboard
+2026-01-21 17:51:33,353 - app.clients.genai - INFO - REQUEST:
+['\n        Based on this analysis: {\'summary\': \'A solemn and atmospheric spoken-word introduction, likely the beginning of an audiobook or cinematic prologue. The mood is historical, epic, and calm, characterized by a deep narrative voice setting a scene of antiquity. The energy is restrained, focusing on clarity and setting the stage.\', \'global_visual_narrative\': "The opening sequence of a historical epic set in 17th-century Eastern Europe. The camera pans over a wild, mist-covered river landscape at dawn, revealing a secluded settlement on a river island (\'ostrów\'), establishing a tone of solitude and ancient rustic life.", \'visual_style_anchor\': \'17th Century Historical Cinematic, 35mm film grain, muted earth tones, soft volumetric fog, ultra-realistic 8k, widescreen aspect ratio\', \'segments\': [{\'start_time\': 0.0, \'end_time\': 1.62, \'speaker\': \'Narrator\', \'text\': \'Część pierwsza\', \'emotion\': \'Solemn, Formal\', \'instrumentation\': \'Deep male voice, subtle wind ambience\', \'section_type\': \'intro\', \'acoustic_environment\': \'studio close-mic\', \'visual_description\': "A black screen slowly fades into a weathered, ancient parchment texture. Elegant, archaic typography fades in: \'CZĘŚĆ PIERWSZA\'. Dust motes dance in a shaft of light hitting the paper."}, {\'start_time\': 1.62, \'end_time\': 3.2, \'speaker\': \'Narrator\', \'text\': \'Rozdział pierwszy\', \'emotion\': \'Anticipatory, Calm\', \'instrumentation\': \'Deep male voice, faint river sounds fading in\', \'section_type\': \'intro\', \'acoustic_environment\': \'studio close-mic\', \'visual_description\': "The parchment dissolves into a wide, cinematic drone shot of a wide river winding through wild steppes. The lighting is moody, pre-dawn blue turning to gold. Mist clings to the water\'s surface."}, {\'start_time\': 3.2, \'end_time\': 5.28, \'speaker\': \'Narrator\', \'text\': \'Chaty były na ostrowie\', \'emotion\': \'Descriptive, Nostalgic\', \'instrumentation\': \'Deep male voice, clear articulation\', \'section_type\': \'verse\', \'acoustic_environment\': \'studio close-mic\', \'visual_description\': \'The camera pushes in towards a specific island in the river. We see rustic wooden huts (chaty) with thatched roofs. Smoke rises gently from a chimney. The scene is peaceful but isolated.\'}], \'total_duration\': 5.28, \'technical_stats\': {\'bpm\': 191.40625, \'beat_times\': [0.33668934240362813, 0.6501587301587302, 0.9520181405895691, 1.2887074829931973, 1.6253968253968254, 1.9504761904761905, 2.2755555555555556, 2.6006349206349206, 2.948934240362812, 3.297233560090703, 3.610702947845805, 3.912562358276644, 4.2260317460317465, 4.539501133786848, 4.829750566893424], \'beat_strengths\': [0.34870973229408264, 0.832187294960022, 0.4519956111907959, 0.06420387327671051, 0.8736666440963745, 0.5198363661766052, 0.0837445855140686, 0.8490664958953857, 0.03575202450156212, 0.5253130197525024, 0.9999998807907104, 0.4440905451774597, 0.07885102927684784, 0.6350892782211304, 0.4921402335166931], \'onset_times\': [0.18575963718820862, 0.26702947845804986, 0.33668934240362813, 0.46439909297052157, 0.5108390022675737, 0.603718820861678, 0.6501587301587302, 0.9404081632653061, 1.474467120181406, 1.6137868480725623, 1.787936507936508, 1.9388662131519274, 2.3336054421768706, 2.4380952380952383, 2.589024943310658, 2.6354648526077096, 2.75156462585034, 2.9257142857142857, 3.2624036281179136, 3.3901133786848074, 3.599092970521542, 3.645532879818594, 3.7616326530612243, 3.912562358276644, 4.156371882086168, 4.446621315192743, 4.539501133786848, 4.6788208616780045, 4.713650793650793, 4.818140589569161, 4.9806802721088435, 5.061950113378685, 5.178049886621316], \'beat_confidence\': 0.7615692610165391, \'tempo_stability\': 0.947742252154634, \'energy_stats\': {\'avg\': 0.08149248361587524, \'max\': 0.3839966058731079}}, \'character_description\': \'\'}\n        \n        Create a storyboard as a JSON list of segments.\n        The total duration MUST be EXACTLY 5.28 seconds.\n        \n        Follow the "global_visual_narrative" defined in the analysis. The video must feel like a cohesive film with a clear Narrative Arc (Beginning, Development, Climax).\n        \n        Crucial: React to changes in music intensity (from technical analysis stats or section_type) by changing the INTENSITY of the plot/visuals. \n        - If the music builds up (climax/drop), the visuals must become more massive, dynamic, or fast-paced.\n        - If the music is calm, the visuals should be steady and atmospheric.\n        \n        PACING INSTRUCTION:\n        - The user wants a dynamic video with MANY segments.\n        - Aim for segment durations between 2 and 5 seconds for most parts.\n        - Only use longer segments (up to 8s) for very slow, atmospheric parts.\n        - Avoid creating few long segments. We need a high "segment density".\n        \n        Each segment MUST have:\n        - id: a unique string like "seg_1", "seg_2", etc.\n        - start_time: "MM:SS" (or total seconds)\n        - end_time: "MM:SS" (or total seconds)\n        - lyric_text: the transcript for this segment\n        - visual_intent: a detailed description of what should be on screen, following the global narrative and current intensity.\n        - camera_angle: suggested camera shot (e.g. "Close-up", "Wide shot", "Drone shot")\n        - emotion: the detected emotion\n        \n        IMPORTANT: The segments MUST tile the entire 5.28 seconds. \n        The first segment must start at 00:00. \n        The last segment must end at 5.28.\n        No gaps, no overlaps.\n        \n        Return ONLY the JSON list.\n        ']
+2026-01-21 17:51:33,354 - app.clients.genai - INFO - RESPONSE:
+```json
+[
+    {
+        "id": "seg_1",
+        "start_time": 0.0,
+        "end_time": 1.62,
+        "lyric_text": "Część pierwsza",
+        "visual_intent": "A black screen fades into an extreme close-up of weathered, ancient parchment texture. Elegant, archaic serif typography fades in reading 'CZĘŚĆ PIERWSZA'. A single shaft of light illuminates dust motes dancing in the air, establishing a solemn, historical atmosphere.",
+        "camera_angle": "Macro static shot",
+        "emotion": "Solemn, Formal"
+    },
+    {
+        "id": "seg_2",
+        "start_time": 1.62,
+        "end_time": 3.2,
+        "lyric_text": "Rozdział pierwszy",
+        "visual_intent": "The parchment texture dissolves into the surface of a wide, flowing river at dawn. The scene opens up to a vast, misty steppe landscape in muted blue and gold tones. The text 'ROZDZIAŁ PIERWSZY' appears subtly over the water before fading out.",
+        "camera_angle": "Wide drone shot, slow pan",
+        "emotion": "Anticipatory, Calm"
+    },
+    {
+        "id": "seg_3",
+        "start_time": 3.2,
+        "end_time": 5.28,
+        "lyric_text": "Chaty były na ostrowie",
+        "visual_intent": "The camera pushes forward through the morning fog towards a secluded island in the river. Rustic wooden huts (chaty) with thatched roofs gradually emerge from the mist. A thin trail of smoke rises from one chimney, suggesting life within the isolation.",
+        "camera_angle": "Aerial Push-in",
+        "emotion": "Descriptive, Nostalgic"
+    }
+]
+```
+2026-01-21 17:51:33,354 - app.clients.genai - INFO - ----------------------------------------
+2026-01-21 17:51:33,355 - app.services.story_service - INFO - Normalizing 3 segments: total_suggested=5.28s, target_duration=5.28s, scale_factor=1.000
+2026-01-21 17:51:33,355 - app.services.story_service - INFO - Rhythmic normalization complete. Avg: 1.76s, EffMax: 6.00s
+2026-01-21 17:51:33,376 - root - INFO - AFC is enabled with max remote calls: 10.
+2026-01-21 17:51:53,688 - app.clients.genai - INFO - ----------------------------------------
+2026-01-21 17:51:53,689 - app.clients.genai - INFO - GEMINI INTERACTION: build_prompts
+2026-01-21 17:51:53,689 - app.clients.genai - INFO - REQUEST:
+['\n        For each of these segments, create a detailed image generation prompt.\n        \n        Global Style Anchor: "17th Century Historical Cinematic, 35mm film grain, muted earth tones, soft volumetric fog, ultra-realistic 8k, widescreen aspect ratio" \n        (YOU MUST APPEND THIS EXACT STYLE DESCRIPTION TO EVERY SINGLE PROMPT TO ENSURE CONSISTENCY).\n\n        CHARACTER CONSISTENCY:\n        Character Description: ""\n        (If the character appears, they MUST match this description. If the scene allows, feature this character).\n        \n        Segments: [{\'id\': \'seg_1\', \'start_time\': 0.0, \'end_time\': 1.6253968253968254, \'lyric_text\': \'Część pierwsza\', \'visual_intent\': "A black screen fades into an extreme close-up of weathered, ancient parchment texture. Elegant, archaic serif typography fades in reading \'CZĘŚĆ PIERWSZA\'. A single shaft of light illuminates dust motes dancing in the air, establishing a solemn, historical atmosphere.", \'camera_angle\': \'Macro static shot\', \'emotion\': \'Solemn, Formal\'}, {\'id\': \'seg_2\', \'start_time\': 1.6253968253968254, \'end_time\': 3.297233560090703, \'lyric_text\': \'Rozdział pierwszy\', \'visual_intent\': "The parchment texture dissolves into the surface of a wide, flowing river at dawn. The scene opens up to a vast, misty steppe landscape in muted blue and gold tones. The text \'ROZDZIAŁ PIERWSZY\' appears subtly over the water before fading out.", \'camera_angle\': \'Wide drone shot, slow pan\', \'emotion\': \'Anticipatory, Calm\'}, {\'id\': \'seg_3\', \'start_time\': 3.297233560090703, \'end_time\': 5.28, \'lyric_text\': \'Chaty były na ostrowie\', \'visual_intent\': \'The camera pushes forward through the morning fog towards a secluded island in the river. Rustic wooden huts (chaty) with thatched roofs gradually emerge from the mist. A thin trail of smoke rises from one chimney, suggesting life within the isolation.\', \'camera_angle\': \'Aerial Push-in\', \'emotion\': \'Descriptive, Nostalgic\'}]\n        \n        Return a JSON object where keys are the segment IDs ("seg_1", etc.) and values are objects containing:\n        - image_prompt: the detailed prompt for the AI image generator\n        - negative_prompt: what to avoid in the image (optional)\n        - style_hints: keywords about the style (optional)\n        - version: 1\n        \n        Return ONLY the JSON object.\n        ']
+2026-01-21 17:51:53,690 - app.clients.genai - INFO - RESPONSE:
+{
+  "seg_1": {
+    "image_prompt": "Extreme macro close-up of weathered, ancient parchment texture with visible grain and age spots. Elegant, archaic serif typography fading in, reading 'CZĘŚĆ PIERWSZA' in dark ink. A single shaft of light cuts across the scene, illuminating dust motes dancing in the air, creating a solemn atmosphere. 17th Century Historical Cinematic, 35mm film grain, muted earth tones, soft volumetric fog, ultra-realistic 8k, widescreen aspect ratio",
+    "negative_prompt": "modern paper, white paper, digital art, neon, bright colors, sans-serif font, spelling errors, blurry text, modern objects, plastic",
+    "style_hints": "Macro photography, textural, chiaroscuro lighting, solemn",
+    "version": 1
+  },
+  "seg_2": {
+    "image_prompt": "Wide drone shot of a vast, flowing river at dawn, winding through a misty wild steppe landscape. The color palette consists of muted blues and dull golds. Subtle, cinematic text overlay reading 'ROZDZIAŁ PIERWSZY' hovers just above the water's surface. The scene is calm and anticipatory. 17th Century Historical Cinematic, 35mm film grain, muted earth tones, soft volumetric fog, ultra-realistic 8k, widescreen aspect ratio",
+    "negative_prompt": "modern buildings, power lines, bridges, bright sunny day, oversaturated, cartoon, modern boats, clutter",
+    "style_hints": "Wide angle, landscape, dawn lighting, atmospheric perspective",
+    "version": 1
+  },
+  "seg_3": {
+    "image_prompt": "Aerial view pushing in through thick morning fog towards a secluded island in the middle of a river. Several rustic wooden huts with thatched roofs partially emerge from the heavy mist. A thin, lonely trail of smoke rises from one chimney. The atmosphere is isolated and nostalgic. 17th Century Historical Cinematic, 35mm film grain, muted earth tones, soft volumetric fog, ultra-realistic 8k, widescreen aspect ratio",
+    "negative_prompt": "modern architecture, metal roofs, paved roads, cars, clear skies, high contrast, bustling city, bright sunshine",
+    "style_hints": "Aerial photography, mysterious, foggy, rural architecture",
+    "version": 1
+  }
+}
+2026-01-21 17:51:53,690 - app.clients.genai - INFO - ----------------------------------------
+2026-01-21 17:51:53,699 - app.clients.genai - INFO - GenAI client initialized (API key length: 39)
+2026-01-21 17:51:53,699 - app.services.image_service - INFO - Starting BATCH image generation for project 31ebc6be7530427986c23b3f283c135a with 3 prompts
+2026-01-21 17:51:53,724 - app.services.batch_service - INFO - Created batch file: D:\googlePRJ\clipmaker\Clipmaker\data\batch_jobs\batch-edca7ed6.jsonl
+2026-01-21 17:51:53,724 - app.services.batch_service - INFO - Uploading batch file: D:\googlePRJ\clipmaker\Clipmaker\data\batch_jobs\batch-edca7ed6.jsonl
+2026-01-21 17:51:55,976 - app.services.batch_service - INFO - Uploaded batch file files/pih9v7yjyp7b. Creating job via REST...
+2026-01-21 17:51:57,833 - app.services.batch_service - INFO - Batch job submitted successfully via REST: batches/03s8r11pqrasun29pgwcdx3byu3kh2q4lpar
+2026-01-21 17:51:57,835 - app.services.image_service - INFO - Batch job submitted: batches/03s8r11pqrasun29pgwcdx3byu3kh2q4lpar. Waiting for completion...
+2026-01-21 17:51:57,835 - app.services.batch_service - INFO - Waiting for batch job batches/03s8r11pqrasun29pgwcdx3byu3kh2q4lpar...
+2026-01-21 17:54:05,038 - app.services.batch_service - INFO - Downloading results from files/batch-03s8r11pqrasun29pgwcdx3byu3kh2q4lpar...
+2026-01-21 17:54:06,723 - app.services.image_service - INFO - Downloaded 3 results from batch job
+2026-01-21 17:54:06,752 - app.services.image_service - INFO - Successfully saved 3 images from batch.
+2026-01-21 20:53:22,170 - app.services.pipeline_service - INFO - Pipeline started for c120c79117ca4870aa5d48e92d7efb87. Text Mode: standard, Image Mode: batch
+2026-01-21 20:53:22,733 - app.clients.genai - INFO - Uploading file: D:\googlePRJ\clipmaker\Clipmaker\data\projects\c120c79117ca4870aa5d48e92d7efb87\source\track.wav
+2026-01-21 20:53:25,780 - app.clients.genai - INFO - File uploaded and processed: files/2burmg2pa4gy
+2026-01-21 20:53:25,782 - app.clients.genai - INFO - Sending audio analysis request to Gemini...
+2026-01-21 20:53:25,784 - root - INFO - AFC is enabled with max remote calls: 10.
+2026-01-21 20:53:54,934 - app.clients.genai - INFO - ----------------------------------------
+2026-01-21 20:53:54,934 - app.clients.genai - INFO - GEMINI INTERACTION: analyze_audio
+2026-01-21 20:53:54,940 - app.clients.genai - INFO - REQUEST:
+['\n        Analyze the audio track in this song to create a video clip. \n        The total duration of the audio is 5.28 seconds.\n        \n        USER REQUEST / PLOT DESCRIPTION:\n        ""\n        (This is the most important instruction. The narrative, metaphors, and events MUST follow this description if provided. If empty, invent a creative one).\n        \n        The user has requested the visual style: "cinematic".\n\n        CHARACTER DESCRIPTION:\n        ""\n        (If provided, this character MUST be the protagonist of the video).\n        \n        \nTechnical Analysis Data (librosa):\n{\n  "bpm": 191.40625,\n  "beat_times": [\n    0.33668934240362813,\n    0.6501587301587302,\n    0.9520181405895691,\n    1.2887074829931973,\n    1.6253968253968254,\n    1.9504761904761905,\n    2.2755555555555556,\n    2.6006349206349206,\n    2.948934240362812,\n    3.297233560090703,\n    3.610702947845805,\n    3.912562358276644,\n    4.2260317460317465,\n    4.539501133786848,\n    4.829750566893424\n  ],\n  "beat_strengths": [\n    0.34870973229408264,\n    0.832187294960022,\n    0.4519956111907959,\n    0.06420387327671051,\n    0.8736666440963745,\n    0.5198363661766052,\n    0.0837445855140686,\n    0.8490664958953857,\n    0.03575202450156212,\n    0.5253130197525024,\n    0.9999998807907104,\n    0.4440905451774597,\n    0.07885102927684784,\n    0.6350892782211304,\n    0.4921402335166931\n  ],\n  "onset_times": [\n    0.18575963718820862,\n    0.26702947845804986,\n    0.33668934240362813,\n    0.46439909297052157,\n    0.5108390022675737,\n    0.603718820861678,\n    0.6501587301587302,\n    0.9404081632653061,\n    1.474467120181406,\n    1.6137868480725623,\n    1.787936507936508,\n    1.9388662131519274,\n    2.3336054421768706,\n    2.4380952380952383,\n    2.589024943310658,\n    2.6354648526077096,\n    2.75156462585034,\n    2.9257142857142857,\n    3.2624036281179136,\n    3.3901133786848074,\n    3.599092970521542,\n    3.645532879818594,\n    3.7616326530612243,\n    3.912562358276644,\n    4.156371882086168,\n    4.446621315192743,\n    4.539501133786848,\n    4.6788208616780045,\n    4.713650793650793,\n    4.818140589569161,\n    4.9806802721088435,\n    5.061950113378685,\n    5.178049886621316\n  ],\n  "beat_confidence": 0.7615692610165391,\n  "tempo_stability": 0.947742252154634,\n  "energy_stats": {\n    "avg": 0.08149248361587524,\n    "max": 0.3839966058731079\n  }\n}\n\n        \n        Please provide:\n        1. A summary of the song\'s energy, mood, and style.\n        2. A "global_visual_narrative": A single, cohesive visual metaphor or story concept (e.g. "journey of an abandoned robot" or "a cyber-gothic dance in rain") that will persist throughout the video. If the user provided a plot description, adapt it here.\n        3. A "visual_style_anchor": A specific, consistent visual style description BASED ON "cinematic" (e.g. if user said "Anime", generate "90s Cyberpunk Anime, high contrast").\n        4. A list of segments that cover the ENTIRE duration (5.28s).\n        \n        For each segment, identify:\n        - start_time and end_time (0.0 to 5.28)\n        - speaker (if vocals generally)\n        - text (lyrics)\n        - emotion\n        - instrumentation (e.g. "guitar solo", "heavy drums", "minimal synth")\n        - section_type (e.g. "intro", "verse", "chorus", "bridge", "drop", "climax", "outro")\n        - acoustic_environment (e.g. "studio", "live hall", "lo-fi", "underwater", "echoey")\n        \n        Ensure:\n        - Segments have NO GAPS and NO OVERLAPS.\n        - The sequence covers exactly from 0.0 to 5.28.\n        - Use the Technical Analysis (BPM, Energy) to align segments with beats and intense moments if possible.\n        \n        Return as a JSON object with keys: "summary", "global_visual_narrative", "visual_style_anchor", "segments".\n        ', File(name='files/2burmg2pa4gy', display_name=None, mime_type='audio/wav', size_bytes=466092, create_time=datetime.datetime(2026, 1, 21, 18, 58, 0, 422272, tzinfo=TzInfo(0)), expiration_time=datetime.datetime(2026, 1, 23, 18, 57, 59, 913779, tzinfo=TzInfo(0)), update_time=datetime.datetime(2026, 1, 21, 18, 58, 0, 422272, tzinfo=TzInfo(0)), sha256_hash='ODI5YmViNDAzM2I0NDUwMjc1Y2ZmZjNkNDJmMmY0NjBhYmFlMjgyOGFhM2FhNGY1MTRkYWY3NTE3ZjVjMzg4OQ==', uri='https://generativelanguage.googleapis.com/v1beta/files/2burmg2pa4gy', download_uri=None, state=<FileState.ACTIVE: 'ACTIVE'>, source=<FileSource.UPLOADED: 'UPLOADED'>, video_metadata=None, error=None)]
+2026-01-21 20:53:54,942 - app.clients.genai - INFO - RESPONSE:
+```json
+{
+  "summary": "This audio track is a spoken-word narrative introduction, likely from an audiobook or a cinematic prologue. It features a calm, male voice speaking in Belarusian, announcing 'Part one, chapter one' followed by the opening line 'The houses were on the island'. The mood is atmospheric, literary, and preparatory, with a steady, moderate pacing typical of storytelling.",
+  "global_visual_narrative": "The opening sequence of a period drama or mystery film. The video begins in darkness or with a focus on texture (like old paper or a book cover) to signify the start of a story, then transitions into a sweeping, cinematic establishing shot of a remote, misty island dotted with traditional wooden houses, matching the narration.",
+  "visual_style_anchor": "Cinematic Historical Realism, 2.39:1 aspect ratio, anamorphic lens flares, muted earth tones, soft diffused lighting, 35mm film grain, high detail.",
+  "segments": [
+    {
+      "start_time": 0.0,
+      "end_time": 2.9,
+      "speaker": "Male Narrator",
+      "text": "Частка першая, раздзел першы (Part one, chapter one)",
+      "emotion": "Formal, Anticipatory",
+      "instrumentation": "Solo Voice",
+      "section_type": "intro",
+      "acoustic_environment": "studio close-mic",
+      "visual_description": "A close-up of an aged, leather-bound book lying on a dark wooden table. The cover slowly opens or a title card fades in with elegant serif typography against a black background. The lighting is low-key and dramatic."
+    },
+    {
+      "start_time": 2.9,
+      "end_time": 5.28,
+      "speaker": "Male Narrator",
+      "text": "Хаты былі на востраве (The houses were on the island)",
+      "emotion": "Descriptive, Calm",
+      "instrumentation": "Solo Voice",
+      "section_type": "verse",
+      "acoustic_environment": "studio close-mic",
+      "visual_description": "A wide, cinematic drone shot revealing a small, isolated island in the middle of a calm, grey lake. Mist hovers over the water. Several rustic wooden cottages are visible on the shore. The camera tracks forward slowly, establishing the setting."
+    }
+  ]
+}
+```
+2026-01-21 20:53:54,944 - app.clients.genai - INFO - ----------------------------------------
+2026-01-21 20:53:54,971 - root - INFO - AFC is enabled with max remote calls: 10.
+2026-01-21 20:54:11,729 - app.clients.genai - INFO - ----------------------------------------
+2026-01-21 20:54:11,729 - app.clients.genai - INFO - GEMINI INTERACTION: build_storyboard
+2026-01-21 20:54:11,730 - app.clients.genai - INFO - REQUEST:
+['\n        Based on this analysis: {\'summary\': "This audio track is a spoken-word narrative introduction, likely from an audiobook or a cinematic prologue. It features a calm, male voice speaking in Belarusian, announcing \'Part one, chapter one\' followed by the opening line \'The houses were on the island\'. The mood is atmospheric, literary, and preparatory, with a steady, moderate pacing typical of storytelling.", \'global_visual_narrative\': \'The opening sequence of a period drama or mystery film. The video begins in darkness or with a focus on texture (like old paper or a book cover) to signify the start of a story, then transitions into a sweeping, cinematic establishing shot of a remote, misty island dotted with traditional wooden houses, matching the narration.\', \'visual_style_anchor\': \'Cinematic Historical Realism, 2.39:1 aspect ratio, anamorphic lens flares, muted earth tones, soft diffused lighting, 35mm film grain, high detail.\', \'segments\': [{\'start_time\': 0.0, \'end_time\': 2.9, \'speaker\': \'Male Narrator\', \'text\': \'Частка першая, раздзел першы (Part one, chapter one)\', \'emotion\': \'Formal, Anticipatory\', \'instrumentation\': \'Solo Voice\', \'section_type\': \'intro\', \'acoustic_environment\': \'studio close-mic\', \'visual_description\': \'A close-up of an aged, leather-bound book lying on a dark wooden table. The cover slowly opens or a title card fades in with elegant serif typography against a black background. The lighting is low-key and dramatic.\'}, {\'start_time\': 2.9, \'end_time\': 5.28, \'speaker\': \'Male Narrator\', \'text\': \'Хаты былі на востраве (The houses were on the island)\', \'emotion\': \'Descriptive, Calm\', \'instrumentation\': \'Solo Voice\', \'section_type\': \'verse\', \'acoustic_environment\': \'studio close-mic\', \'visual_description\': \'A wide, cinematic drone shot revealing a small, isolated island in the middle of a calm, grey lake. Mist hovers over the water. Several rustic wooden cottages are visible on the shore. The camera tracks forward slowly, establishing the setting.\'}], \'total_duration\': 5.28, \'technical_stats\': {\'bpm\': 191.40625, \'beat_times\': [0.33668934240362813, 0.6501587301587302, 0.9520181405895691, 1.2887074829931973, 1.6253968253968254, 1.9504761904761905, 2.2755555555555556, 2.6006349206349206, 2.948934240362812, 3.297233560090703, 3.610702947845805, 3.912562358276644, 4.2260317460317465, 4.539501133786848, 4.829750566893424], \'beat_strengths\': [0.34870973229408264, 0.832187294960022, 0.4519956111907959, 0.06420387327671051, 0.8736666440963745, 0.5198363661766052, 0.0837445855140686, 0.8490664958953857, 0.03575202450156212, 0.5253130197525024, 0.9999998807907104, 0.4440905451774597, 0.07885102927684784, 0.6350892782211304, 0.4921402335166931], \'onset_times\': [0.18575963718820862, 0.26702947845804986, 0.33668934240362813, 0.46439909297052157, 0.5108390022675737, 0.603718820861678, 0.6501587301587302, 0.9404081632653061, 1.474467120181406, 1.6137868480725623, 1.787936507936508, 1.9388662131519274, 2.3336054421768706, 2.4380952380952383, 2.589024943310658, 2.6354648526077096, 2.75156462585034, 2.9257142857142857, 3.2624036281179136, 3.3901133786848074, 3.599092970521542, 3.645532879818594, 3.7616326530612243, 3.912562358276644, 4.156371882086168, 4.446621315192743, 4.539501133786848, 4.6788208616780045, 4.713650793650793, 4.818140589569161, 4.9806802721088435, 5.061950113378685, 5.178049886621316], \'beat_confidence\': 0.7615692610165391, \'tempo_stability\': 0.947742252154634, \'energy_stats\': {\'avg\': 0.08149248361587524, \'max\': 0.3839966058731079}}, \'character_description\': \'\'}\n        \n        Create a storyboard as a JSON list of segments.\n        The total duration MUST be EXACTLY 5.28 seconds.\n        \n        Follow the "global_visual_narrative" defined in the analysis. The video must feel like a cohesive film with a clear Narrative Arc (Beginning, Development, Climax).\n        \n        Crucial: React to changes in music intensity (from technical analysis stats or section_type) by changing the INTENSITY of the plot/visuals. \n        - If the music builds up (climax/drop), the visuals must become more massive, dynamic, or fast-paced.\n        - If the music is calm, the visuals should be steady and atmospheric.\n        \n        PACING INSTRUCTION:\n        - The user wants a dynamic video with MANY segments.\n        - Aim for segment durations between 2 and 5 seconds for most parts.\n        - Only use longer segments (up to 8s) for very slow, atmospheric parts.\n        - Avoid creating few long segments. We need a high "segment density".\n        \n        Each segment MUST have:\n        - id: a unique string like "seg_1", "seg_2", etc.\n        - start_time: "MM:SS" (or total seconds)\n        - end_time: "MM:SS" (or total seconds)\n        - lyric_text: the transcript for this segment\n        - visual_intent: a detailed description of what should be on screen, following the global narrative and current intensity.\n        - camera_angle: suggested camera shot (e.g. "Close-up", "Wide shot", "Drone shot")\n        - emotion: the detected emotion\n        \n        IMPORTANT: The segments MUST tile the entire 5.28 seconds. \n        The first segment must start at 00:00. \n        The last segment must end at 5.28.\n        No gaps, no overlaps.\n        \n        Return ONLY the JSON list.\n        ']
+2026-01-21 20:54:11,731 - app.clients.genai - INFO - RESPONSE:
+```json
+[
+  {
+    "id": "seg_1",
+    "start_time": 0.0,
+    "end_time": 2.9,
+    "lyric_text": "Частка першая, раздзел першы (Part one, chapter one)",
+    "visual_intent": "The scene opens in low-key lighting, focusing on the tactile texture of an ancient, leather-bound book resting on a dark oak table. A single light source reveals dust motes dancing in the air. As the narrator speaks, the cover is slowly opened by a weathered hand, or a title card with elegant serif typography fades in against the black texture. The style is gritty and realistic with 35mm film grain.",
+    "camera_angle": "Extreme Close-up / Macro",
+    "emotion": "Formal, Anticipatory"
+  },
+  {
+    "id": "seg_2",
+    "start_time": 2.9,
+    "end_time": 5.28,
+    "lyric_text": "Хаты былі на востраве (The houses were on the island)",
+    "visual_intent": "A sharp cut transitions to a sweeping cinematic vista. A wide drone shot reveals a lonely, misty island sitting in the center of a calm, steel-grey lake. Traditional wooden houses with thatched roofs are visible on the shore, blending into the muted earth tones of the landscape. The camera pushes forward steadily, establishing a sense of isolation and mystery.",
+    "camera_angle": "Wide Drone Shot",
+    "emotion": "Descriptive, Calm"
+  }
+]
+```
+2026-01-21 20:54:11,731 - app.clients.genai - INFO - ----------------------------------------
+2026-01-21 20:54:11,733 - app.services.story_service - INFO - Normalizing 2 segments: total_suggested=5.28s, target_duration=5.28s, scale_factor=1.000
+2026-01-21 20:54:11,737 - app.services.story_service - INFO - Rhythmic normalization complete. Avg: 2.64s, EffMax: 6.00s
+2026-01-21 20:54:11,758 - root - INFO - AFC is enabled with max remote calls: 10.
+2026-01-21 20:54:28,610 - app.clients.genai - INFO - ----------------------------------------
+2026-01-21 20:54:28,610 - app.clients.genai - INFO - GEMINI INTERACTION: build_prompts
+2026-01-21 20:54:28,610 - app.clients.genai - INFO - REQUEST:
+['\n        For each of these segments, create a detailed image generation prompt.\n        \n        Global Style Anchor: "Cinematic Historical Realism, 2.39:1 aspect ratio, anamorphic lens flares, muted earth tones, soft diffused lighting, 35mm film grain, high detail." \n        (YOU MUST APPEND THIS EXACT STYLE DESCRIPTION TO EVERY SINGLE PROMPT TO ENSURE CONSISTENCY).\n\n        CHARACTER CONSISTENCY:\n        Character Description: ""\n        (If the character appears, they MUST match this description. If the scene allows, feature this character).\n        \n        Segments: [{\'id\': \'seg_1\', \'start_time\': 0.0, \'end_time\': 2.948934240362812, \'lyric_text\': \'Частка першая, раздзел першы (Part one, chapter one)\', \'visual_intent\': \'The scene opens in low-key lighting, focusing on the tactile texture of an ancient, leather-bound book resting on a dark oak table. A single light source reveals dust motes dancing in the air. As the narrator speaks, the cover is slowly opened by a weathered hand, or a title card with elegant serif typography fades in against the black texture. The style is gritty and realistic with 35mm film grain.\', \'camera_angle\': \'Extreme Close-up / Macro\', \'emotion\': \'Formal, Anticipatory\'}, {\'id\': \'seg_2\', \'start_time\': 2.948934240362812, \'end_time\': 5.28, \'lyric_text\': \'Хаты былі на востраве (The houses were on the island)\', \'visual_intent\': \'A sharp cut transitions to a sweeping cinematic vista. A wide drone shot reveals a lonely, misty island sitting in the center of a calm, steel-grey lake. Traditional wooden houses with thatched roofs are visible on the shore, blending into the muted earth tones of the landscape. The camera pushes forward steadily, establishing a sense of isolation and mystery.\', \'camera_angle\': \'Wide Drone Shot\', \'emotion\': \'Descriptive, Calm\'}]\n        \n        Return a JSON object where keys are the segment IDs ("seg_1", etc.) and values are objects containing:\n        - image_prompt: the detailed prompt for the AI image generator\n        - negative_prompt: what to avoid in the image (optional)\n        - style_hints: keywords about the style (optional)\n        - version: 1\n        \n        Return ONLY the JSON object.\n        ']
+2026-01-21 20:54:28,611 - app.clients.genai - INFO - RESPONSE:
+{
+  "seg_1": {
+    "image_prompt": "Extreme close-up macro shot of an ancient, cracked leather-bound book resting on a dark, rough oak table. A single shaft of light cuts through the low-key darkness, illuminating dust motes dancing in the air. A weathered hand is partially visible, poised to open the heavy cover. Detailed texture of the leather and wood. Cinematic Historical Realism, 2.39:1 aspect ratio, anamorphic lens flares, muted earth tones, soft diffused lighting, 35mm film grain, high detail.",
+    "negative_prompt": "bright colors, modern technology, digital screen, plastic, glossy, cartoon, anime, text overlay, subtitles, blurry, distorted fingers",
+    "style_hints": [
+      "Macro photography",
+      "Low-key lighting",
+      "Textural detail",
+      "Atmospheric"
+    ],
+    "version": 1
+  },
+  "seg_2": {
+    "image_prompt": "Wide cinematic drone shot of a lonely, misty island situated in the center of a calm, steel-grey lake. A small cluster of traditional weathered wooden houses with thatched roofs sits on the shore, blending into the landscape. Fog rolls over the water surface. Sense of isolation and history. Cinematic Historical Realism, 2.39:1 aspect ratio, anamorphic lens flares, muted earth tones, soft diffused lighting, 35mm film grain, high detail.",
+    "negative_prompt": "modern architecture, power lines, cars, bright blue sky, tropical vegetation, palm trees, neon, saturated colors, crowd",
+    "style_hints": [
+      "Wide angle",
+      "Atmospheric perspective",
+      "Misty",
+      "Descriptive"
+    ],
+    "version": 1
+  }
+}
+2026-01-21 20:54:28,612 - app.clients.genai - INFO - ----------------------------------------
+2026-01-21 20:54:28,620 - app.clients.genai - INFO - GenAI client initialized (API key length: 39)
+2026-01-21 20:54:28,621 - app.services.image_service - INFO - Starting BATCH image generation for project c120c79117ca4870aa5d48e92d7efb87 with 2 prompts
+2026-01-21 20:54:28,645 - app.services.batch_service - INFO - Created batch file: D:\googlePRJ\clipmaker\Clipmaker\data\batch_jobs\batch-dacbd1c2.jsonl
+2026-01-21 20:54:28,646 - app.services.batch_service - INFO - Uploading batch file: D:\googlePRJ\clipmaker\Clipmaker\data\batch_jobs\batch-dacbd1c2.jsonl
+2026-01-21 20:54:31,226 - app.services.batch_service - INFO - Uploaded batch file files/edsf386hr8ko. Creating job via REST...
+2026-01-21 20:54:33,115 - app.services.batch_service - INFO - Batch job submitted successfully via REST: batches/n4wpfjolvs4adqag3wo2tg1kej1r9ucpvfaf
+2026-01-21 20:54:33,117 - app.services.image_service - INFO - Batch job submitted: batches/n4wpfjolvs4adqag3wo2tg1kej1r9ucpvfaf. Waiting for completion...
+2026-01-21 20:54:33,118 - app.services.batch_service - INFO - Waiting for batch job batches/n4wpfjolvs4adqag3wo2tg1kej1r9ucpvfaf...
+2026-01-21 20:57:54,947 - app.services.batch_service - INFO - Downloading results from files/batch-n4wpfjolvs4adqag3wo2tg1kej1r9ucpvfaf...
+2026-01-21 20:57:56,712 - app.services.image_service - INFO - Downloaded 2 results from batch job
+2026-01-21 20:57:56,731 - app.services.image_service - INFO - Successfully saved 2 images from batch.
+2026-01-21 21:20:01,491 - app.services.pipeline_service - INFO - Pipeline started for 08ba91b8b52841f4b6f46081f1e17efe. Text Mode: standard, Image Mode: batch
+2026-01-21 21:20:01,900 - app.clients.genai - INFO - Uploading file: D:\googlePRJ\clipmaker\Clipmaker\data\projects\08ba91b8b52841f4b6f46081f1e17efe\source\track.wav
+2026-01-21 21:20:04,601 - app.clients.genai - INFO - File uploaded and processed: files/cffvoqwsxezs
+2026-01-21 21:20:04,602 - app.clients.genai - INFO - Sending audio analysis request to Gemini...
+2026-01-21 21:20:04,602 - root - INFO - AFC is enabled with max remote calls: 10.
+2026-01-21 21:20:28,666 - app.clients.genai - INFO - ----------------------------------------
+2026-01-21 21:20:28,667 - app.clients.genai - INFO - GEMINI INTERACTION: analyze_audio
+2026-01-21 21:20:28,669 - app.clients.genai - INFO - REQUEST:
+['\n        Analyze the audio track in this song to create a video clip. \n        The total duration of the audio is 5.00 seconds.\n        \n        USER REQUEST / PLOT DESCRIPTION:\n        ""\n        (This is the most important instruction. The narrative, metaphors, and events MUST follow this description if provided. If empty, invent a creative one).\n        \n        The user has requested the visual style: "cinematic".\n\n        CHARACTER DESCRIPTION:\n        ""\n        (If provided, this character MUST be the protagonist of the video).\n        \n        \nTechnical Analysis Data (librosa):\n{\n  "bpm": 89.10290948275862,\n  "beat_times": [\n    0.615328798185941,\n    1.2654875283446712,\n    2.089795918367347,\n    2.8328344671201813,\n    3.564263038548753,\n    4.249251700680272\n  ],\n  "beat_strengths": [\n    0.577518880367279,\n    0.19300930202007294,\n    0.18079818785190582,\n    0.3525261878967285,\n    0.05314900726079941,\n    0.26260268688201904\n  ],\n  "onset_times": [\n    0.034829931972789115,\n    0.3831292517006803,\n    0.603718820861678,\n    0.9752380952380952,\n    1.0681179138321995,\n    1.242267573696145,\n    1.5441269841269842,\n    1.6834467120181407,\n    2.078185941043084,\n    2.136235827664399,\n    2.2755555555555556,\n    2.345215419501134,\n    2.5425850340136056,\n    2.6586848072562357,\n    2.75156462585034,\n    2.8212244897959184,\n    2.9837641723356008,\n    3.01859410430839,\n    3.2043537414965986,\n    3.308843537414966,\n    3.4597732426303853,\n    3.575873015873016,\n    3.645532879818594,\n    3.877732426303855,\n    3.982222222222222,\n    4.2260317460317465,\n    4.388571428571429,\n    4.597551020408163\n  ],\n  "beat_confidence": 0.6592518339669364,\n  "tempo_stability": 0.9187970285805824,\n  "energy_stats": {\n    "avg": 0.027709288522601128,\n    "max": 0.0816626027226448\n  }\n}\n\n        \n        Please provide:\n        1. A summary of the song\'s energy, mood, and style.\n        2. A "global_visual_narrative": A single, cohesive visual metaphor or story concept (e.g. "journey of an abandoned robot" or "a cyber-gothic dance in rain") that will persist throughout the video. If the user provided a plot description, adapt it here.\n        3. A "visual_style_anchor": A specific, consistent visual style description BASED ON "cinematic" (e.g. if user said "Anime", generate "90s Cyberpunk Anime, high contrast").\n        4. A list of segments that cover the ENTIRE duration (5.00s).\n        \n        For each segment, identify:\n        - start_time and end_time (0.0 to 5.00)\n        - speaker (if vocals generally)\n        - text (lyrics)\n        - emotion\n        - instrumentation (e.g. "guitar solo", "heavy drums", "minimal synth")\n        - section_type (e.g. "intro", "verse", "chorus", "bridge", "drop", "climax", "outro")\n        - acoustic_environment (e.g. "studio", "live hall", "lo-fi", "underwater", "echoey")\n        \n        Ensure:\n        - Segments have NO GAPS and NO OVERLAPS.\n        - The sequence covers exactly from 0.0 to 5.00.\n        - Use the Technical Analysis (BPM, Energy) to align segments with beats and intense moments if possible.\n        \n        Return as a JSON object with keys: "summary", "global_visual_narrative", "visual_style_anchor", "segments".\n        ', File(name='files/cffvoqwsxezs', display_name=None, mime_type='audio/wav', size_bytes=882078, create_time=datetime.datetime(2026, 1, 21, 19, 24, 39, 261107, tzinfo=TzInfo(0)), expiration_time=datetime.datetime(2026, 1, 23, 19, 24, 38, 814172, tzinfo=TzInfo(0)), update_time=datetime.datetime(2026, 1, 21, 19, 24, 39, 261107, tzinfo=TzInfo(0)), sha256_hash='ZmFlYzdiMTZkZTA2MjMyZDI1OTFlZGY2ZWJjNDc0MzE5MDhhOTFhOTJmNTNkNGJmNWRjZmJkYmY3ZjFiYTg2Zg==', uri='https://generativelanguage.googleapis.com/v1beta/files/cffvoqwsxezs', download_uri=None, state=<FileState.ACTIVE: 'ACTIVE'>, source=<FileSource.UPLOADED: 'UPLOADED'>, video_metadata=None, error=None)]
+2026-01-21 21:20:28,670 - app.clients.genai - INFO - RESPONSE:
+```json
+{
+  "summary": "The audio features a spoken-word performance in Russian by a female speaker describing the qualities of her own voice ('low, velvety, chest voice of a sensual mature woman'). The energy is low, intimate, and sophisticated, characterized by a steady rhythm and a warm, close-proximity recording style. The mood is alluring, confident, and elegant.",
+  "global_visual_narrative": "The Portrait of Elegance. In a dimly lit, high-end dressing room or a vintage recording booth, a sophisticated mature woman interacts with a vintage ribbon microphone. The scene focuses on textures—silk, velvet, and skin—emphasizing the tactile description of the voice found in the lyrics. The camera moves slowly, mimicking the 'velvety' flow of the speech.",
+  "visual_style_anchor": "Cinematic Noir, 35mm film aesthetic, warm amber and deep shadow lighting (chiaroscuro), extreme close-ups with shallow depth of field (bokeh), soft focus, rich textures.",
+  "segments": [
+    {
+      "start_time": 0.0,
+      "end_time": 1.26,
+      "speaker": "female_narrator",
+      "text": "Это низкий бархатный",
+      "emotion": "intimate",
+      "instrumentation": "acapella spoken word, silence",
+      "section_type": "intro",
+      "acoustic_environment": "close-mic studio dry"
+    },
+    {
+      "start_time": 1.26,
+      "end_time": 2.83,
+      "speaker": "female_narrator",
+      "text": "грудной голос",
+      "emotion": "deep",
+      "instrumentation": "acapella spoken word, minimal room tone",
+      "section_type": "verse",
+      "acoustic_environment": "close-mic studio dry"
+    },
+    {
+      "start_time": 2.83,
+      "end_time": 5.0,
+      "speaker": "female_narrator",
+      "text": "чувственной зрелой женщины",
+      "emotion": "alluring",
+      "instrumentation": "acapella spoken word, subtle fade out",
+      "section_type": "outro",
+      "acoustic_environment": "close-mic studio dry"
+    }
+  ]
+}
+```
+2026-01-21 21:20:28,670 - app.clients.genai - INFO - ----------------------------------------
+2026-01-21 21:20:28,699 - root - INFO - AFC is enabled with max remote calls: 10.
+2026-01-21 21:21:05,233 - app.clients.genai - INFO - ----------------------------------------
+2026-01-21 21:21:05,233 - app.clients.genai - INFO - GEMINI INTERACTION: build_storyboard
+2026-01-21 21:21:05,234 - app.clients.genai - INFO - REQUEST:
+['\n        Based on this analysis: {\'summary\': "The audio features a spoken-word performance in Russian by a female speaker describing the qualities of her own voice (\'low, velvety, chest voice of a sensual mature woman\'). The energy is low, intimate, and sophisticated, characterized by a steady rhythm and a warm, close-proximity recording style. The mood is alluring, confident, and elegant.", \'global_visual_narrative\': "The Portrait of Elegance. In a dimly lit, high-end dressing room or a vintage recording booth, a sophisticated mature woman interacts with a vintage ribbon microphone. The scene focuses on textures—silk, velvet, and skin—emphasizing the tactile description of the voice found in the lyrics. The camera moves slowly, mimicking the \'velvety\' flow of the speech.", \'visual_style_anchor\': \'Cinematic Noir, 35mm film aesthetic, warm amber and deep shadow lighting (chiaroscuro), extreme close-ups with shallow depth of field (bokeh), soft focus, rich textures.\', \'segments\': [{\'start_time\': 0.0, \'end_time\': 1.26, \'speaker\': \'female_narrator\', \'text\': \'Это низкий бархатный\', \'emotion\': \'intimate\', \'instrumentation\': \'acapella spoken word, silence\', \'section_type\': \'intro\', \'acoustic_environment\': \'close-mic studio dry\'}, {\'start_time\': 1.26, \'end_time\': 2.83, \'speaker\': \'female_narrator\', \'text\': \'грудной голос\', \'emotion\': \'deep\', \'instrumentation\': \'acapella spoken word, minimal room tone\', \'section_type\': \'verse\', \'acoustic_environment\': \'close-mic studio dry\'}, {\'start_time\': 2.83, \'end_time\': 5.0, \'speaker\': \'female_narrator\', \'text\': \'чувственной зрелой женщины\', \'emotion\': \'alluring\', \'instrumentation\': \'acapella spoken word, subtle fade out\', \'section_type\': \'outro\', \'acoustic_environment\': \'close-mic studio dry\'}], \'total_duration\': 5.0, \'technical_stats\': {\'bpm\': 89.10290948275862, \'beat_times\': [0.615328798185941, 1.2654875283446712, 2.089795918367347, 2.8328344671201813, 3.564263038548753, 4.249251700680272], \'beat_strengths\': [0.577518880367279, 0.19300930202007294, 0.18079818785190582, 0.3525261878967285, 0.05314900726079941, 0.26260268688201904], \'onset_times\': [0.034829931972789115, 0.3831292517006803, 0.603718820861678, 0.9752380952380952, 1.0681179138321995, 1.242267573696145, 1.5441269841269842, 1.6834467120181407, 2.078185941043084, 2.136235827664399, 2.2755555555555556, 2.345215419501134, 2.5425850340136056, 2.6586848072562357, 2.75156462585034, 2.8212244897959184, 2.9837641723356008, 3.01859410430839, 3.2043537414965986, 3.308843537414966, 3.4597732426303853, 3.575873015873016, 3.645532879818594, 3.877732426303855, 3.982222222222222, 4.2260317460317465, 4.388571428571429, 4.597551020408163], \'beat_confidence\': 0.6592518339669364, \'tempo_stability\': 0.9187970285805824, \'energy_stats\': {\'avg\': 0.027709288522601128, \'max\': 0.0816626027226448}}, \'character_description\': \'\'}\n        \n        Create a storyboard as a JSON list of segments.\n        The total duration MUST be EXACTLY 5.00 seconds.\n        \n        Follow the "global_visual_narrative" defined in the analysis. The video must feel like a cohesive film with a clear Narrative Arc (Beginning, Development, Climax).\n        \n        Crucial: React to changes in music intensity (from technical analysis stats or section_type) by changing the INTENSITY of the plot/visuals. \n        - If the music builds up (climax/drop), the visuals must become more massive, dynamic, or fast-paced.\n        - If the music is calm, the visuals should be steady and atmospheric.\n        \n        PACING INSTRUCTION:\n        - The user wants a dynamic video with MANY segments.\n        - Aim for segment durations between 2 and 5 seconds for most parts.\n        - Only use longer segments (up to 8s) for very slow, atmospheric parts.\n        - Avoid creating few long segments. We need a high "segment density".\n        \n        Each segment MUST have:\n        - id: a unique string like "seg_1", "seg_2", etc.\n        - start_time: "MM:SS" (or total seconds)\n        - end_time: "MM:SS" (or total seconds)\n        - lyric_text: the transcript for this segment\n        - visual_intent: a detailed description of what should be on screen, following the global narrative and current intensity.\n        - camera_angle: suggested camera shot (e.g. "Close-up", "Wide shot", "Drone shot")\n        - emotion: the detected emotion\n        \n        IMPORTANT: The segments MUST tile the entire 5.00 seconds. \n        The first segment must start at 00:00. \n        The last segment must end at 5.00.\n        No gaps, no overlaps.\n        \n        Return ONLY the JSON list.\n        ']
+2026-01-21 21:21:05,234 - app.clients.genai - INFO - RESPONSE:
+```json
+[
+    {
+        "id": "seg_1",
+        "start_time": 0.0,
+        "end_time": 1.26,
+        "lyric_text": "Это низкий бархатный",
+        "visual_intent": "Opening with rich texture to match the word 'velvety'. Extreme close-up of dark, plush velvet fabric moving slightly in warm amber light. The focus is soft and tactile, establishing a noir atmosphere.",
+        "camera_angle": "Extreme Close-up / Macro",
+        "emotion": "Intimate"
+    },
+    {
+        "id": "seg_2",
+        "start_time": 1.26,
+        "end_time": 2.83,
+        "lyric_text": "грудной голос",
+        "visual_intent": "Focus shifts to the speaker. A close-up of a mature woman's lips and jawline near a vintage ribbon microphone. The lighting emphasizes the contours of her skin, suggesting the depth of the 'chest voice'.",
+        "camera_angle": "Close-up",
+        "emotion": "Deep"
+    },
+    {
+        "id": "seg_3",
+        "start_time": 2.83,
+        "end_time": 5.0,
+        "lyric_text": "чувственной зрелой женщины",
+        "visual_intent": "The climax of the portrait. A slightly wider shot reveals the woman's elegant profile in a dimly lit dressing room. She exudes confidence and sensuality, bathed in shadows and warm highlights (chiaroscuro).",
+        "camera_angle": "Medium Shot",
+        "emotion": "Alluring"
+    }
+]
+```
+2026-01-21 21:21:05,235 - app.clients.genai - INFO - ----------------------------------------
+2026-01-21 21:21:05,236 - app.services.story_service - INFO - Normalizing 3 segments: total_suggested=5.00s, target_duration=5.00s, scale_factor=1.000
+2026-01-21 21:21:05,236 - app.services.story_service - INFO - Rhythmic normalization complete. Avg: 1.67s, EffMax: 6.00s
+2026-01-21 21:21:05,252 - root - INFO - AFC is enabled with max remote calls: 10.
+2026-01-21 21:21:22,826 - app.clients.genai - INFO - ----------------------------------------
+2026-01-21 21:21:22,827 - app.clients.genai - INFO - GEMINI INTERACTION: build_prompts
+2026-01-21 21:21:22,834 - app.clients.genai - INFO - REQUEST:
+['\n        For each of these segments, create a detailed image generation prompt.\n        \n        Global Style Anchor: "Cinematic Noir, 35mm film aesthetic, warm amber and deep shadow lighting (chiaroscuro), extreme close-ups with shallow depth of field (bokeh), soft focus, rich textures." \n        (YOU MUST APPEND THIS EXACT STYLE DESCRIPTION TO EVERY SINGLE PROMPT TO ENSURE CONSISTENCY).\n\n        CHARACTER CONSISTENCY:\n        Character Description: ""\n        (If the character appears, they MUST match this description. If the scene allows, feature this character).\n        \n        Segments: [{\'id\': \'seg_1\', \'start_time\': 0.0, \'end_time\': 1.2654875283446712, \'lyric_text\': \'Это низкий бархатный\', \'visual_intent\': "Opening with rich texture to match the word \'velvety\'. Extreme close-up of dark, plush velvet fabric moving slightly in warm amber light. The focus is soft and tactile, establishing a noir atmosphere.", \'camera_angle\': \'Extreme Close-up / Macro\', \'emotion\': \'Intimate\'}, {\'id\': \'seg_2\', \'start_time\': 1.2654875283446712, \'end_time\': 2.8328344671201813, \'lyric_text\': \'грудной голос\', \'visual_intent\': "Focus shifts to the speaker. A close-up of a mature woman\'s lips and jawline near a vintage ribbon microphone. The lighting emphasizes the contours of her skin, suggesting the depth of the \'chest voice\'.", \'camera_angle\': \'Close-up\', \'emotion\': \'Deep\'}, {\'id\': \'seg_3\', \'start_time\': 2.8328344671201813, \'end_time\': 5.0, \'lyric_text\': \'чувственной зрелой женщины\', \'visual_intent\': "The climax of the portrait. A slightly wider shot reveals the woman\'s elegant profile in a dimly lit dressing room. She exudes confidence and sensuality, bathed in shadows and warm highlights (chiaroscuro).", \'camera_angle\': \'Medium Shot\', \'emotion\': \'Alluring\'}]\n        \n        Return a JSON object where keys are the segment IDs ("seg_1", etc.) and values are objects containing:\n        - image_prompt: the detailed prompt for the AI image generator\n        - negative_prompt: what to avoid in the image (optional)\n        - style_hints: keywords about the style (optional)\n        - version: 1\n        \n        Return ONLY the JSON object.\n        ']
+2026-01-21 21:21:22,834 - app.clients.genai - INFO - RESPONSE:
+{
+  "seg_1": {
+    "image_prompt": "Extreme macro shot of luxurious dark plush velvet fabric, deep burgundy or midnight blue material with soft undulating folds, tactile detail showing individual fibers catching the light. Cinematic Noir, 35mm film aesthetic, warm amber and deep shadow lighting (chiaroscuro), extreme close-ups with shallow depth of field (bokeh), soft focus, rich textures.",
+    "negative_prompt": "flat lighting, bright daylight, smooth plastic texture, digital art, cartoon, vector, illustration, noise, grain, low resolution, wide shot",
+    "style_hints": "Macro, Texture, Noir, Intimate, Velvet",
+    "version": 1
+  },
+  "seg_2": {
+    "image_prompt": "Close-up detail shot of a mature woman's lips and jawline, speaking softly into a vintage chrome ribbon microphone, high detailed skin texture, metallic mesh of microphone in focus, intimate atmosphere. Cinematic Noir, 35mm film aesthetic, warm amber and deep shadow lighting (chiaroscuro), extreme close-ups with shallow depth of field (bokeh), soft focus, rich textures.",
+    "negative_prompt": "full body, eyes, young girl, bright neon, modern microphone, anime, 3d render, distorted features, bad anatomy, overexposed",
+    "style_hints": "Vintage, Music, Noir, Close-up, Deep",
+    "version": 1
+  },
+  "seg_3": {
+    "image_prompt": "Medium shot profile of an elegant and sensual mature woman sitting in a dimly lit vintage dressing room, silhouette against a dark background, sophisticated hairstyle, exuding confidence and mystery. Cinematic Noir, 35mm film aesthetic, warm amber and deep shadow lighting (chiaroscuro), extreme close-ups with shallow depth of field (bokeh), soft focus, rich textures.",
+    "negative_prompt": "young teenager, bright fluorescent light, cluttered background, anime, illustration, cartoon, ugly, deformed, disfigured, bad anatomy, flat color",
+    "style_hints": "Portrait, Alluring, Cinematic, Shadowplay",
+    "version": 1
+  }
+}
+2026-01-21 21:21:22,835 - app.clients.genai - INFO - ----------------------------------------
+2026-01-21 21:21:22,838 - app.clients.genai - INFO - GenAI client initialized (API key length: 39)
+2026-01-21 21:21:22,839 - app.services.image_service - INFO - Starting BATCH image generation for project 08ba91b8b52841f4b6f46081f1e17efe with 3 prompts
+2026-01-21 21:21:22,867 - app.services.batch_service - INFO - Created batch file: D:\googlePRJ\clipmaker\Clipmaker\data\batch_jobs\batch-a41cca0e.jsonl
+2026-01-21 21:21:22,867 - app.services.batch_service - INFO - Uploading batch file: D:\googlePRJ\clipmaker\Clipmaker\data\batch_jobs\batch-a41cca0e.jsonl
+2026-01-21 21:21:25,255 - app.services.batch_service - INFO - Uploaded batch file files/02xn658knxiu. Creating job via REST...
+2026-01-21 21:21:27,416 - app.services.batch_service - INFO - Batch job submitted successfully via REST: batches/otcr1xq9pyxw4itnxxtfyc6ys839z6ymtc0h
+2026-01-21 21:21:27,426 - app.services.image_service - INFO - Batch job submitted: batches/otcr1xq9pyxw4itnxxtfyc6ys839z6ymtc0h. Waiting for completion...
+2026-01-21 21:21:27,426 - app.services.batch_service - INFO - Waiting for batch job batches/otcr1xq9pyxw4itnxxtfyc6ys839z6ymtc0h...
+2026-01-21 21:28:59,789 - app.services.batch_service - INFO - Downloading results from files/batch-otcr1xq9pyxw4itnxxtfyc6ys839z6ymtc0h...
+2026-01-21 21:29:01,292 - app.services.image_service - INFO - Downloaded 3 results from batch job
+2026-01-21 21:29:01,305 - app.services.image_service - INFO - Successfully saved 3 images from batch.
+2026-01-21 21:32:08,325 - root - INFO - AFC is enabled with max remote calls: 10.
+2026-01-21 21:32:19,571 - app.clients.genai - INFO - ----------------------------------------
+2026-01-21 21:32:19,572 - app.clients.genai - INFO - GEMINI INTERACTION: build_prompts
+2026-01-21 21:32:19,572 - app.clients.genai - INFO - REQUEST:
+['\n        For each of these segments, create a detailed image generation prompt.\n        \n        Global Style Anchor: "Cinematic Noir, 35mm film aesthetic, warm amber and deep shadow lighting (chiaroscuro), extreme close-ups with shallow depth of field (bokeh), soft focus, rich textures." \n        (YOU MUST APPEND THIS EXACT STYLE DESCRIPTION TO EVERY SINGLE PROMPT TO ENSURE CONSISTENCY).\n\n        CHARACTER CONSISTENCY:\n        Character Description: ""\n        (If the character appears, they MUST match this description. If the scene allows, feature this character).\n        \n        Segments: [{\'id\': \'seg_1\', \'start_time\': 0, \'end_time\': 1.2654875283446712, \'lyric_text\': \'Это низкий бархатный\', \'visual_intent\': "Opening with rich texture to match the word \'velvety\'. Extreme close-up of dark, plush velvet fabric moving slightly in warm amber light. The focus is soft and tactile, establishing a noir atmosphere.", \'camera_angle\': \'Extreme Close-up / Macro\', \'emotion\': \'Intimate\'}]\n        \n        Return a JSON object where keys are the segment IDs ("seg_1", etc.) and values are objects containing:\n        - image_prompt: the detailed prompt for the AI image generator\n        - negative_prompt: what to avoid in the image (optional)\n        - style_hints: keywords about the style (optional)\n        - version: 1\n        \n        Return ONLY the JSON object.\n        ']
+2026-01-21 21:32:19,572 - app.clients.genai - INFO - RESPONSE:
+{
+  "seg_1": {
+    "image_prompt": "Macro shot of dark, luxurious plush velvet fabric with heavy, undulating folds. The texture is visibly soft and tactile, suggesting high quality. Warm amber light catches the tiny fibers on the ridges of the fabric, while deep shadows obscure the crevices, creating high contrast. Intimate and mysterious atmosphere. Cinematic Noir, 35mm film aesthetic, warm amber and deep shadow lighting (chiaroscuro), extreme close-ups with shallow depth of field (bokeh), soft focus, rich textures.",
+    "negative_prompt": "bright daylight, neon colors, flat lighting, vector art, cartoon, low resolution, watermark, text, harsh artificial light, distinct patterns, human figures, faces",
+    "style_hints": "Noir, Macro, Velvet, Amber, Chiaroscuro",
+    "version": 1
+  }
+}
+2026-01-21 21:32:19,573 - app.clients.genai - INFO - ----------------------------------------
+2026-01-21 21:32:31,481 - app.clients.genai - INFO - ----------------------------------------
+2026-01-21 21:32:31,482 - app.clients.genai - INFO - GEMINI INTERACTION: generate_image (Multimodal Stream)
+2026-01-21 21:32:31,482 - app.clients.genai - INFO - REQUEST:
+Macro shot of dark, luxurious plush velvet fabric with heavy, undulating folds. The texture is visibly soft and tactile, suggesting high quality. Warm amber light catches the tiny fibers on the ridges of the fabric, while deep shadows obscure the crevices, creating high contrast. Intimate and mysterious atmosphere. Cinematic Noir, 35mm film aesthetic, warm amber and deep shadow lighting (chiaroscuro), extreme close-ups with shallow depth of field (bokeh), soft focus, rich textures.
+2026-01-21 21:32:31,482 - app.clients.genai - INFO - RESPONSE:
+<Generated 1569510 bytes>
+2026-01-21 21:32:31,483 - app.clients.genai - INFO - ----------------------------------------
