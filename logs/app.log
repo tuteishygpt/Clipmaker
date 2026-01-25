@@ -15180,3 +15180,501 @@ Macro shot of dark, luxurious plush velvet fabric with heavy, undulating folds. 
 2026-01-23 22:34:47,224 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
 2026-01-23 22:34:47,336 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
 2026-01-23 22:34:47,450 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:39,911 - app.clients.supabase_client - INFO - Supabase client initialized successfully
+2026-01-25 13:14:40,965 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 13:14:41,133 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:41,292 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:41,424 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:41,576 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 13:14:41,710 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:41,871 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:42,048 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:42,191 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 13:14:42,339 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:42,459 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:42,600 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:42,736 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/credit_transactions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&order=created_at.desc&offset=0&limit=50 "HTTP/2 200 OK"
+2026-01-25 13:14:42,870 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 13:14:43,008 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:43,124 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:43,230 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:43,335 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/credit_transactions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&order=created_at.desc&offset=0&limit=50 "HTTP/2 200 OK"
+2026-01-25 13:14:43,441 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 13:14:43,543 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:43,652 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:43,755 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:43,861 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 13:14:43,969 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:44,076 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:44,175 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:44,277 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/credit_transactions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&order=created_at.desc&offset=0&limit=50 "HTTP/2 200 OK"
+2026-01-25 13:14:44,381 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 13:14:44,486 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:44,604 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:44,705 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:44,810 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/credit_transactions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&order=created_at.desc&offset=0&limit=50 "HTTP/2 200 OK"
+2026-01-25 13:14:44,915 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 13:14:45,019 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:45,139 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:45,244 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:45,385 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 13:14:45,486 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:45,610 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:45,716 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:45,851 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 13:14:45,984 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:46,085 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:46,186 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:46,302 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 13:14:46,409 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:46,507 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:46,605 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:46,723 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 13:14:46,824 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:46,934 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:47,039 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:47,144 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 13:14:47,258 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:47,368 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:47,476 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:47,588 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 13:14:47,693 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:47,796 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:47,895 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:49,277 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 13:14:49,403 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:49,539 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:49,677 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:49,815 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 13:14:49,951 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:50,088 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:50,226 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:50,363 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 13:14:50,500 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:50,638 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:50,737 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:50,846 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 13:14:50,968 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:51,106 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:51,244 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:51,381 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 13:14:51,518 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:51,656 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:14:51,793 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:15:37,454 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 13:15:37,556 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:15:37,658 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:15:37,661 - app.services.pipeline_service - INFO - Pipeline started for 472dfece359a44c19153572adfb2fef4. Text Mode: standard, Image Mode: batch
+2026-01-25 13:15:37,789 - app.services.pipeline_service - ERROR - Pipeline failed: No module named 'moviepy'
+2026-01-25 13:15:38,327 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 13:15:38,431 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:15:38,544 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:15:38,686 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:17:37,799 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 13:17:37,898 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:17:37,997 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:17:38,012 - app.services.pipeline_service - INFO - Pipeline started for 472dfece359a44c19153572adfb2fef4. Text Mode: standard, Image Mode: batch
+2026-01-25 13:17:38,124 - app.services.pipeline_service - ERROR - Pipeline failed: No module named 'moviepy'
+2026-01-25 13:17:38,278 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 13:17:38,381 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:17:38,480 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:17:38,585 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:45:54,318 - app.clients.supabase_client - INFO - Supabase client initialized successfully
+2026-01-25 13:45:55,739 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 13:45:55,864 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:45:55,974 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:45:56,077 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:45:56,207 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 13:45:56,311 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:45:56,416 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:45:56,516 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:45:56,681 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 13:45:56,778 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:45:56,881 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:45:56,979 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:45:57,090 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 13:45:57,205 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:45:57,312 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:45:57,417 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:45:57,525 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 13:45:57,625 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:45:57,728 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:45:57,828 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:46:09,034 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 13:46:09,135 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:46:09,239 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:46:09,244 - app.services.pipeline_service - INFO - Pipeline started for 472dfece359a44c19153572adfb2fef4. Text Mode: standard, Image Mode: batch
+2026-01-25 13:46:09,480 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 13:46:09,580 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:46:09,681 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:46:09,777 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:46:31,479 - app.clients.genai - INFO - Uploading file: D:\googlePRJ\clipmaker\Clipmaker\data\projects\472dfece359a44c19153572adfb2fef4\source\track.wav
+2026-01-25 13:46:34,392 - app.clients.genai - INFO - File uploaded and processed: files/cke862ymfbl3
+2026-01-25 13:46:34,392 - app.clients.genai - INFO - Sending audio analysis request to Gemini...
+2026-01-25 13:46:34,392 - root - INFO - AFC is enabled with max remote calls: 10.
+2026-01-25 13:47:01,865 - app.clients.genai - INFO - ----------------------------------------
+2026-01-25 13:47:01,866 - app.clients.genai - INFO - GEMINI INTERACTION: analyze_audio
+2026-01-25 13:47:01,866 - app.clients.genai - INFO - REQUEST:
+['\n        Analyze the audio track in this song to create a video clip. \n        The total duration of the audio is 8.12 seconds.\n        \n        USER REQUEST / PLOT DESCRIPTION:\n        "беларусь"\n        (This is the most important instruction. The narrative, metaphors, and events MUST follow this description if provided. If empty, invent a creative one).\n        \n        The user has requested the visual style: "cinematic".\n\n        CHARACTER DESCRIPTION:\n        "дзяўчынка"\n        (If provided, this character MUST be the protagonist of the video).\n        \n        \nTechnical Analysis Data (librosa):\n{\n  "bpm": 139.6748310810811,\n  "beat_times": [\n    0.13931972789115646,\n    0.4992290249433107,\n    0.9287981859410431,\n    1.3467573696145125,\n    1.7531065759637188,\n    2.147845804988662,\n    2.5658049886621317,\n    3.076643990929705,\n    3.599092970521542,\n    4.08671201814059,\n    4.5859410430839,\n    5.015510204081632,\n    5.456689342403628,\n    6.025578231292517,\n    6.455147392290249,\n    6.861496598639456\n  ],\n  "beat_strengths": [\n    0.5766870379447937,\n    0.3328315019607544,\n    0.02902141585946083,\n    0.07472549378871918,\n    0.6373072862625122,\n    0.3090095520019531,\n    0.2090120166540146,\n    0.4869019687175751,\n    0.273957759141922,\n    0.11692585051059723,\n    0.7706899046897888,\n    0.5958819389343262,\n    0.5731395483016968,\n    0.9999998807907104,\n    0.3542965054512024,\n    0.36084961891174316\n  ],\n  "onset_times": [\n    0.12770975056689343,\n    0.301859410430839,\n    0.4876190476190476,\n    0.7546485260770975,\n    1.0797278911564625,\n    1.230657596371882,\n    1.4628571428571429,\n    1.5789569160997732,\n    1.7531065759637188,\n    1.8808163265306121,\n    1.9156462585034013,\n    2.136235827664399,\n    2.5309750566893423,\n    2.681904761904762,\n    2.9257142857142857,\n    3.0650340136054424,\n    3.5874829931972787,\n    3.842902494331066,\n    3.877732426303855,\n    4.1099319727891155,\n    4.249251700680272,\n    4.307301587301588,\n    4.4117913832199545,\n    4.574331065759637,\n    4.864580498866213,\n    5.00390022675737,\n    5.445079365079365,\n    5.712108843537415,\n    5.874648526077097,\n    6.013968253968254,\n    6.15328798185941,\n    6.339047619047619,\n    6.42031746031746,\n    6.455147392290249,\n    6.594467120181406,\n    6.8382766439909295,\n    7.012426303854875,\n    7.186575963718821,\n    7.325895691609977,\n    7.546485260770975,\n    7.778684807256236,\n    7.952834467120182\n  ],\n  "beat_confidence": 0.694006903914866,\n  "tempo_stability": 0.8774599531947029,\n  "energy_stats": {\n    "avg": 0.07726790010929108,\n    "max": 0.27926507592201233\n  }\n}\n\n        \n        Please provide:\n        1. A summary of the song\'s energy, mood, and style.\n        2. A "global_visual_narrative": A single, cohesive visual metaphor or story concept (e.g. "journey of an abandoned robot" or "a cyber-gothic dance in rain") that will persist throughout the video. If the user provided a plot description, adapt it here.\n        3. A "visual_style_anchor": A specific, consistent visual style description BASED ON "cinematic" (e.g. if user said "Anime", generate "90s Cyberpunk Anime, high contrast").\n        4. A list of segments that cover the ENTIRE duration (8.12s).\n        \n        For each segment, identify:\n        - start_time and end_time (0.0 to 8.12)\n        - speaker (if vocals generally)\n        - text (lyrics)\n        - emotion\n        - instrumentation (e.g. "guitar solo", "heavy drums", "minimal synth")\n        - section_type (e.g. "intro", "verse", "chorus", "bridge", "drop", "climax", "outro")\n        - acoustic_environment (e.g. "studio", "live hall", "lo-fi", "underwater", "echoey")\n        \n        Ensure:\n        - Segments have NO GAPS and NO OVERLAPS.\n        - The sequence covers exactly from 0.0 to 8.12.\n        - Use the Technical Analysis (BPM, Energy) to align segments with beats and intense moments if possible.\n        \n        Return as a JSON object with keys: "summary", "global_visual_narrative", "visual_style_anchor", "segments".\n        ', File(name='files/cke862ymfbl3', display_name=None, mime_type='audio/wav', size_bytes=716702, create_time=datetime.datetime(2026, 1, 25, 11, 46, 34, 658296, tzinfo=TzInfo(0)), expiration_time=datetime.datetime(2026, 1, 27, 11, 46, 33, 929906, tzinfo=TzInfo(0)), update_time=datetime.datetime(2026, 1, 25, 11, 46, 34, 658296, tzinfo=TzInfo(0)), sha256_hash='NDVkZTRhOWE3NzA3MTdmNDhhNGRmZDhhZjhmMmU4ZWNkMWJiNGFiOTUwMzZjOWU2NWYzZDYzMDk4YmYxYjRkYw==', uri='https://generativelanguage.googleapis.com/v1beta/files/cke862ymfbl3', download_uri=None, state=<FileState.ACTIVE: 'ACTIVE'>, source=<FileSource.UPLOADED: 'UPLOADED'>, video_metadata=None, error=None)]
+2026-01-25 13:47:01,868 - app.clients.genai - INFO - RESPONSE:
+```json
+{
+  "summary": {
+    "energy": "Tense and rhythmic, featuring rapid spoken word delivery over a fast pulse.",
+    "mood": "Mysterious, melancholic, and observant.",
+    "style": "Spoken word poetry / Documentary narration with an atmospheric backdrop."
+  },
+  "global_visual_narrative": "A young girl navigates a dense, misty Belarusian forest (Belovezhskaya Pushcha), visually embodying the narrator's description of natural camouflage. She blends into the ferns and moss, symbolizing resilience and the ability to remain unseen in a vast, gray-green landscape.",
+  "visual_style_anchor": "Atmospheric Slavic Folklore Cinema, desaturated gray-green color palette, misty forest lighting, shallow depth of field, 35mm film grain, hyper-realistic textures.",
+  "segments": [
+    {
+      "start_time": 0.0,
+      "end_time": 1.75,
+      "speaker": "Female Narrator",
+      "text": "афарбоўкай больш маладых",
+      "emotion": "Observant",
+      "instrumentation": "Minimal rhythmic pulse, spoken word",
+      "section_type": "intro",
+      "acoustic_environment": "Close-mic voiceover",
+      "visual_description": "Close-up of a young girl's eyes peering through dense, wet ferns. The lighting is soft and diffused through the forest canopy."
+    },
+    {
+      "start_time": 1.75,
+      "end_time": 3.6,
+      "speaker": "Female Narrator",
+      "text": "і меншых ў памерах жывёлаў",
+      "emotion": "Vulnerable",
+      "instrumentation": "Subtle bass thrum, spoken word",
+      "section_type": "verse",
+      "acoustic_environment": "Close-mic voiceover",
+      "visual_description": "Wide shot showing the girl standing small at the base of massive ancient pine trees, emphasizing her small size against the vast Belarusian nature."
+    },
+    {
+      "start_time": 3.6,
+      "end_time": 5.45,
+      "speaker": "Female Narrator",
+      "text": "у мэтах маскіроўкі",
+      "emotion": "Cautious",
+      "instrumentation": "Tension building, rapid percussion",
+      "section_type": "build-up",
+      "acoustic_environment": "Close-mic voiceover",
+      "visual_description": "The girl pulls a woven gray shawl over her head, crouching down into the moss. The camera pans to match her movement."
+    },
+    {
+      "start_time": 5.45,
+      "end_time": 6.86,
+      "speaker": "Female Narrator",
+      "text": "непрыкметная",
+      "emotion": "Mysterious",
+      "instrumentation": "Peak beat impact, silence drop",
+      "section_type": "climax",
+      "acoustic_environment": "Dry, intimate",
+      "visual_description": "Sudden stillness. The girl is perfectly still, barely distinguishable from the surrounding foliage. Looking directly at the camera."
+    },
+    {
+      "start_time": 6.86,
+      "end_time": 8.12,
+      "speaker": "Female Narrator",
+      "text": "шэра зялёная",
+      "emotion": "Resolved",
+      "instrumentation": "Fading echo",
+      "section_type": "outro",
+      "acoustic_environment": "Echoey trail",
+      "visual_description": "A focus on the color palette: a macro shot of the gray-green moss and the texture of her clothing merging together. Fade to black."
+    }
+  ]
+}
+```
+2026-01-25 13:47:01,868 - app.clients.genai - INFO - ----------------------------------------
+2026-01-25 13:47:01,884 - root - INFO - AFC is enabled with max remote calls: 10.
+2026-01-25 13:47:24,803 - app.clients.genai - INFO - ----------------------------------------
+2026-01-25 13:47:24,804 - app.clients.genai - INFO - GEMINI INTERACTION: build_storyboard
+2026-01-25 13:47:24,804 - app.clients.genai - INFO - REQUEST:
+['\n        Based on this analysis: {\'summary\': {\'energy\': \'Tense and rhythmic, featuring rapid spoken word delivery over a fast pulse.\', \'mood\': \'Mysterious, melancholic, and observant.\', \'style\': \'Spoken word poetry / Documentary narration with an atmospheric backdrop.\'}, \'global_visual_narrative\': "A young girl navigates a dense, misty Belarusian forest (Belovezhskaya Pushcha), visually embodying the narrator\'s description of natural camouflage. She blends into the ferns and moss, symbolizing resilience and the ability to remain unseen in a vast, gray-green landscape.", \'visual_style_anchor\': \'Atmospheric Slavic Folklore Cinema, desaturated gray-green color palette, misty forest lighting, shallow depth of field, 35mm film grain, hyper-realistic textures.\', \'segments\': [{\'start_time\': 0.0, \'end_time\': 1.75, \'speaker\': \'Female Narrator\', \'text\': \'афарбоўкай больш маладых\', \'emotion\': \'Observant\', \'instrumentation\': \'Minimal rhythmic pulse, spoken word\', \'section_type\': \'intro\', \'acoustic_environment\': \'Close-mic voiceover\', \'visual_description\': "Close-up of a young girl\'s eyes peering through dense, wet ferns. The lighting is soft and diffused through the forest canopy."}, {\'start_time\': 1.75, \'end_time\': 3.6, \'speaker\': \'Female Narrator\', \'text\': \'і меншых ў памерах жывёлаў\', \'emotion\': \'Vulnerable\', \'instrumentation\': \'Subtle bass thrum, spoken word\', \'section_type\': \'verse\', \'acoustic_environment\': \'Close-mic voiceover\', \'visual_description\': \'Wide shot showing the girl standing small at the base of massive ancient pine trees, emphasizing her small size against the vast Belarusian nature.\'}, {\'start_time\': 3.6, \'end_time\': 5.45, \'speaker\': \'Female Narrator\', \'text\': \'у мэтах маскіроўкі\', \'emotion\': \'Cautious\', \'instrumentation\': \'Tension building, rapid percussion\', \'section_type\': \'build-up\', \'acoustic_environment\': \'Close-mic voiceover\', \'visual_description\': \'The girl pulls a woven gray shawl over her head, crouching down into the moss. The camera pans to match her movement.\'}, {\'start_time\': 5.45, \'end_time\': 6.86, \'speaker\': \'Female Narrator\', \'text\': \'непрыкметная\', \'emotion\': \'Mysterious\', \'instrumentation\': \'Peak beat impact, silence drop\', \'section_type\': \'climax\', \'acoustic_environment\': \'Dry, intimate\', \'visual_description\': \'Sudden stillness. The girl is perfectly still, barely distinguishable from the surrounding foliage. Looking directly at the camera.\'}, {\'start_time\': 6.86, \'end_time\': 8.12, \'speaker\': \'Female Narrator\', \'text\': \'шэра зялёная\', \'emotion\': \'Resolved\', \'instrumentation\': \'Fading echo\', \'section_type\': \'outro\', \'acoustic_environment\': \'Echoey trail\', \'visual_description\': \'A focus on the color palette: a macro shot of the gray-green moss and the texture of her clothing merging together. Fade to black.\'}], \'total_duration\': 8.12, \'technical_stats\': {\'bpm\': 139.6748310810811, \'beat_times\': [0.13931972789115646, 0.4992290249433107, 0.9287981859410431, 1.3467573696145125, 1.7531065759637188, 2.147845804988662, 2.5658049886621317, 3.076643990929705, 3.599092970521542, 4.08671201814059, 4.5859410430839, 5.015510204081632, 5.456689342403628, 6.025578231292517, 6.455147392290249, 6.861496598639456], \'beat_strengths\': [0.5766870379447937, 0.3328315019607544, 0.02902141585946083, 0.07472549378871918, 0.6373072862625122, 0.3090095520019531, 0.2090120166540146, 0.4869019687175751, 0.273957759141922, 0.11692585051059723, 0.7706899046897888, 0.5958819389343262, 0.5731395483016968, 0.9999998807907104, 0.3542965054512024, 0.36084961891174316], \'onset_times\': [0.12770975056689343, 0.301859410430839, 0.4876190476190476, 0.7546485260770975, 1.0797278911564625, 1.230657596371882, 1.4628571428571429, 1.5789569160997732, 1.7531065759637188, 1.8808163265306121, 1.9156462585034013, 2.136235827664399, 2.5309750566893423, 2.681904761904762, 2.9257142857142857, 3.0650340136054424, 3.5874829931972787, 3.842902494331066, 3.877732426303855, 4.1099319727891155, 4.249251700680272, 4.307301587301588, 4.4117913832199545, 4.574331065759637, 4.864580498866213, 5.00390022675737, 5.445079365079365, 5.712108843537415, 5.874648526077097, 6.013968253968254, 6.15328798185941, 6.339047619047619, 6.42031746031746, 6.455147392290249, 6.594467120181406, 6.8382766439909295, 7.012426303854875, 7.186575963718821, 7.325895691609977, 7.546485260770975, 7.778684807256236, 7.952834467120182], \'beat_confidence\': 0.694006903914866, \'tempo_stability\': 0.8774599531947029, \'energy_stats\': {\'avg\': 0.07726790010929108, \'max\': 0.27926507592201233}}, \'character_description\': \'дзяўчынка\'}\n        \n        Create a storyboard as a JSON list of segments.\n        The total duration MUST be EXACTLY 8.12 seconds.\n        \n        Follow the "global_visual_narrative" defined in the analysis. The video must feel like a cohesive film with a clear Narrative Arc (Beginning, Development, Climax).\n        \n        Crucial: React to changes in music intensity (from technical analysis stats or section_type) by changing the INTENSITY of the plot/visuals. \n        - If the music builds up (climax/drop), the visuals must become more massive, dynamic, or fast-paced.\n        - If the music is calm, the visuals should be steady and atmospheric.\n        \n        PACING INSTRUCTION:\n        - The user wants a dynamic video with MANY segments.\n        - Aim for segment durations between 2 and 5 seconds for most parts.\n        - Only use longer segments (up to 8s) for very slow, atmospheric parts.\n        - Avoid creating few long segments. We need a high "segment density".\n        \n        Each segment MUST have:\n        - id: a unique string like "seg_1", "seg_2", etc.\n        - start_time: "MM:SS" (or total seconds)\n        - end_time: "MM:SS" (or total seconds)\n        - lyric_text: the transcript for this segment\n        - visual_intent: a detailed description of what should be on screen, following the global narrative and current intensity.\n        - camera_angle: suggested camera shot (e.g. "Close-up", "Wide shot", "Drone shot")\n        - emotion: the detected emotion\n        \n        IMPORTANT: The segments MUST tile the entire 8.12 seconds. \n        The first segment must start at 00:00. \n        The last segment must end at 8.12.\n        No gaps, no overlaps.\n        \n        Return ONLY the JSON list.\n        ']
+2026-01-25 13:47:24,806 - app.clients.genai - INFO - RESPONSE:
+```json
+[
+    {
+        "id": "seg_1",
+        "start_time": 0.0,
+        "end_time": 1.75,
+        "lyric_text": "афарбоўкай больш маладых",
+        "visual_intent": "Extreme close-up on the eyes of a young girl peering through wet, emerald-green ferns in a Belarusian forest. Heavy 35mm film grain. The lighting is soft and diffused, establishing a mysterious, observant atmosphere.",
+        "camera_angle": "Extreme Close-up",
+        "emotion": "Observant"
+    },
+    {
+        "id": "seg_2",
+        "start_time": 1.75,
+        "end_time": 3.6,
+        "lyric_text": "і меншых ў памерах жывёлаў",
+        "visual_intent": "Cut to a wide, establishing shot. The girl stands tiny at the base of towering, ancient pine trees shrouded in mist. The color palette is desaturated gray-green. This shot emphasizes her vulnerability and small scale against the vast nature.",
+        "camera_angle": "Wide Shot (Low Angle)",
+        "emotion": "Vulnerable"
+    },
+    {
+        "id": "seg_3",
+        "start_time": 3.6,
+        "end_time": 5.45,
+        "lyric_text": "у мэтах маскіроўкі",
+        "visual_intent": "As the percussion rapidly builds, the camera tracks the girl's sudden movement. She crouches quickly, pulling a coarse, gray woven shawl over her head to mimic a rock or mound of moss. The movement is fluid but tense.",
+        "camera_angle": "Tracking Medium Shot",
+        "emotion": "Cautious"
+    },
+    {
+        "id": "seg_4",
+        "start_time": 5.45,
+        "end_time": 6.86,
+        "lyric_text": "непрыкметная",
+        "visual_intent": "The climax/beat drop matches a freeze-frame effect. The girl is now perfectly still, crouched in the moss. She looks directly into the lens, her clothing texture blending seamlessly with the forest floor. Hyper-realistic texture focus.",
+        "camera_angle": "Static Medium-Close Up",
+        "emotion": "Mysterious"
+    },
+    {
+        "id": "seg_5",
+        "start_time": 6.86,
+        "end_time": 8.12,
+        "lyric_text": "шэра зялёная",
+        "visual_intent": "Outro. An abstract macro shot where the fabric of her gray shawl indistinguishably merges with the green lichen and moss. The image slowly fades to black as the echo trails off.",
+        "camera_angle": "Macro Shot",
+        "emotion": "Resolved"
+    }
+]
+```
+2026-01-25 13:47:24,806 - app.clients.genai - INFO - ----------------------------------------
+2026-01-25 13:47:24,807 - app.services.story_service - INFO - Normalizing 5 segments: total_suggested=8.12s, target_duration=8.12s, scale_factor=1.000
+2026-01-25 13:47:24,807 - app.services.story_service - INFO - Rhythmic normalization complete. Avg: 1.62s, EffMax: 6.00s
+2026-01-25 13:47:24,809 - app.services.pipeline_service - INFO - Deducting 5 credits for user 469de1b9-329b-44a1-8bd6-dbc4c6a2b54b
+2026-01-25 13:47:25,084 - httpx - INFO - HTTP Request: POST https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/rpc/deduct_credits "HTTP/2 200 OK"
+2026-01-25 13:47:25,096 - root - INFO - AFC is enabled with max remote calls: 10.
+2026-01-25 13:47:46,582 - app.clients.genai - INFO - ----------------------------------------
+2026-01-25 13:47:46,582 - app.clients.genai - INFO - GEMINI INTERACTION: build_prompts
+2026-01-25 13:47:46,583 - app.clients.genai - INFO - REQUEST:
+['\n        For each of these segments, create a detailed image generation prompt.\n        \n        Global Style Anchor: "Atmospheric Slavic Folklore Cinema, desaturated gray-green color palette, misty forest lighting, shallow depth of field, 35mm film grain, hyper-realistic textures." \n        (YOU MUST APPEND THIS EXACT STYLE DESCRIPTION TO EVERY SINGLE PROMPT TO ENSURE CONSISTENCY).\n\n        CHARACTER CONSISTENCY:\n        Character Description: "дзяўчынка"\n        (If the character appears, they MUST match this description. If the scene allows, feature this character).\n        \n        Segments: [{\'id\': \'seg_1\', \'start_time\': 0.0, \'end_time\': 1.7531065759637188, \'lyric_text\': \'афарбоўкай больш маладых\', \'visual_intent\': \'Extreme close-up on the eyes of a young girl peering through wet, emerald-green ferns in a Belarusian forest. Heavy 35mm film grain. The lighting is soft and diffused, establishing a mysterious, observant atmosphere.\', \'camera_angle\': \'Extreme Close-up\', \'emotion\': \'Observant\'}, {\'id\': \'seg_2\', \'start_time\': 1.7531065759637188, \'end_time\': 3.599092970521542, \'lyric_text\': \'і меншых ў памерах жывёлаў\', \'visual_intent\': \'Cut to a wide, establishing shot. The girl stands tiny at the base of towering, ancient pine trees shrouded in mist. The color palette is desaturated gray-green. This shot emphasizes her vulnerability and small scale against the vast nature.\', \'camera_angle\': \'Wide Shot (Low Angle)\', \'emotion\': \'Vulnerable\'}, {\'id\': \'seg_3\', \'start_time\': 3.599092970521542, \'end_time\': 5.456689342403628, \'lyric_text\': \'у мэтах маскіроўкі\', \'visual_intent\': "As the percussion rapidly builds, the camera tracks the girl\'s sudden movement. She crouches quickly, pulling a coarse, gray woven shawl over her head to mimic a rock or mound of moss. The movement is fluid but tense.", \'camera_angle\': \'Tracking Medium Shot\', \'emotion\': \'Cautious\'}, {\'id\': \'seg_4\', \'start_time\': 5.456689342403628, \'end_time\': 6.861496598639456, \'lyric_text\': \'непрыкметная\', \'visual_intent\': \'The climax/beat drop matches a freeze-frame effect. The girl is now perfectly still, crouched in the moss. She looks directly into the lens, her clothing texture blending seamlessly with the forest floor. Hyper-realistic texture focus.\', \'camera_angle\': \'Static Medium-Close Up\', \'emotion\': \'Mysterious\'}, {\'id\': \'seg_5\', \'start_time\': 6.861496598639456, \'end_time\': 8.12, \'lyric_text\': \'шэра зялёная\', \'visual_intent\': \'Outro. An abstract macro shot where the fabric of her gray shawl indistinguishably merges with the green lichen and moss. The image slowly fades to black as the echo trails off.\', \'camera_angle\': \'Macro Shot\', \'emotion\': \'Resolved\'}]\n        \n        Return a JSON object where keys are the segment IDs ("seg_1", etc.) and values are objects containing:\n        - image_prompt: the detailed prompt for the AI image generator\n        - negative_prompt: what to avoid in the image (optional)\n        - style_hints: keywords about the style (optional)\n        - version: 1\n        \n        Return ONLY the JSON object.\n        ']
+2026-01-25 13:47:46,583 - app.clients.genai - INFO - RESPONSE:
+{
+  "seg_1": {
+    "image_prompt": "Extreme close-up on the eyes of a young Slavic girl ('дзяўчынка') peering through wet, emerald-green ferns in a Belarusian forest. Raindrops clinging to the leaves. Intense, observant gaze. Soft, diffused lighting. Atmospheric Slavic Folklore Cinema, desaturated gray-green color palette, misty forest lighting, shallow depth of field, 35mm film grain, hyper-realistic textures.",
+    "negative_prompt": "cartoon, 3d render, bright colors, sunny, dry, blurry eyes, deformed pupils, modern clothing, makeup",
+    "style_hints": "Cinematic, Macro, Mystery",
+    "version": 1
+  },
+  "seg_2": {
+    "image_prompt": "Wide shot, low angle. A tiny young Slavic girl ('дзяўчынка') standing at the base of massive, towering ancient pine trees shrouded in thick mist. The forest is vast and overwhelming. Desaturated gray-green tones emphasizing vulnerability and scale. Atmospheric Slavic Folklore Cinema, desaturated gray-green color palette, misty forest lighting, shallow depth of field, 35mm film grain, hyper-realistic textures.",
+    "negative_prompt": "sunny, blue sky, modern buildings, power lines, crowd, bright colors, high saturation",
+    "style_hints": "Wide Angle, Atmospheric, Scale",
+    "version": 1
+  },
+  "seg_3": {
+    "image_prompt": "Medium shot. A young Slavic girl ('дзяўчынка') in the middle of a fluid motion, crouching quickly near the forest floor. She is pulling a coarse, gray woven shawl over her head to mimic a rock or mound of moss. Tense, cautious atmosphere. Atmospheric Slavic Folklore Cinema, desaturated gray-green color palette, misty forest lighting, shallow depth of field, 35mm film grain, hyper-realistic textures.",
+    "negative_prompt": "standing upright, stiff pose, smiling, bright colors, modern fabrics, nylon, polyester",
+    "style_hints": "Motion, Texture, Folklore",
+    "version": 1
+  },
+  "seg_4": {
+    "image_prompt": "Static Medium-Close Up. A young Slavic girl ('дзяўчынка') perfectly frozen and still, crouched low in deep forest moss. She looks directly into the camera lens. Her coarse gray clothing texture blends seamlessly with the forest floor, creating a camouflage effect. Atmospheric Slavic Folklore Cinema, desaturated gray-green color palette, misty forest lighting, shallow depth of field, 35mm film grain, hyper-realistic textures.",
+    "negative_prompt": "movement, blur, smiling, bright colors, separation from background, studio lighting",
+    "style_hints": "Portrait, Camouflage, Hyper-realism",
+    "version": 1
+  },
+  "seg_5": {
+    "image_prompt": "Abstract macro shot. The coarse fabric texture of a gray woven shawl indistinguishably merging with green lichen and forest moss. High detail texture focus. Atmospheric Slavic Folklore Cinema, desaturated gray-green color palette, misty forest lighting, shallow depth of field, 35mm film grain, hyper-realistic textures.",
+    "negative_prompt": "faces, human features, wide shot, landscape, blurry textures, smooth plastic surfaces",
+    "style_hints": "Macro, Abstract, Nature",
+    "version": 1
+  }
+}
+2026-01-25 13:47:46,584 - app.clients.genai - INFO - ----------------------------------------
+2026-01-25 13:47:46,596 - app.clients.genai - INFO - GenAI client initialized (API key length: 39)
+2026-01-25 13:47:46,597 - app.services.image_service - INFO - Starting BATCH image generation for project 472dfece359a44c19153572adfb2fef4 with 5 prompts
+2026-01-25 13:47:46,619 - app.services.batch_service - INFO - Created batch file: D:\googlePRJ\clipmaker\Clipmaker\data\batch_jobs\batch-795dbcfb.jsonl
+2026-01-25 13:47:46,619 - app.services.batch_service - INFO - Uploading batch file: D:\googlePRJ\clipmaker\Clipmaker\data\batch_jobs\batch-795dbcfb.jsonl
+2026-01-25 13:47:49,164 - app.services.batch_service - INFO - Uploaded batch file files/hv8m6mxv9och. Creating job via REST...
+2026-01-25 13:47:51,320 - app.services.batch_service - INFO - Batch job submitted successfully via REST: batches/li9rram17dp1zejdhpv0wr4lojp7fqqekvg3
+2026-01-25 13:47:51,321 - app.services.image_service - INFO - Batch job submitted: batches/li9rram17dp1zejdhpv0wr4lojp7fqqekvg3. Waiting for completion...
+2026-01-25 13:47:51,322 - app.services.batch_service - INFO - Waiting for batch job batches/li9rram17dp1zejdhpv0wr4lojp7fqqekvg3...
+2026-01-25 13:53:00,344 - app.services.batch_service - INFO - Downloading results from files/batch-li9rram17dp1zejdhpv0wr4lojp7fqqekvg3...
+2026-01-25 13:53:04,392 - app.services.image_service - INFO - Downloaded 5 results from batch job
+2026-01-25 13:53:04,440 - app.services.image_service - INFO - Successfully saved 5 images from batch.
+2026-01-25 13:54:45,821 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 13:54:45,982 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:54:46,134 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 13:54:46,135 - app.api.projects - INFO - User 469de1b9-329b-44a1-8bd6-dbc4c6a2b54b started render for 472dfece359a44c19153572adfb2fef4
+2026-01-25 14:05:08,482 - app.clients.supabase_client - INFO - Supabase client initialized successfully
+2026-01-25 14:05:09,386 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:05:09,546 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:09,681 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:09,817 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:09,971 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/credit_transactions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&order=created_at.desc&offset=0&limit=50 "HTTP/2 200 OK"
+2026-01-25 14:05:10,111 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/credit_transactions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&order=created_at.desc&offset=0&limit=50 "HTTP/2 200 OK"
+2026-01-25 14:05:10,252 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:05:10,379 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:10,515 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:10,648 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:10,787 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:05:10,915 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:11,011 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:11,128 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:11,238 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/credit_transactions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&order=created_at.desc&offset=0&limit=50 "HTTP/2 200 OK"
+2026-01-25 14:05:11,351 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:05:11,471 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:11,573 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:11,705 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:11,814 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:05:11,939 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:12,041 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:12,161 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:12,266 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:05:12,367 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:12,467 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:12,569 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:12,676 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:05:12,787 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:12,889 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:12,991 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:13,094 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:05:13,197 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:13,302 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:13,425 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:13,553 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:05:13,654 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:13,751 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:13,853 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:13,961 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:05:14,065 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:14,165 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:14,265 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:14,439 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:05:14,541 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:14,663 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:14,771 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:21,072 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_projects?select=%2A%2Cgeneration_history%28count%29&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&order=updated_at.desc "HTTP/2 200 OK"
+2026-01-25 14:05:21,189 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_projects?select=%2A%2Cgeneration_history%28count%29&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&order=updated_at.desc "HTTP/2 200 OK"
+2026-01-25 14:05:33,331 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_projects?select=%2A%2Cgeneration_history%28count%29&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&order=updated_at.desc "HTTP/2 200 OK"
+2026-01-25 14:05:33,441 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_projects?select=%2A%2Cgeneration_history%28count%29&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&order=updated_at.desc "HTTP/2 200 OK"
+2026-01-25 14:05:36,263 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:05:36,370 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:36,477 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:36,588 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:36,705 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:05:36,813 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:36,977 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:37,147 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:37,252 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:05:37,403 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:37,512 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:37,609 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:37,718 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:05:37,825 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:37,924 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:38,025 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:38,135 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:05:38,240 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:38,342 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:38,440 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:59,357 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:05:59,489 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:59,599 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:05:59,600 - app.api.projects - INFO - User 469de1b9-329b-44a1-8bd6-dbc4c6a2b54b started render for 472dfece359a44c19153572adfb2fef4
+2026-01-25 14:06:54,345 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:06:54,447 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:06:54,560 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:06:54,560 - app.api.projects - INFO - User 469de1b9-329b-44a1-8bd6-dbc4c6a2b54b started render for 472dfece359a44c19153572adfb2fef4
+2026-01-25 14:19:46,469 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:19:46,579 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:19:46,688 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:19:46,689 - app.api.projects - INFO - User 469de1b9-329b-44a1-8bd6-dbc4c6a2b54b started render for 472dfece359a44c19153572adfb2fef4
+2026-01-25 14:28:00,180 - app.clients.supabase_client - INFO - Supabase client initialized successfully
+2026-01-25 14:28:00,950 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:28:01,066 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:28:01,202 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:28:01,203 - app.api.projects - INFO - User 469de1b9-329b-44a1-8bd6-dbc4c6a2b54b started render for 472dfece359a44c19153572adfb2fef4
+2026-01-25 14:28:38,052 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:28:38,177 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:28:38,286 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:28:38,390 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:28:38,508 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:28:38,616 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:28:38,718 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:28:38,820 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:28:38,975 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:28:39,077 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:28:39,174 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:28:39,277 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:28:39,382 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:28:39,484 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:28:39,592 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:28:39,690 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:28:39,795 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:28:39,897 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:28:39,996 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:28:40,094 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:35:35,398 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:35:35,631 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:35:35,807 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:35:35,956 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:35:36,101 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:35:36,209 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:35:36,309 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:35:36,410 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:35:36,513 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:35:36,627 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:35:36,744 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:35:36,858 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:35:37,017 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:35:37,124 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:35:37,228 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:35:37,346 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:35:37,471 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:35:37,577 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:35:37,688 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:35:37,809 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:35:37,926 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:35:38,038 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:35:38,149 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:35:38,251 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:35:38,363 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:35:38,465 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:35:38,565 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:35:38,759 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:41:15,489 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:41:15,712 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:41:15,854 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:41:15,855 - app.api.projects - INFO - User 469de1b9-329b-44a1-8bd6-dbc4c6a2b54b started render for 472dfece359a44c19153572adfb2fef4
+2026-01-25 14:42:09,614 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:42:09,720 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:42:09,845 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:42:09,845 - app.api.projects - INFO - User 469de1b9-329b-44a1-8bd6-dbc4c6a2b54b started render for 472dfece359a44c19153572adfb2fef4
+2026-01-25 14:42:26,782 - app.clients.supabase_client - INFO - Supabase client initialized successfully
+2026-01-25 14:42:27,293 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:42:27,405 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:42:27,536 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:42:27,654 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:42:27,789 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:42:27,893 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:42:28,011 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:42:28,134 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:42:28,284 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:42:28,392 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:42:28,507 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:42:28,627 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:42:28,770 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:42:28,916 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:42:29,033 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:42:29,142 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:42:29,270 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:42:29,374 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:42:29,483 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:42:29,606 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:42:29,722 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:42:29,826 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:42:29,933 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:42:30,040 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:42:30,151 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:42:30,258 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:42:30,366 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:42:30,469 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:42:36,120 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-25 14:42:36,222 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:42:36,324 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.469de1b9-329b-44a1-8bd6-dbc4c6a2b54b "HTTP/2 200 OK"
+2026-01-25 14:42:36,324 - app.api.projects - INFO - User 469de1b9-329b-44a1-8bd6-dbc4c6a2b54b started render for 472dfece359a44c19153572adfb2fef4

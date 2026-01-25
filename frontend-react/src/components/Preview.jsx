@@ -39,6 +39,7 @@ function Preview() {
 
                 {hasVideo && (
                     <video
+                        key={videoOutput}
                         ref={videoRef}
                         src={videoOutput}
                         controls

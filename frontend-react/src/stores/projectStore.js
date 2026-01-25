@@ -98,7 +98,9 @@ export const useProjectStore = create((set, get) => ({
             set({
                 projectId: project.id,
                 project,
-                videoOutput: project.video_output || null,
+                videoOutput: project.video_output
+                    ? `${BASE_URL}${project.video_output}?t=${Date.now()}`
+                    : null,
                 audioUploaded: !!project.audio_file
             })
 
@@ -259,13 +261,13 @@ export const useProjectStore = create((set, get) => ({
             if (pipeJob?.status === 'DONE' && pipeJob.output) {
                 const parts = pipeJob.output.split(/[\\/]/)
                 const filename = parts[parts.length - 1]
-                videoOutput = `${BASE_URL}/projects/${projectId}/renders/${filename}`
+                videoOutput = `${BASE_URL}/projects/${projectId}/renders/${filename}?t=${Date.now()}`
             }
 
             if (renderJob?.status === 'DONE' && renderJob.output) {
                 const parts = renderJob.output.split(/[\\/]/)
                 const filename = parts[parts.length - 1]
-                videoOutput = `${BASE_URL}/projects/${projectId}/renders/${filename}`
+                videoOutput = `${BASE_URL}/projects/${projectId}/renders/${filename}?t=${Date.now()}`
 
                 // Show completion toast once
                 if (!get().videoOutput && videoOutput) {

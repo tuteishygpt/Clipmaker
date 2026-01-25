@@ -227,30 +227,52 @@ class BatchService:
             "dataset_name": display_name
         }
 
-    def wait_for_job(self, job_name: str, poll_interval: int = 10) -> str:
+    async def wait_for_job_async(self, job_name: str, poll_interval: int = 10) -> str:
         """
-        Wait for a batch job to complete using the GeminiBatchRunner logic.
+        Wait for a batch job to complete (Async).
         """
-        logger.info(f"Waiting for batch job {job_name}...")
-        from app.services.gemini_batch_runner import GeminiBatchRunner, AIModelError
+        logger.info(f"Waiting for batch job {job_name} (async)...")
+        from app.services.gemini_batch_runner import GeminiBatchRunner
+        import asyncio
         
-        # We need an instance to access helpers, or better yet, just use the runner's poll method directly?
-        # Runner's poll method returns the result filename, but throws on failure.
-        # Our interface expects to return the STATE string.
-        
-        runner = GeminiBatchRunner(api_key=self.client.api_key, model="gemini-1.5-flash") # Model doesn't matter for polling
+        runner = GeminiBatchRunner(api_key=self.client.api_key, model="gemini-1.5-flash")
         
         try:
-            # We can use the protected _get_batch_job_rest method from the runner
-            # Use a loop similar to our original one but using REST
+            while True:
+                # We need to run the REST call in a thread because it's synchronous requests
+                loop = asyncio.get_running_loop()
+                rest_job = await loop.run_in_executor(None, runner._get_batch_job_rest, job_name)
+                
+                state = runner._extract_state(rest_job)
+                logger.debug(f"Job {job_name} state: {state}")
+                
+                if state in ["BATCH_STATE_SUCCEEDED", "SUCCEEDED"]:
+                    return "SUCCEEDED"
+                elif state in ["BATCH_STATE_FAILED", "FAILED", "BATCH_STATE_CANCELLED", "CANCELLED", "BATCH_STATE_EXPIRED"]:
+                    return "FAILED"
+                
+                await asyncio.sleep(poll_interval)
+                
+        except Exception as e:
+            logger.error(f"Error polling batch job: {e}")
+            return "UNKNOWN"
+
+    def wait_for_job(self, job_name: str, poll_interval: int = 10) -> str:
+        """
+        Wait for a batch job to complete (Sync/Blocking).
+        """
+        logger.info(f"Waiting for batch job {job_name}...")
+        from app.services.gemini_batch_runner import GeminiBatchRunner
+        
+        runner = GeminiBatchRunner(api_key=self.client.api_key, model="gemini-1.5-flash")
+        
+        try:
             while True:
                 rest_job = runner._get_batch_job_rest(job_name)
                 state = runner._extract_state(rest_job)
                 
                 logger.debug(f"Job {job_name} state: {state}")
                 
-                # Check for terminal states
-                # Using known states from the runner + standard ones
                 if state in ["BATCH_STATE_SUCCEEDED", "SUCCEEDED"]:
                     return "SUCCEEDED"
                 elif state in ["BATCH_STATE_FAILED", "FAILED", "BATCH_STATE_CANCELLED", "CANCELLED", "BATCH_STATE_EXPIRED"]:

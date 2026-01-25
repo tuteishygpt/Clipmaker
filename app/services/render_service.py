@@ -105,7 +105,7 @@ class RenderService:
             if not clips:
                 raise ValueError("No valid image segments found to render. This usually means image generation failed. Check logs for details.")
             
-            video = mp.concatenate_videoclips(clips, method="compose")
+            video = mp.concatenate_videoclips(clips, method="chain")
             video.audio = audio_clip
             
             # Render
@@ -122,8 +122,9 @@ class RenderService:
                 codec="libx264",
                 audio_codec="aac",
                 logger=logger_obj,
-                threads=4,
+                threads=0,
                 preset=render_preset,
+                ffmpeg_params=["-crf", "23"],
             )
             
             render_duration = time.time() - start_time
@@ -153,9 +154,12 @@ class RenderService:
         clips = []
         
         for seg in segments:
-            seg_id = seg.get("id")
+            seg_id = seg.get("id") or seg.get("segment_id")
             if not seg_id:
                 continue
+            
+            # Ensure ID is string for lookup
+            seg_id = str(seg_id)
             
             prompt = prompts.get(seg_id, {})
             version = prompt.get("version", 1)
