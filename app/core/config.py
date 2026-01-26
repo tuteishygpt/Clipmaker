@@ -21,6 +21,9 @@ class Settings:
     genai_text_mode: str = "standard"
     genai_image_mode: str = "standard"
     
+    # Validation
+    max_audio_duration_minutes: int = 10
+    
     # Supabase
     supabase_url: str | None = None
     supabase_key: str | None = None  # Service role key for backend

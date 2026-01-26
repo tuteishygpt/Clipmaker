@@ -95,6 +95,16 @@ class StoryboardService:
                 logger.warning(f"Unexpected storyboard structure: {type(data)}")
                 segments = []
 
+        # Enforce maximum segment count (1 per 2 seconds)
+        if segments and duration > 0:
+            max_segments = max(1, int(duration // 2))
+            if len(segments) > max_segments:
+                logger.warning(
+                    f"Generated segment count ({len(segments)}) exceeds limit ({max_segments}) "
+                    f"for duration {duration:.2f}s. Truncating."
+                )
+                segments = segments[:max_segments]
+
         # Normalize segments to perfectly fit the duration
         if segments and duration > 0:
             segments = self._normalize_segments(segments, duration, analysis)
