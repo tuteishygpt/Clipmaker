@@ -1,0 +1,12 @@
+.scene-card-image-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 9/16;
+    overflow: hidden;
+}
+
+.scene-card-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}

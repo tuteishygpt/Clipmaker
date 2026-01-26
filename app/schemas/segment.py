@@ -21,6 +21,7 @@ class SegmentResponse(SegmentBase):
     """Segment with additional computed fields for API response."""
     thumbnail: Optional[str] = None
     prompt: Optional[dict] = None
+    max_version: Optional[int] = 1
 
 
 class SegmentUpdate(BaseModel):
@@ -36,6 +37,7 @@ class SegmentUpdate(BaseModel):
     negative_prompt: Optional[str] = None
     style_hints: Optional[str] = None
     effect: Optional[str] = None
+    version: Optional[int] = None
 
 
 class SegmentsResponse(BaseModel):

@@ -270,7 +270,6 @@ class GenAIClient:
         - image_prompt: the detailed prompt for the AI image generator
         - negative_prompt: what to avoid in the image (optional)
         - style_hints: keywords about the style (optional)
-        - version: 1
         
         Return ONLY the JSON object.
         """

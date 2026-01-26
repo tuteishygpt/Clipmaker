@@ -81,3 +81,32 @@ class FileStorage:
         existing = sorted(renders_dir.glob("final_v*.mp4"))
         next_version = len(existing) + 1
         return renders_dir / f"final_v{next_version}.mp4"
+
+    def get_max_version(self, project_id: str, seg_id: str) -> int:
+        """Get the highest image version for a segment."""
+        images_dir = self._project_path(project_id) / "images"
+        if not images_dir.exists():
+            return 0
+        
+        max_v = 0
+        prefix = f"{seg_id}_v"
+        suffix = ".png"
+        
+        for file in images_dir.glob(f"{seg_id}_v*.png"):
+            name = file.name
+            try:
+                # Extract N from seg_vN.png
+                # name is like "segment_id_v2.png"
+                # We know it ends with .png
+                # We strip prefix and suffix
+                
+                # Careful if seg_id contains 'v', handle strictly
+                if name.startswith(prefix) and name.endswith(suffix):
+                    v_str = name[len(prefix):-len(suffix)]
+                    v = int(v_str)
+                    if v > max_v:
+                        max_v = v
+            except ValueError:
+                continue
+                
+        return max_v

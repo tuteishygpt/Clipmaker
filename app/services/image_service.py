@@ -79,6 +79,11 @@ class ImageService:
             if isinstance(prompts, dict) and "prompts" in prompts:
                  prompts = prompts["prompts"]
 
+        # Ensure version exists for local tracking
+        for seg_id, data in prompts.items():
+            if "version" not in data:
+                data["version"] = 1
+
         self.project_repo.save_prompts(project_id, prompts)
         return prompts
     

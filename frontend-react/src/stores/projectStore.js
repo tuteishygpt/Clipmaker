@@ -369,7 +369,11 @@ export const useProjectStore = create((set, get) => ({
 
         try {
             const result = await api.regenerateSegment(projectId, segmentId)
+            // Start polling anyway for resilience
             get().startPolling()
+
+            // IMMEDIATE update: reload segments to get the new version info
+            await get().loadSegments()
 
             // Show credits used if returned
             if (result.credits_used) {

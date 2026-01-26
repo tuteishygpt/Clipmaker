@@ -179,6 +179,11 @@ async def get_segments(project_id: str) -> dict[str, Any]:
         
         segment["thumbnail"] = f"/projects/{project_id}/images/{seg_id}_v{version}.png"
         segment["prompt"] = prompt
+        
+        # Add available versions info
+        max_v = file_storage.get_max_version(project_id, str(seg_id))
+        segment["max_version"] = max_v
+        
         enriched.append(segment)
     
     return {"segments": enriched}
@@ -230,6 +235,8 @@ async def update_segment(
         prompt["negative_prompt"] = payload.negative_prompt
     if payload.style_hints is not None:
         prompt["style_hints"] = payload.style_hints
+    if payload.version is not None:
+        prompt["version"] = payload.version
     
     prompts[seg_id] = prompt
     

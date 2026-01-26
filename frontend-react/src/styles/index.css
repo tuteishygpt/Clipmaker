@@ -2393,6 +2393,7 @@ body {
         font-size: 0.85rem;
     }
 }
+
 /* ===== Progress Bar ===== */
 .progress-container {
     width: 100%;
@@ -2432,3 +2433,5 @@ body {
     text-align: right;
 }
 
+@import './version-controls.css';
+@import './scene-card.css';

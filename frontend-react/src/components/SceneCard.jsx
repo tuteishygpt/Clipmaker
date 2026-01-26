@@ -52,13 +52,55 @@ function SceneCard({ segment }) {
         }
     }
 
+    const [previewVersion, setPreviewVersion] = useState(
+        segment.prompt?.version || 1
+    )
+
+    // Sync preview version when segment updates
+    useEffect(() => {
+        // If the segment updates (e.g. max_version increases), 
+        // we generally want to stay on the current preview UNLESS it was the active one that changed.
+        // But for "Regenerate", we want to jump to the newest version.
+        // Simple logic: if active version changes, sync to it.
+        const activeV = segment.prompt?.version || 1
+        setPreviewVersion(activeV)
+    }, [segment.prompt?.version, segment.max_version])
+
+    const maxVersion = segment.max_version || segment.prompt?.version || 1
+    const currentVersion = segment.prompt?.version || 1
+    const isDifferentVersion = previewVersion !== currentVersion
+
+    const handleVersionChange = (direction) => {
+        let newV = previewVersion + direction
+        if (newV < 1) newV = 1
+        if (newV > maxVersion) newV = maxVersion
+        setPreviewVersion(newV)
+        setImgError(false)
+    }
+
+    const handleSetVersion = async (e) => {
+        e.stopPropagation()
+        setSaving(true)
+        try {
+            await updateSegment(segment.id, {
+                version: previewVersion
+            })
+            // Toast will be shown by store
+        } finally {
+            setSaving(false)
+        }
+    }
+
+    const imageUrl = fixImageUrl(
+        `/projects/${useProjectStore.getState().projectId}/images/${segment.id}_v${previewVersion}.png?t=${Date.now()}` // Add timestamp
+    )
+
     const handleImageClick = (e) => {
         if (imgError || !imageUrl) return
         e.stopPropagation()
-        showLightbox(segment.thumbnail)
+        // Determine which image to show in lightbox
+        showLightbox(`/projects/${useProjectStore.getState().projectId}/images/${segment.id}_v${previewVersion}.png`)
     }
-
-    const imageUrl = fixImageUrl(segment.thumbnail)
 
     return (
         <div className="scene-card">
@@ -66,17 +108,97 @@ function SceneCard({ segment }) {
                 {(!imageUrl || imgError) ? (
                     <div className="image-placeholder">
                         <span className="icon">🖼️</span>
-                        <span>{imgError ? 'Image Error' : 'Generating...'}</span>
+                        <span>{imgError ? `Error v${previewVersion}` : 'Generating...'}</span>
                     </div>
                 ) : (
                     <img
                         src={imageUrl}
-                        alt={segment.id}
+                        alt={`${segment.id} v${previewVersion}`}
                         loading="lazy"
                         onClick={handleImageClick}
                         onError={() => setImgError(true)}
                         style={{ cursor: 'zoom-in' }}
                     />
+                )}
+
+                {/* Version Controls - Minimal Design */}
+                {maxVersion > 1 && (
+                    <div
+                        className="version-controls"
+                        onClick={e => e.stopPropagation()}
+                        style={{
+                            backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                            position: 'absolute',
+                            bottom: '8px',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            padding: '3px 8px',
+                            borderRadius: '12px',
+                            zIndex: 10,
+                            fontSize: '12px',
+                            color: 'white'
+                        }}
+                    >
+                        <button
+                            className="v-btn prev"
+                            disabled={previewVersion <= 1}
+                            onClick={() => handleVersionChange(-1)}
+                            style={{
+                                background: 'none',
+                                border: 'none',
+                                color: previewVersion <= 1 ? 'rgba(255,255,255,0.3)' : 'white',
+                                cursor: previewVersion <= 1 ? 'default' : 'pointer',
+                                padding: '0 4px',
+                                fontSize: '16px'
+                            }}
+                        >
+                            ‹
+                        </button>
+
+                        <span style={{ fontSize: '11px', fontWeight: '500' }}>
+                            v{previewVersion}/{maxVersion}
+                        </span>
+
+
+                        <button
+                            className="v-btn next"
+                            disabled={previewVersion >= maxVersion}
+                            onClick={() => handleVersionChange(1)}
+                            style={{
+                                background: 'none',
+                                border: 'none',
+                                color: previewVersion >= maxVersion ? 'rgba(255,255,255,0.3)' : 'white',
+                                cursor: previewVersion >= maxVersion ? 'default' : 'pointer',
+                                padding: '0 4px',
+                                fontSize: '16px'
+                            }}
+                        >
+                            ›
+                        </button>
+
+                        {isDifferentVersion && (
+                            <button
+                                onClick={handleSetVersion}
+                                disabled={saving}
+                                style={{
+                                    background: 'rgba(99, 102, 241, 0.9)',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '6px',
+                                    padding: '2px 6px',
+                                    fontSize: '10px',
+                                    fontWeight: '600',
+                                    cursor: 'pointer',
+                                    marginLeft: '4px'
+                                }}
+                            >
+                                Set
+                            </button>
+                        )}
+                    </div>
                 )}
             </div>
 
