@@ -16,7 +16,8 @@ function Preview() {
 
     // Determine what to show
     const hasVideo = !!videoOutput
-    const lastImage = segments.filter(s => s.thumbnail).slice(-1)[0]?.thumbnail
+    const safeSegments = Array.isArray(segments) ? segments : []
+    const lastImage = safeSegments.filter(s => s && s.thumbnail).slice(-1)[0]?.thumbnail
 
     return (
         <section className="panel cinema-panel">

@@ -1,3 +1,6 @@
+@import './version-controls.css';
+@import './scene-card.css';
+
 /* ===== CSS Custom Properties (Design Tokens) ===== */
 :root {
     /* Colors - Enhanced Dark Mode */
@@ -2432,6 +2435,3 @@ body {
     margin-top: 4px;
     text-align: right;
 }
-
-@import './version-controls.css';
-@import './scene-card.css';

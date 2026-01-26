@@ -46,7 +46,7 @@ async function fetchJSON(url, options = {}) {
     const headers = await buildHeaders(options)
 
     const controller = new AbortController()
-    const id = setTimeout(() => controller.abort(), 15000) // 15s timeout
+    const id = setTimeout(() => controller.abort(), 60000) // 60s timeout (Gemini can be slow)
 
     try {
         const response = await fetch(`${BASE_URL}${url}`, {
@@ -55,6 +55,8 @@ async function fetchJSON(url, options = {}) {
             signal: controller.signal
         })
         clearTimeout(id)
+
+        console.log(`API [${options.method || 'GET'}]: ${BASE_URL}${url} -> ${response.status}`);
 
         if (!response.ok) {
             // Parse error response for billing errors
@@ -163,6 +165,20 @@ export async function updateSegment(projectId, segmentId, payload) {
 // Regenerate segment (requires 1 credit)
 export async function regenerateSegment(projectId, segmentId) {
     return fetchJSON(`/projects/${projectId}/segments/${segmentId}/regenerate`, {
+        method: 'POST'
+    })
+}
+
+// Regenerate prompt ONLY (free)
+export async function regeneratePrompt(projectId, segmentId) {
+    return fetchJSON(`/projects/${projectId}/segments/${segmentId}/regenerate-prompt`, {
+        method: 'POST'
+    })
+}
+
+// Regenerate image ONLY (requires 1 credit)
+export async function regenerateImage(projectId, segmentId) {
+    return fetchJSON(`/projects/${projectId}/segments/${segmentId}/regenerate-image`, {
         method: 'POST'
     })
 }

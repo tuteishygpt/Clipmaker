@@ -69,6 +69,7 @@ function Timeline({ videoRef }) {
 
             <div className="segments-strip">
                 {segments.map((seg, idx) => {
+                    const projectId = useProjectStore.getState().projectId;
                     const startOriginal = seg.start_time;
                     const endOriginal = seg.end_time;
 
@@ -80,7 +81,7 @@ function Timeline({ videoRef }) {
 
                     return (
                         <div
-                            key={seg.id}
+                            key={`${projectId}-${seg.id}`}
                             className="segment-block"
                             style={{
                                 flexBasis: `${widthPct}%`,

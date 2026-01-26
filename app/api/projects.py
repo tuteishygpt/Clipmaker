@@ -31,8 +31,12 @@ router = APIRouter(prefix="/projects", tags=["projects"])
 # Initialize dependencies
 project_repo = ProjectRepository()
 file_storage = FileStorage()
-pipeline_service = PipelineService(project_repo, file_storage)
-image_service = ImageService(project_repo=project_repo, file_storage=file_storage)
+
+def get_pipeline_service() -> PipelineService:
+    return PipelineService(project_repo, file_storage)
+
+def get_image_service() -> ImageService:
+    return ImageService(project_repo=project_repo, file_storage=file_storage)
 
 
 @router.get("", response_model=list[ProjectResponse])
@@ -97,7 +101,8 @@ async def upload_audio(project_id: str, audio: UploadFile = File(...)) -> RunRes
 async def run_project(
     project_id: str,
     background: BackgroundTasks,
-    billing: BillingContext = Depends(require_can_generate)
+    billing: BillingContext = Depends(require_can_generate),
+    pipeline_service: PipelineService = Depends(get_pipeline_service)
 ) -> RunResponse:
     """
     Start the video generation pipeline.
@@ -250,7 +255,8 @@ async def update_segment(
 async def regenerate_scene(
     project_id: str,
     seg_id: str,
-    billing: BillingContext = Depends(require_can_generate)
+    billing: BillingContext = Depends(require_can_generate),
+    image_service: ImageService = Depends(get_image_service)
 ) -> dict[str, Any]:
     """
     Regenerate image for a segment.
@@ -269,6 +275,7 @@ async def regenerate_scene(
     )
     
     try:
+        logger.info(f"[REGENERATE] Starting regeneration: project_id={project_id}, seg_id={seg_id}")
         prompt = image_service.regenerate_segment(project_id, seg_id)
         
         project_repo.update_job(project_id, "pipeline", {
@@ -298,6 +305,91 @@ async def regenerate_scene(
         )
         logger.error(f"Regeneration failed for {seg_id}: {e}")
         raise HTTPException(status_code=500, detail="Regeneration failed")
+
+
+@router.post("/{project_id}/segments/{seg_id}/regenerate-prompt")
+async def regenerate_prompt(
+    project_id: str,
+    seg_id: str,
+    billing: BillingContext = Depends(require_can_generate),
+    image_service: ImageService = Depends(get_image_service)
+) -> dict[str, Any]:
+    """
+    Regenerate only the prompt for a segment.
+    
+    This operation is inexpensive, but we might still want to track it.
+    For now, let's treat it as free or very cheap.
+    Let's make it free since it doesn't use the image generation model cost, 
+    only text generation which is negligible compared to image.
+    """
+    if not project_repo.exists(project_id):
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    try:
+        prompt = image_service.regenerate_prompt_only(project_id, seg_id)
+        
+        project_repo.update_job(project_id, "pipeline", {
+            "status": "DONE",
+            "step": "regenerate-prompt",
+            "message": f"Regenerated prompt for {seg_id}",
+        })
+        
+        return {
+            "segment_id": seg_id,
+            "prompt": prompt,
+            "credits_used": 0
+        }
+    except Exception as e:
+        logger.error(f"Prompt regeneration failed for {seg_id}: {e}")
+        raise HTTPException(status_code=500, detail="Prompt regeneration failed")
+
+
+@router.post("/{project_id}/segments/{seg_id}/regenerate-image")
+async def regenerate_image_only(
+    project_id: str,
+    seg_id: str,
+    billing: BillingContext = Depends(require_can_generate),
+    image_service: ImageService = Depends(get_image_service)
+) -> dict[str, Any]:
+    """
+    Regenerate only the image for a segment using existng prompt.
+    
+    Requires 1 credit.
+    """
+    if not project_repo.exists(project_id):
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Deduct 1 credit for regeneration
+    transaction_id = await deduct_generation_credits(
+        billing,
+        amount=1,
+        description=f"Regenerate image {seg_id}",
+        reference_id=f"{project_id}:{seg_id}:img"
+    )
+    
+    try:
+        prompt = image_service.regenerate_image_only(project_id, seg_id)
+        
+        project_repo.update_job(project_id, "pipeline", {
+            "status": "DONE",
+            "step": "regenerate-image",
+            "message": f"Regenerated image {seg_id} v{prompt.get('version', 1)}",
+        })
+        
+        return {
+            "segment_id": seg_id,
+            "prompt": prompt,
+            "credits_used": 1,
+            "transaction_id": transaction_id
+        }
+    except Exception as e:
+        # Refund on any generation error
+        await refund_generation_credits(
+            billing, amount=1, transaction_id=transaction_id,
+            reason=f"Regeneration failed: {str(e)}"
+        )
+        logger.error(f"Image regeneration failed for {seg_id}: {e}")
+        raise HTTPException(status_code=500, detail="Image regeneration failed")
 
 
 @router.post("/{project_id}/recalculate-timings", response_model=RunResponse)
@@ -406,7 +498,8 @@ async def recalculate_timings(project_id: str) -> RunResponse:
 async def render_project(
     project_id: str,
     background: BackgroundTasks,
-    billing: BillingContext = Depends(get_billing_context)
+    billing: BillingContext = Depends(get_billing_context),
+    pipeline_service: PipelineService = Depends(get_pipeline_service)
 ) -> RunResponse:
     """
     Start video rendering.

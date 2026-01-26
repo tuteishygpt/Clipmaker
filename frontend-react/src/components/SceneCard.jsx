@@ -3,17 +3,21 @@ import { useProjectStore } from '../stores/projectStore'
 import { fixImageUrl } from '../utils'
 
 function SceneCard({ segment }) {
-    const { updateSegment, regenerateSegment, showLightbox } = useProjectStore()
+    const { updateSegment, regenerateSegment, regeneratePrompt, regenerateImage, showLightbox, projectId } = useProjectStore()
 
     const [isEditing, setIsEditing] = useState(false)
     const [saving, setSaving] = useState(false)
     const [regenerating, setRegenerating] = useState(false)
     const [imgError, setImgError] = useState(false)
 
-    // Reset error when segment or thumbnail changes (e.g. project load or regeneration)
+    const [previewVersion, setPreviewVersion] = useState(
+        segment.prompt?.version || 1
+    )
+
+    // Reset error when segment updates (e.g. polling, version change)
     useEffect(() => {
         setImgError(false)
-    }, [segment.id, segment.thumbnail])
+    }, [segment, previewVersion])
 
     // Form state
     const [startTime, setStartTime] = useState(segment.start_time)
@@ -23,6 +27,24 @@ function SceneCard({ segment }) {
     const [imagePrompt, setImagePrompt] = useState(segment.prompt?.image_prompt || '')
     const [cameraAngle, setCameraAngle] = useState(segment.camera_angle || '')
     const [emotion, setEmotion] = useState(segment.emotion || '')
+
+    // Sync form state when segment changes (safety measure)
+    useEffect(() => {
+        setStartTime(segment.start_time)
+        setEndTime(segment.end_time)
+        setLyricText(segment.lyric_text || segment.text || '')
+        setVisualIntent(segment.visual_intent || segment.visual_description || '')
+        setImagePrompt(segment.prompt?.image_prompt || '')
+        setCameraAngle(segment.camera_angle || '')
+        setEmotion(segment.emotion || '')
+    }, [segment.id, segment.start_time, segment.end_time, segment.lyric_text, segment.text, segment.visual_intent, segment.visual_description, segment.prompt?.image_prompt, segment.camera_angle, segment.emotion])
+
+    // Update imagePrompt when segment updates (e.g. external regen)
+    // Only update if we are not editing/focused... actually simple way:
+    // When we trigger regen prompt, we manually update.
+
+    // BUT: if we navigated away and came back, or another user updated it, we want sync.
+    // For now stick to simple initialization, but update on regen action.
 
     const handleSave = async () => {
         setSaving(true)
@@ -41,20 +63,42 @@ function SceneCard({ segment }) {
         }
     }
 
-    const handleRegenerate = async () => {
+    const handleRegenerate = async (e) => {
+        if (e) e.stopPropagation()
         await handleSave()
         setRegenerating(true)
         try {
             await regenerateSegment(segment.id)
-            setImgError(false) // Reset error when regenerating
+            setImgError(false)
         } finally {
             setRegenerating(false)
         }
     }
 
-    const [previewVersion, setPreviewVersion] = useState(
-        segment.prompt?.version || 1
-    )
+    const handleRegeneratePrompt = async () => {
+        await handleSave()
+        setRegenerating(true)
+        try {
+            const res = await regeneratePrompt(segment.id)
+            if (res && res.prompt) {
+                setImagePrompt(res.prompt.image_prompt)
+            }
+        } finally {
+            setRegenerating(false)
+        }
+    }
+
+    const handleRegenerateImageOnly = async () => {
+        await handleSave()
+        setRegenerating(true)
+        try {
+            await regenerateImage(segment.id)
+            setImgError(false)
+        } finally {
+            setRegenerating(false)
+        }
+    }
+
 
     // Sync preview version when segment updates
     useEffect(() => {
@@ -92,7 +136,9 @@ function SceneCard({ segment }) {
     }
 
     const imageUrl = fixImageUrl(
-        `/projects/${useProjectStore.getState().projectId}/images/${segment.id}_v${previewVersion}.png?t=${Date.now()}` // Add timestamp
+        projectId && segment?.id
+            ? `/projects/${projectId}/images/${segment.id}_v${previewVersion}.png`
+            : null
     )
 
     const handleImageClick = (e) => {
@@ -205,12 +251,22 @@ function SceneCard({ segment }) {
             <div className="scene-details">
                 <div className="edit-toggle-row">
                     <h3>{segment.id}</h3>
-                    <button
-                        className="edit-toggle-btn"
-                        onClick={() => setIsEditing(!isEditing)}
-                    >
-                        {isEditing ? 'Hide Details' : 'Edit Details'}
-                    </button>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                        <button
+                            className="edit-toggle-btn"
+                            onClick={handleRegenerate}
+                            disabled={regenerating}
+                            title="Regenerate fully (Prompt + Image)"
+                        >
+                            Regenerate
+                        </button>
+                        <button
+                            className="edit-toggle-btn"
+                            onClick={() => setIsEditing(!isEditing)}
+                        >
+                            {isEditing ? 'Hide' : 'Edit'}
+                        </button>
+                    </div>
                 </div>
 
                 {isEditing && (
@@ -285,12 +341,23 @@ function SceneCard({ segment }) {
                             >
                                 {saving ? 'Saving...' : 'Save Changes'}
                             </button>
+                        </div>
+                        <div className="btn-row" style={{ marginTop: '8px' }}>
                             <button
                                 className="regenerate-btn"
-                                onClick={handleRegenerate}
+                                onClick={handleRegeneratePrompt}
                                 disabled={regenerating}
+                                style={{ fontSize: '0.75rem' }}
                             >
-                                {regenerating ? 'Queued...' : 'Regenerate Image'}
+                                {regenerating ? '...' : 'Regenerate Prompt'}
+                            </button>
+                            <button
+                                className="regenerate-btn"
+                                onClick={handleRegenerateImageOnly}
+                                disabled={regenerating}
+                                style={{ fontSize: '0.75rem' }}
+                            >
+                                {regenerating ? '...' : 'Regenerate Image'}
                             </button>
                         </div>
                     </div>

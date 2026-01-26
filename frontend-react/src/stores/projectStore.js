@@ -406,6 +406,68 @@ export const useProjectStore = create((set, get) => ({
         }
     },
 
+    regeneratePrompt: async (segmentId) => {
+        const { projectId } = get()
+        if (!projectId) return
+
+        try {
+            await api.regeneratePrompt(projectId, segmentId)
+
+            // Reload segments to get the new prompt text
+            await get().loadSegments()
+
+            get().addToast('Prompt regenerated', 'success')
+        } catch (error) {
+            console.error('Prompt regeneration error:', error);
+            set({ error: error.message })
+            const msg = error.message.includes('timed out')
+                ? 'Regeneration timed out. The server might still be working, please refresh in a minute.'
+                : `Failed to regenerate prompt: ${error.message}`;
+            get().addToast(msg, 'error')
+        }
+    },
+
+    regenerateImage: async (segmentId) => {
+        const { projectId } = get()
+        if (!projectId) return
+
+        try {
+            const result = await api.regenerateImage(projectId, segmentId)
+
+            // Start polling 
+            get().startPolling()
+
+            // IMMEDIATE update: reload segments
+            await get().loadSegments()
+
+            if (result && result.credits_used) {
+                get().addToast(`Regenerating image (${result.credits_used} credit)...`, 'info')
+            } else {
+                get().addToast('Regenerating image...', 'info')
+            }
+
+            // Refresh billing data
+            const { user } = useAuthStore.getState()
+            if (user) {
+                useBillingStore.getState().loadBillingData(user.id)
+            }
+        } catch (error) {
+            set({ error: error.message })
+
+            if (error.status === 402) {
+                get().addToast(error.message || 'Insufficient credits', 'error')
+                const { user } = useAuthStore.getState()
+                if (user) {
+                    useBillingStore.getState().loadBillingData(user.id)
+                }
+            } else if (error.status === 401) {
+                get().addToast('Please log in to regenerate', 'error')
+            } else {
+                get().addToast('Failed to regenerate image', 'error')
+            }
+        }
+    },
+
     // Reset project
     resetProject: () => {
         set({
