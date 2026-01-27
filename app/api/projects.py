@@ -223,12 +223,19 @@ async def get_segments(project_id: str) -> dict[str, Any]:
         prompt = prompts.get(str(seg_id), {})
         version = prompt.get("version", 1)
         
-        segment["thumbnail"] = f"/projects/{project_id}/images/{seg_id}_v{version}.png"
-        segment["prompt"] = prompt
-        
         # Add available versions info
         max_v = file_storage.get_max_version(project_id, str(seg_id))
         segment["max_version"] = max_v
+        
+        # Only set thumbnail if images exist
+        if max_v > 0:
+            # Cap version at max available to avoid 404s
+            display_ver = version if version <= max_v else max_v
+            segment["thumbnail"] = f"/projects/{project_id}/images/{seg_id}_v{display_ver}.png"
+        else:
+            segment["thumbnail"] = None
+            
+        segment["prompt"] = prompt
         
         enriched.append(segment)
     
@@ -272,6 +279,10 @@ async def update_segment(
     
     if updated_segment is None:
         raise HTTPException(status_code=404, detail="Segment not found")
+    
+    # Add available versions info
+    max_v = file_storage.get_max_version(project_id, str(seg_id))
+    updated_segment["max_version"] = max_v
     
     # Update prompts
     prompt = prompts.get(seg_id, {"version": 1})

@@ -18325,3 +18325,855 @@ Low angle shot at street level in a narrow, gritty cyberpunk alleyway. Thick ste
 2026-01-26 15:39:39,643 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
 2026-01-26 15:39:39,756 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
 2026-01-26 15:39:39,877 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-26 16:06:44,846 - app.clients.supabase_client - INFO - Supabase client initialized successfully
+2026-01-26 16:06:46,099 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-26 16:06:46,263 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-26 16:06:46,407 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-26 16:06:46,535 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-26 16:06:46,708 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-26 16:06:46,816 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-26 16:06:46,952 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-26 16:06:47,068 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-26 16:06:47,219 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-26 16:06:47,345 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-26 16:06:47,478 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-26 16:06:47,601 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-26 16:06:47,743 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-26 16:06:47,858 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-26 16:06:47,970 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-26 16:06:48,076 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-26 16:06:48,196 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-26 16:06:48,299 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-26 16:06:48,413 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-26 16:06:48,521 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-26 16:07:29,689 - httpx - INFO - HTTP Request: POST https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_projects "HTTP/2 201 Created"
+2026-01-26 16:07:29,691 - app.api.projects - INFO - Linked new project ea2797d6ac214d60ad6be8234d0eab11 to user b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7
+2026-01-26 16:08:00,291 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-26 16:08:00,402 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-26 16:08:00,508 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-26 16:08:00,511 - app.clients.genai - INFO - GenAI client initialized (API key length: 39)
+2026-01-26 16:08:00,533 - app.services.pipeline_service - INFO - Pipeline started for ea2797d6ac214d60ad6be8234d0eab11. Text Mode: standard, Image Mode: batch
+2026-01-26 16:08:00,780 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-26 16:08:00,895 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-26 16:08:01,024 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-26 16:08:01,135 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-26 16:08:15,431 - app.clients.genai - INFO - Uploading file: D:\googlePRJ\clipmaker\Clipmaker\data\projects\ea2797d6ac214d60ad6be8234d0eab11\source\track.mp3
+2026-01-26 16:08:18,322 - app.clients.genai - INFO - File uploaded and processed: files/sindhlycnzcb
+2026-01-26 16:08:18,323 - app.clients.genai - INFO - Sending audio analysis request to Gemini...
+2026-01-26 16:08:18,323 - root - INFO - AFC is enabled with max remote calls: 10.
+2026-01-26 16:09:42,517 - app.clients.genai - INFO - ----------------------------------------
+2026-01-26 16:09:42,517 - app.clients.genai - INFO - GEMINI INTERACTION: analyze_audio
+2026-01-26 16:09:42,519 - app.clients.genai - INFO - REQUEST:
+['\n        Analyze the audio track in this song to create a video clip. \n        The total duration of the audio is 66.36 seconds.\n        \n        USER REQUEST / PLOT DESCRIPTION:\n        "гісторыя пра беларускага хлопца"\n        (This is the most important instruction. The narrative, metaphors, and events MUST follow this description if provided. If empty, invent a creative one).\n        \n        The user has requested the visual style: "cinematic".\n\n        CHARACTER DESCRIPTION:\n        "хлопец з прамымі русымі валасамі узростам 25 гадоў"\n        (If provided, this character MUST be the protagonist of the video).\n        \n        \nTechnical Analysis Data (librosa):\n{\n  "bpm": 76.01351351351352,\n  "beat_times": [\n    0.864,\n    1.6106666666666667,\n    2.4,\n    3.2,\n    3.989333333333333,\n    4.768,\n    5.568,\n    6.357333333333333,\n    7.1466666666666665,\n    7.925333333333334,\n    8.714666666666666,\n    9.376,\n    10.186666666666667,\n    11.082666666666666,\n    11.690666666666667,\n    12.565333333333333,\n    13.397333333333334,\n    14.250666666666667,\n    15.04,\n    15.893333333333333,\n    16.618666666666666,\n    17.408,\n    18.197333333333333,\n    18.986666666666668,\n    19.776,\n    20.565333333333335,\n    21.354666666666667,\n    22.144,\n    22.933333333333334,\n    23.712,\n    24.469333333333335,\n    25.109333333333332,\n    26.026666666666667,\n    26.858666666666668,\n    27.637333333333334,\n    28.544,\n    29.258666666666667,\n    30.037333333333333,\n    30.826666666666668,\n    31.541333333333334,\n    32.40533333333333,\n    33.19466666666667,\n    33.984,\n    34.77333333333333,\n    35.552,\n    36.34133333333333,\n    37.10933333333333,\n    37.80266666666667,\n    38.67733333333333,\n    39.50933333333333,\n    40.29866666666667,\n    41.088,\n    41.87733333333333,\n    42.666666666666664,\n    43.456,\n    44.23466666666667,\n    45.034666666666666,\n    45.834666666666664,\n    46.58133333333333,\n    47.232,\n    48.14933333333333,\n    48.970666666666666,\n    49.68533333333333,\n    50.56,\n    51.296,\n    52.138666666666666\n  ],\n  "beat_strengths": [\n    0.6636127829551697,\n    0.6738262176513672,\n    0.9999998807907104,\n    0.416582316160202,\n    0.5944163799285889,\n    0.054432231932878494,\n    0.509466290473938,\n    0.33477750420570374,\n    0.6017249822616577,\n    0.39453092217445374,\n    0.6632733941078186,\n    0.6552555561065674,\n    0.21477986872196198,\n    0.34785008430480957,\n    0.20978450775146484,\n    0.5724464058876038,\n    0.6466202139854431,\n    0.5025113224983215,\n    0.7064846158027649,\n    0.11143413931131363,\n    0.7346949577331543,\n    0.5022925138473511,\n    0.7679275870323181,\n    0.18115760385990143,\n    0.48399460315704346,\n    0.4590671956539154,\n    0.7388706207275391,\n    0.2358110398054123,\n    0.8253300189971924,\n    0.5223339200019836,\n    0.5603157877922058,\n    0.19115224480628967,\n    0.30654963850975037,\n    0.39135271310806274,\n    0.3591897189617157,\n    0.19608907401561737,\n    0.18927420675754547,\n    0.6063562631607056,\n    0.3441977798938751,\n    0.24876923859119415,\n    0.36717548966407776,\n    0.4740023612976074,\n    0.5467929840087891,\n    0.3858587145805359,\n    0.26087072491645813,\n    0.07936456054449081,\n    0.443892240524292,\n    0.5651750564575195,\n    0.558857798576355,\n    0.21307970583438873,\n    0.2951713800430298,\n    0.27581286430358887,\n    0.4924383759498596,\n    0.7104353904724121,\n    0.2258482724428177,\n    0.2168947458267212,\n    0.9047443866729736,\n    0.09255822002887726,\n    0.7797818779945374,\n    0.12909945845603943,\n    0.7796457409858704,\n    0.1773640215396881,\n    0.20993265509605408,\n    0.1799687296152115,\n    0.8995426297187805,\n    0.7763139009475708\n  ],\n  "onset_times": [\n    0.032,\n    0.10666666666666667,\n    0.26666666666666666,\n    0.6186666666666667,\n    0.864,\n    1.2586666666666666,\n    1.6,\n    2.016,\n    2.4,\n    2.8053333333333335,\n    2.9226666666666667,\n    3.0613333333333332,\n    3.2,\n    3.264,\n    3.5946666666666665,\n    3.808,\n    3.8506666666666667,\n    3.978666666666667,\n    4.778666666666667,\n    5.173333333333333,\n    5.258666666666667,\n    5.397333333333333,\n    5.450666666666667,\n    5.557333333333333,\n    5.952,\n    6.0906666666666665,\n    6.357333333333333,\n    6.517333333333333,\n    6.741333333333333,\n    6.965333333333334,\n    6.997333333333334,\n    7.136,\n    7.36,\n    7.541333333333333,\n    7.914666666666666,\n    8.330666666666668,\n    8.714666666666666,\n    9.002666666666666,\n    9.12,\n    9.365333333333334,\n    9.514666666666667,\n    9.909333333333333,\n    10.165333333333333,\n    10.293333333333333,\n    10.496,\n    10.656,\n    10.709333333333333,\n    10.965333333333334,\n    11.082666666666666,\n    11.669333333333332,\n    11.786666666666667,\n    11.978666666666667,\n    12.224,\n    12.565333333333333,\n    13.12,\n    13.386666666666667,\n    13.450666666666667,\n    13.813333333333333,\n    13.866666666666667,\n    14.24,\n    14.634666666666666,\n    14.890666666666666,\n    14.922666666666666,\n    15.029333333333334,\n    15.296,\n    15.424,\n    15.829333333333333,\n    16.224,\n    16.309333333333335,\n    16.608,\n    17.013333333333332,\n    17.269333333333332,\n    17.344,\n    17.408,\n    17.770666666666667,\n    17.802666666666667,\n    18.026666666666667,\n    18.186666666666667,\n    18.442666666666668,\n    18.602666666666668,\n    18.986666666666668,\n    19.381333333333334,\n    19.765333333333334,\n    20.170666666666666,\n    20.533333333333335,\n    20.565333333333335,\n    20.810666666666666,\n    20.970666666666666,\n    21.344,\n    21.568,\n    21.653333333333332,\n    21.76,\n    22.005333333333333,\n    22.144,\n    22.368,\n    22.410666666666668,\n    22.549333333333333,\n    22.922666666666668,\n    23.328,\n    23.594666666666665,\n    23.712,\n    24.458666666666666,\n    25.088,\n    25.76,\n    26.016,\n    26.453333333333333,\n    26.837333333333333,\n    27.285333333333334,\n    27.626666666666665,\n    27.669333333333334,\n    27.818666666666665,\n    27.904,\n    28.032,\n    28.128,\n    28.277333333333335,\n    28.458666666666666,\n    28.544,\n    28.746666666666666,\n    28.928,\n    29.248,\n    29.461333333333332,\n    29.504,\n    29.653333333333332,\n    29.973333333333333,\n    30.037333333333333,\n    30.442666666666668,\n    30.826666666666668,\n    31.285333333333334,\n    31.488,\n    31.530666666666665,\n    31.989333333333335,\n    32.40533333333333,\n    32.81066666666667,\n    33.184,\n    33.44,\n    33.6,\n    33.64266666666666,\n    33.824,\n    33.984,\n    34.44266666666667,\n    34.61333333333334,\n    34.77333333333333,\n    35.168,\n    35.541333333333334,\n    35.89333333333333,\n    36.224,\n    37.09866666666667,\n    37.205333333333336,\n    37.472,\n    37.792,\n    37.94133333333333,\n    38.528,\n    38.666666666666664,\n    39.12533333333333,\n    39.50933333333333,\n    39.91466666666667,\n    40.29866666666667,\n    40.704,\n    41.077333333333335,\n    41.49333333333333,\n    41.87733333333333,\n    42.282666666666664,\n    42.538666666666664,\n    42.58133333333333,\n    42.666666666666664,\n    42.922666666666665,\n    43.456,\n    43.65866666666667,\n    44.224,\n    44.437333333333335,\n    44.576,\n    44.64,\n    44.68266666666667,\n    44.78933333333333,\n    44.896,\n    45.034666666666666,\n    45.23733333333333,\n    46.58133333333333,\n    47.21066666666667,\n    47.477333333333334,\n    47.872,\n    48.138666666666666,\n    48.55466666666667,\n    48.93866666666667,\n    48.970666666666666,\n    49.013333333333335,\n    49.344,\n    49.664,\n    49.81333333333333,\n    50.218666666666664,\n    50.56,\n    50.624,\n    51.285333333333334,\n    51.690666666666665,\n    51.744,\n    52.02133333333333,\n    52.138666666666666,\n    52.55466666666667,\n    52.928,\n    53.333333333333336,\n    53.589333333333336,\n    53.717333333333336,\n    54.13333333333333,\n    54.50666666666667,\n    54.912,\n    55.168,\n    55.296,\n    55.712,\n    56.08533333333333,\n    56.49066666666667,\n    56.885333333333335,\n    57.269333333333336,\n    57.664,\n    58.06933333333333,\n    58.45333333333333,\n    59.242666666666665,\n    59.648,\n    60.04266666666667,\n    60.437333333333335,\n    60.821333333333335,\n    61.23733333333333,\n    61.48266666666667,\n    61.62133333333333,\n    62.026666666666664,\n    62.410666666666664,\n    62.80533333333333,\n    63.18933333333333\n  ],\n  "beat_confidence": 0.7347861291572565,\n  "tempo_stability": 0.9240459866770028,\n  "energy_stats": {\n    "avg": 0.11272647231817245,\n    "max": 0.30387333035469055\n  }\n}\n\n        \n        Please provide:\n        1. A summary of the song\'s energy, mood, and style.\n        2. A "global_visual_narrative": A single, cohesive visual metaphor or story concept (e.g. "journey of an abandoned robot" or "a cyber-gothic dance in rain") that will persist throughout the video. If the user provided a plot description, adapt it here.\n        3. A "visual_style_anchor": A specific, consistent visual style description BASED ON "cinematic" (e.g. if user said "Anime", generate "90s Cyberpunk Anime, high contrast").\n        4. A list of segments that cover the ENTIRE duration (66.36s).\n        \n        For each segment, identify:\n        - start_time and end_time (0.0 to 66.36)\n        - speaker (if vocals generally)\n        - text (lyrics)\n        - emotion\n        - instrumentation (e.g. "guitar solo", "heavy drums", "minimal synth")\n        - section_type (e.g. "intro", "verse", "chorus", "bridge", "drop", "climax", "outro")\n        - acoustic_environment (e.g. "studio", "live hall", "lo-fi", "underwater", "echoey")\n        \n        Ensure:\n        - Segments have NO GAPS and NO OVERLAPS.\n        - The sequence covers exactly from 0.0 to 66.36.\n        - Use the Technical Analysis (BPM, Energy) to align segments with beats and intense moments if possible.\n        \n        Return as a JSON object with keys: "summary", "global_visual_narrative", "visual_style_anchor", "segments".\n        ', File(name='files/sindhlycnzcb', display_name=None, mime_type='audio/mpeg', size_bytes=1494189, create_time=datetime.datetime(2026, 1, 26, 14, 8, 18, 917406, tzinfo=TzInfo(0)), expiration_time=datetime.datetime(2026, 1, 28, 14, 8, 18, 534227, tzinfo=TzInfo(0)), update_time=datetime.datetime(2026, 1, 26, 14, 8, 18, 917406, tzinfo=TzInfo(0)), sha256_hash='OTQwYjdhZDc3NGQyOWE0YzNiZWViYTI4ZTNkNDM2YTJjOGJlNGQzYmJkNzc4ODcxMDViYjU3ODY0ZTczZmE4ZA==', uri='https://generativelanguage.googleapis.com/v1beta/files/sindhlycnzcb', download_uri=None, state=<FileState.ACTIVE: 'ACTIVE'>, source=<FileSource.UPLOADED: 'UPLOADED'>, video_metadata=None, error=None)]
+2026-01-26 16:09:42,520 - app.clients.genai - INFO - RESPONSE:
+```json
+{
+  "summary": {
+    "energy": "Medium-Low to Medium-High",
+    "mood": "Introspective, Melancholic, Determined, Atmospheric, Existential",
+    "style": "Cinematic Trip-hop / Downtempo with moody Slavic aesthetics"
+  },
+  "global_visual_narrative": "The video follows the internal and external journey of a 25-year-old Belarusian man at a literal and metaphorical crossroads. Set against a backdrop of misty Belarusian landscapes—blending Soviet brutalist architecture with serene, foggy nature—the protagonist struggles with hesitation and fear. The 'Step' (Krok) represents a decisive moment of moving forward in life, overcoming paralyzing doubt, and finding strength in solitude.",
+  "visual_style_anchor": "Eastern European Cinematic Noir: Cold color palette (teals, greys, muted greens), high contrast, anamorphic lens flares, shallow depth of field, slow-motion accentuating rain/mist, atmospheric lighting (streetlamps in fog).",
+  "segments": [
+    {
+      "start_time": 0.0,
+      "end_time": 0.864,
+      "speaker": "Instrumental",
+      "text": "(Intro Silence/Buildup)",
+      "emotion": "Anticipation",
+      "instrumentation": "Faint atmospheric noise, vinyl crackle start",
+      "section_type": "intro",
+      "acoustic_environment": "Void / Silence"
+    },
+    {
+      "start_time": 0.864,
+      "end_time": 7.925,
+      "speaker": "Male Vocals",
+      "text": "Зрабі толькі крок / будзь сам даеш ты зарок / прачніся, пусціш не змрок",
+      "emotion": "Hesitant, Contemplative",
+      "instrumentation": "Deep bass kick, minimal synth melody",
+      "section_type": "verse",
+      "acoustic_environment": "Rainy exterior, muffled city sounds"
+    },
+    {
+      "start_time": 7.925,
+      "end_time": 15.04,
+      "speaker": "Male Vocals",
+      "text": "Як толькі вырашыш кроў / нясмелы кволы твой крок / на тым скрыжаванні дарог",
+      "emotion": "Melancholic, Tense",
+      "instrumentation": "Snare drums kick in, steady rhythm",
+      "section_type": "verse",
+      "acoustic_environment": "Echoey empty street"
+    },
+    {
+      "start_time": 15.04,
+      "end_time": 23.712,
+      "speaker": "Male Vocals",
+      "text": "Дзе ты паміраў але змог / пераадолець той змрочны парог / Крок, галоўны твой крок",
+      "emotion": "Struggling, Painful reflection",
+      "instrumentation": "Layered synths, building intensity",
+      "section_type": "pre_chorus",
+      "acoustic_environment": "Internal monologue, close intimate sound"
+    },
+    {
+      "start_time": 23.712,
+      "end_time": 30.826,
+      "speaker": "Male Vocals (High Intensity)",
+      "text": "Крок страшны да смерці, як цмок / ногі заблытаў замок",
+      "emotion": "Fear, Determination, Intensity",
+      "instrumentation": "Full beat drop, heavy bass, dramatic strings/pads",
+      "section_type": "chorus",
+      "acoustic_environment": "Wide open stormy space"
+    },
+    {
+      "start_time": 30.826,
+      "end_time": 38.677,
+      "speaker": "Male Vocals",
+      "text": "Тут толькі ты, яшчэ Бог, гэта апошні ўрок / Стой, гэта твой пілот",
+      "emotion": "Epiphany, Solitude",
+      "instrumentation": "Rhythmic groove, hypnotic repetition",
+      "section_type": "chorus",
+      "acoustic_environment": "Surreal, suspended time"
+    },
+    {
+      "start_time": 38.677,
+      "end_time": 46.581,
+      "speaker": "Male Vocals",
+      "text": "Дзе я раблю на знарок / Столькі ўжо здзейсніць свой крок / я сам сабе перамог",
+      "emotion": "Triumphant (internal), Resolved",
+      "instrumentation": "Driving beat, harmonious synth pads",
+      "section_type": "bridge/climax",
+      "acoustic_environment": "Clear, crisp morning air atmosphere"
+    },
+    {
+      "start_time": 46.581,
+      "end_time": 55.296,
+      "speaker": "Male Vocals / Instrumental",
+      "text": "Крок, галоўны твой крок / твой самы важны... твой крок",
+      "emotion": "Calm, Accepted destiny",
+      "instrumentation": "Fading drums, lingering melody lines",
+      "section_type": "outro_vocal",
+      "acoustic_environment": "Fading echo"
+    },
+    {
+      "start_time": 55.296,
+      "end_time": 66.36,
+      "speaker": "Instrumental",
+      "text": "(Instrumental Fade Out)",
+      "emotion": "Peaceful, Lingering",
+      "instrumentation": "Soft piano or synth decay, ambient wind",
+      "section_type": "outro",
+      "acoustic_environment": "Distant city noise fading to silence"
+    }
+  ]
+}
+```
+2026-01-26 16:09:42,521 - app.clients.genai - INFO - ----------------------------------------
+2026-01-26 16:09:42,535 - root - INFO - AFC is enabled with max remote calls: 10.
+2026-01-26 16:11:09,719 - app.clients.genai - INFO - ----------------------------------------
+2026-01-26 16:11:09,719 - app.clients.genai - INFO - GEMINI INTERACTION: build_storyboard
+2026-01-26 16:11:09,720 - app.clients.genai - INFO - REQUEST:
+['\n        Based on this analysis: {\'summary\': {\'energy\': \'Medium-Low to Medium-High\', \'mood\': \'Introspective, Melancholic, Determined, Atmospheric, Existential\', \'style\': \'Cinematic Trip-hop / Downtempo with moody Slavic aesthetics\'}, \'global_visual_narrative\': "The video follows the internal and external journey of a 25-year-old Belarusian man at a literal and metaphorical crossroads. Set against a backdrop of misty Belarusian landscapes—blending Soviet brutalist architecture with serene, foggy nature—the protagonist struggles with hesitation and fear. The \'Step\' (Krok) represents a decisive moment of moving forward in life, overcoming paralyzing doubt, and finding strength in solitude.", \'visual_style_anchor\': \'Eastern European Cinematic Noir: Cold color palette (teals, greys, muted greens), high contrast, anamorphic lens flares, shallow depth of field, slow-motion accentuating rain/mist, atmospheric lighting (streetlamps in fog).\', \'segments\': [{\'start_time\': 0.0, \'end_time\': 0.864, \'speaker\': \'Instrumental\', \'text\': \'(Intro Silence/Buildup)\', \'emotion\': \'Anticipation\', \'instrumentation\': \'Faint atmospheric noise, vinyl crackle start\', \'section_type\': \'intro\', \'acoustic_environment\': \'Void / Silence\'}, {\'start_time\': 0.864, \'end_time\': 7.925, \'speaker\': \'Male Vocals\', \'text\': \'Зрабі толькі крок / будзь сам даеш ты зарок / прачніся, пусціш не змрок\', \'emotion\': \'Hesitant, Contemplative\', \'instrumentation\': \'Deep bass kick, minimal synth melody\', \'section_type\': \'verse\', \'acoustic_environment\': \'Rainy exterior, muffled city sounds\'}, {\'start_time\': 7.925, \'end_time\': 15.04, \'speaker\': \'Male Vocals\', \'text\': \'Як толькі вырашыш кроў / нясмелы кволы твой крок / на тым скрыжаванні дарог\', \'emotion\': \'Melancholic, Tense\', \'instrumentation\': \'Snare drums kick in, steady rhythm\', \'section_type\': \'verse\', \'acoustic_environment\': \'Echoey empty street\'}, {\'start_time\': 15.04, \'end_time\': 23.712, \'speaker\': \'Male Vocals\', \'text\': \'Дзе ты паміраў але змог / пераадолець той змрочны парог / Крок, галоўны твой крок\', \'emotion\': \'Struggling, Painful reflection\', \'instrumentation\': \'Layered synths, building intensity\', \'section_type\': \'pre_chorus\', \'acoustic_environment\': \'Internal monologue, close intimate sound\'}, {\'start_time\': 23.712, \'end_time\': 30.826, \'speaker\': \'Male Vocals (High Intensity)\', \'text\': \'Крок страшны да смерці, як цмок / ногі заблытаў замок\', \'emotion\': \'Fear, Determination, Intensity\', \'instrumentation\': \'Full beat drop, heavy bass, dramatic strings/pads\', \'section_type\': \'chorus\', \'acoustic_environment\': \'Wide open stormy space\'}, {\'start_time\': 30.826, \'end_time\': 38.677, \'speaker\': \'Male Vocals\', \'text\': \'Тут толькі ты, яшчэ Бог, гэта апошні ўрок / Стой, гэта твой пілот\', \'emotion\': \'Epiphany, Solitude\', \'instrumentation\': \'Rhythmic groove, hypnotic repetition\', \'section_type\': \'chorus\', \'acoustic_environment\': \'Surreal, suspended time\'}, {\'start_time\': 38.677, \'end_time\': 46.581, \'speaker\': \'Male Vocals\', \'text\': \'Дзе я раблю на знарок / Столькі ўжо здзейсніць свой крок / я сам сабе перамог\', \'emotion\': \'Triumphant (internal), Resolved\', \'instrumentation\': \'Driving beat, harmonious synth pads\', \'section_type\': \'bridge/climax\', \'acoustic_environment\': \'Clear, crisp morning air atmosphere\'}, {\'start_time\': 46.581, \'end_time\': 55.296, \'speaker\': \'Male Vocals / Instrumental\', \'text\': \'Крок, галоўны твой крок / твой самы важны... твой крок\', \'emotion\': \'Calm, Accepted destiny\', \'instrumentation\': \'Fading drums, lingering melody lines\', \'section_type\': \'outro_vocal\', \'acoustic_environment\': \'Fading echo\'}, {\'start_time\': 55.296, \'end_time\': 66.36, \'speaker\': \'Instrumental\', \'text\': \'(Instrumental Fade Out)\', \'emotion\': \'Peaceful, Lingering\', \'instrumentation\': \'Soft piano or synth decay, ambient wind\', \'section_type\': \'outro\', \'acoustic_environment\': \'Distant city noise fading to silence\'}], \'total_duration\': 66.36, \'technical_stats\': {\'bpm\': 76.01351351351352, \'beat_times\': [0.864, 1.6106666666666667, 2.4, 3.2, 3.989333333333333, 4.768, 5.568, 6.357333333333333, 7.1466666666666665, 7.925333333333334, 8.714666666666666, 9.376, 10.186666666666667, 11.082666666666666, 11.690666666666667, 12.565333333333333, 13.397333333333334, 14.250666666666667, 15.04, 15.893333333333333, 16.618666666666666, 17.408, 18.197333333333333, 18.986666666666668, 19.776, 20.565333333333335, 21.354666666666667, 22.144, 22.933333333333334, 23.712, 24.469333333333335, 25.109333333333332, 26.026666666666667, 26.858666666666668, 27.637333333333334, 28.544, 29.258666666666667, 30.037333333333333, 30.826666666666668, 31.541333333333334, 32.40533333333333, 33.19466666666667, 33.984, 34.77333333333333, 35.552, 36.34133333333333, 37.10933333333333, 37.80266666666667, 38.67733333333333, 39.50933333333333, 40.29866666666667, 41.088, 41.87733333333333, 42.666666666666664, 43.456, 44.23466666666667, 45.034666666666666, 45.834666666666664, 46.58133333333333, 47.232, 48.14933333333333, 48.970666666666666, 49.68533333333333, 50.56, 51.296, 52.138666666666666], \'beat_strengths\': [0.6636127829551697, 0.6738262176513672, 0.9999998807907104, 0.416582316160202, 0.5944163799285889, 0.054432231932878494, 0.509466290473938, 0.33477750420570374, 0.6017249822616577, 0.39453092217445374, 0.6632733941078186, 0.6552555561065674, 0.21477986872196198, 0.34785008430480957, 0.20978450775146484, 0.5724464058876038, 0.6466202139854431, 0.5025113224983215, 0.7064846158027649, 0.11143413931131363, 0.7346949577331543, 0.5022925138473511, 0.7679275870323181, 0.18115760385990143, 0.48399460315704346, 0.4590671956539154, 0.7388706207275391, 0.2358110398054123, 0.8253300189971924, 0.5223339200019836, 0.5603157877922058, 0.19115224480628967, 0.30654963850975037, 0.39135271310806274, 0.3591897189617157, 0.19608907401561737, 0.18927420675754547, 0.6063562631607056, 0.3441977798938751, 0.24876923859119415, 0.36717548966407776, 0.4740023612976074, 0.5467929840087891, 0.3858587145805359, 0.26087072491645813, 0.07936456054449081, 0.443892240524292, 0.5651750564575195, 0.558857798576355, 0.21307970583438873, 0.2951713800430298, 0.27581286430358887, 0.4924383759498596, 0.7104353904724121, 0.2258482724428177, 0.2168947458267212, 0.9047443866729736, 0.09255822002887726, 0.7797818779945374, 0.12909945845603943, 0.7796457409858704, 0.1773640215396881, 0.20993265509605408, 0.1799687296152115, 0.8995426297187805, 0.7763139009475708], \'onset_times\': [0.032, 0.10666666666666667, 0.26666666666666666, 0.6186666666666667, 0.864, 1.2586666666666666, 1.6, 2.016, 2.4, 2.8053333333333335, 2.9226666666666667, 3.0613333333333332, 3.2, 3.264, 3.5946666666666665, 3.808, 3.8506666666666667, 3.978666666666667, 4.778666666666667, 5.173333333333333, 5.258666666666667, 5.397333333333333, 5.450666666666667, 5.557333333333333, 5.952, 6.0906666666666665, 6.357333333333333, 6.517333333333333, 6.741333333333333, 6.965333333333334, 6.997333333333334, 7.136, 7.36, 7.541333333333333, 7.914666666666666, 8.330666666666668, 8.714666666666666, 9.002666666666666, 9.12, 9.365333333333334, 9.514666666666667, 9.909333333333333, 10.165333333333333, 10.293333333333333, 10.496, 10.656, 10.709333333333333, 10.965333333333334, 11.082666666666666, 11.669333333333332, 11.786666666666667, 11.978666666666667, 12.224, 12.565333333333333, 13.12, 13.386666666666667, 13.450666666666667, 13.813333333333333, 13.866666666666667, 14.24, 14.634666666666666, 14.890666666666666, 14.922666666666666, 15.029333333333334, 15.296, 15.424, 15.829333333333333, 16.224, 16.309333333333335, 16.608, 17.013333333333332, 17.269333333333332, 17.344, 17.408, 17.770666666666667, 17.802666666666667, 18.026666666666667, 18.186666666666667, 18.442666666666668, 18.602666666666668, 18.986666666666668, 19.381333333333334, 19.765333333333334, 20.170666666666666, 20.533333333333335, 20.565333333333335, 20.810666666666666, 20.970666666666666, 21.344, 21.568, 21.653333333333332, 21.76, 22.005333333333333, 22.144, 22.368, 22.410666666666668, 22.549333333333333, 22.922666666666668, 23.328, 23.594666666666665, 23.712, 24.458666666666666, 25.088, 25.76, 26.016, 26.453333333333333, 26.837333333333333, 27.285333333333334, 27.626666666666665, 27.669333333333334, 27.818666666666665, 27.904, 28.032, 28.128, 28.277333333333335, 28.458666666666666, 28.544, 28.746666666666666, 28.928, 29.248, 29.461333333333332, 29.504, 29.653333333333332, 29.973333333333333, 30.037333333333333, 30.442666666666668, 30.826666666666668, 31.285333333333334, 31.488, 31.530666666666665, 31.989333333333335, 32.40533333333333, 32.81066666666667, 33.184, 33.44, 33.6, 33.64266666666666, 33.824, 33.984, 34.44266666666667, 34.61333333333334, 34.77333333333333, 35.168, 35.541333333333334, 35.89333333333333, 36.224, 37.09866666666667, 37.205333333333336, 37.472, 37.792, 37.94133333333333, 38.528, 38.666666666666664, 39.12533333333333, 39.50933333333333, 39.91466666666667, 40.29866666666667, 40.704, 41.077333333333335, 41.49333333333333, 41.87733333333333, 42.282666666666664, 42.538666666666664, 42.58133333333333, 42.666666666666664, 42.922666666666665, 43.456, 43.65866666666667, 44.224, 44.437333333333335, 44.576, 44.64, 44.68266666666667, 44.78933333333333, 44.896, 45.034666666666666, 45.23733333333333, 46.58133333333333, 47.21066666666667, 47.477333333333334, 47.872, 48.138666666666666, 48.55466666666667, 48.93866666666667, 48.970666666666666, 49.013333333333335, 49.344, 49.664, 49.81333333333333, 50.218666666666664, 50.56, 50.624, 51.285333333333334, 51.690666666666665, 51.744, 52.02133333333333, 52.138666666666666, 52.55466666666667, 52.928, 53.333333333333336, 53.589333333333336, 53.717333333333336, 54.13333333333333, 54.50666666666667, 54.912, 55.168, 55.296, 55.712, 56.08533333333333, 56.49066666666667, 56.885333333333335, 57.269333333333336, 57.664, 58.06933333333333, 58.45333333333333, 59.242666666666665, 59.648, 60.04266666666667, 60.437333333333335, 60.821333333333335, 61.23733333333333, 61.48266666666667, 61.62133333333333, 62.026666666666664, 62.410666666666664, 62.80533333333333, 63.18933333333333], \'beat_confidence\': 0.7347861291572565, \'tempo_stability\': 0.9240459866770028, \'energy_stats\': {\'avg\': 0.11272647231817245, \'max\': 0.30387333035469055}}, \'character_description\': \'хлопец з прамымі русымі валасамі узростам 25 гадоў\'}\n        \n        Create a storyboard as a JSON list of segments.\n        The total duration MUST be EXACTLY 66.36 seconds.\n        \n        Follow the "global_visual_narrative" defined in the analysis. The video must feel like a cohesive film with a clear Narrative Arc (Beginning, Development, Climax).\n        \n        Crucial: React to changes in music intensity (from technical analysis stats or section_type) by changing the INTENSITY of the plot/visuals. \n        - If the music builds up (climax/drop), the visuals must become more massive, dynamic, or fast-paced.\n        - If the music is calm, the visuals should be steady and atmospheric.\n        \n        PACING INSTRUCTION:\n        - The user wants a dynamic video with MANY segments.\n        - Aim for segment durations between 2 and 5 seconds for most parts.\n        - Only use longer segments (up to 8s) for very slow, atmospheric parts.\n        - Avoid creating few long segments. We need a high "segment density".\n        \n        Each segment MUST have:\n        - id: a unique string like "seg_1", "seg_2", etc.\n        - start_time: "MM:SS" (or total seconds)\n        - end_time: "MM:SS" (or total seconds)\n        - lyric_text: the transcript for this segment\n        - visual_intent: a detailed description of what should be on screen, following the global narrative and current intensity.\n        - camera_angle: suggested camera shot (e.g. "Close-up", "Wide shot", "Drone shot")\n        - emotion: the detected emotion\n        \n        IMPORTANT: The segments MUST tile the entire 66.36 seconds. \n        The first segment must start at 00:00. \n        The last segment must end at 66.36.\n        No gaps, no overlaps.\n        \n        Return ONLY the JSON list.\n        ']
+2026-01-26 16:11:09,722 - app.clients.genai - INFO - RESPONSE:
+```json
+[
+  {
+    "id": "seg_1",
+    "start_time": 0.0,
+    "end_time": 3.2,
+    "lyric_text": "(Intro) Зрабі толькі крок",
+    "visual_intent": "Open on absolute black, then a sharp cut to a close-up of a 25-year-old man's eye snapping open in sync with the vinyl crackle. He is lying in a dim room, illuminated only by the orange glow of a sodium streetlight outside. Rain shadows trickle across his face.",
+    "camera_angle": "Extreme Close-up",
+    "emotion": "Anticipation",
+    "intensity": "Low"
+  },
+  {
+    "id": "seg_2",
+    "start_time": 3.2,
+    "end_time": 5.568,
+    "lyric_text": "будзь сам даеш ты зарок",
+    "visual_intent": "The man sits on the edge of a bed in a cramped Soviet-style apartment. He runs a hand through his straight light brown hair. The atmosphere is heavy; cigarette smoke hangs in the blue-grey air.",
+    "camera_angle": "Medium Shot",
+    "emotion": "Hesitant",
+    "intensity": "Low"
+  },
+  {
+    "id": "seg_3",
+    "start_time": 5.568,
+    "end_time": 7.925,
+    "lyric_text": "прачніся, пусціш не змрок",
+    "visual_intent": "He stares into a cracked bathroom mirror. His reflection looks tired. He splashes cold water on his face, the water droplets caught in high contrast against the dingy tiles.",
+    "camera_angle": "Over-the-shoulder / Mirror reflection",
+    "emotion": "Contemplative",
+    "intensity": "Medium-Low"
+  },
+  {
+    "id": "seg_4",
+    "start_time": 7.925,
+    "end_time": 11.08,
+    "lyric_text": "Як толькі вырашыш кроў / нясмелы кволы твой крок",
+    "visual_intent": "Cut to exterior. Night. The man steps out of a heavy iron door block entrance. He hesitates under the concrete awning. Rain falls heavily, illuminated by a flickering teal neon sign nearby.",
+    "camera_angle": "Wide Shot",
+    "emotion": "Melancholic",
+    "intensity": "Medium"
+  },
+  {
+    "id": "seg_5",
+    "start_time": 11.08,
+    "end_time": 15.04,
+    "lyric_text": "на тым скрыжаванні дарог",
+    "visual_intent": "He walks down a lonely sidewalk flanked by massive brutalist high-rises that fade into the fog. He approaches a large, empty intersection (crossroads). The wet asphalt reflects the city lights like a mirror.",
+    "camera_angle": "Tracking Shot (Low Angle)",
+    "emotion": "Tense",
+    "intensity": "Medium"
+  },
+  {
+    "id": "seg_6",
+    "start_time": 15.04,
+    "end_time": 18.98,
+    "lyric_text": "Дзе ты паміраў але змог / пераадолець той змрочны парог",
+    "visual_intent": "The camera pushes in fast on his face as he stops at the curb. He looks distressed, memories flashing—quick, subliminal cuts of him failing in the past. The lighting shifts to a more sinister red/shadow mix.",
+    "camera_angle": "Close-up (Dolly In)",
+    "emotion": "Struggling",
+    "intensity": "Medium-High"
+  },
+  {
+    "id": "seg_7",
+    "start_time": 18.98,
+    "end_time": 23.712,
+    "lyric_text": "Крок, галоўны твой крок",
+    "visual_intent": "Focus on his boots on the edge of the pavement. The traffic light blinks ominously. The rain intensifies, hitting the ground in slow motion, creating a texture of chaotic noise before the drop.",
+    "camera_angle": "Low angle / Ground level",
+    "emotion": "Painful reflection",
+    "intensity": "High (Buildup)"
+  },
+  {
+    "id": "seg_8",
+    "start_time": 23.712,
+    "end_time": 27.63,
+    "lyric_text": "Крок страшны да смерці, як цмок",
+    "visual_intent": "DROP. Sudden shift to a surreal visual. The man screams silently into the void. The background city warps and twists (anamorphic distortion). The rain seems to freeze and reverse upwards.",
+    "camera_angle": "Dutch Angle / Disorienting Spin",
+    "emotion": "Fear / Intensity",
+    "intensity": "Very High"
+  },
+  {
+    "id": "seg_9",
+    "start_time": 27.63,
+    "end_time": 30.826,
+    "lyric_text": "ногі заблытаў замок",
+    "visual_intent": "He tries to lift his leg, but invisible chains (represented by heavy shadows or graphical glitch effects) hold him down. He fights against the paralysis. Brutalist concrete walls close in around him.",
+    "camera_angle": "Medium Shot",
+    "emotion": "Determination",
+    "intensity": "Very High"
+  },
+  {
+    "id": "seg_10",
+    "start_time": 30.826,
+    "end_time": 34.77,
+    "lyric_text": "Тут толькі ты, яшчэ Бог, гэта апошні ўрок",
+    "visual_intent": "Time stands still (bullet time). The man is frozen in a moment of exertion. The camera pans around him 180 degrees. The rain droplets are suspended in mid-air like diamonds.",
+    "camera_angle": "Orbit Shot (Slow Motion)",
+    "emotion": "Epiphany",
+    "intensity": "High (Suspended)"
+  },
+  {
+    "id": "seg_11",
+    "start_time": 34.77,
+    "end_time": 38.677,
+    "lyric_text": "Стой, гэта твой пілот",
+    "visual_intent": "Close up on his eyes. The fear vanishes, replaced by a cold, steely resolve. The pupil dilates. He exhales, and we see the breath vapor clearly in the cold air.",
+    "camera_angle": "Extreme Close-up",
+    "emotion": "Solitude",
+    "intensity": "High"
+  },
+  {
+    "id": "seg_12",
+    "start_time": 38.677,
+    "end_time": 42.66,
+    "lyric_text": "Дзе я раблю на знарок / Столькі ўжо здзейсніць свой крок",
+    "visual_intent": "The foot hits the asphalt. A massive splash of water ripples outwards, clearing the fog physically. He is walking now, breaking into a confident stride across the intersection.",
+    "camera_angle": "Low angle tracking",
+    "emotion": "Triumphant",
+    "intensity": "Medium-High"
+  },
+  {
+    "id": "seg_13",
+    "start_time": 42.66,
+    "end_time": 46.581,
+    "lyric_text": "я сам сабе перамог",
+    "visual_intent": "Dawn breaks. The dark blue night gives way to a cold, desaturated morning grey. The man walks towards the camera, the Soviet architecture behind him now looking majestic rather than oppressive.",
+    "camera_angle": "Frontal Medium Shot (Dolly Out)",
+    "emotion": "Resolved",
+    "intensity": "Medium"
+  },
+  {
+    "id": "seg_14",
+    "start_time": 46.581,
+    "end_time": 50.56,
+    "lyric_text": "Крок, галоўны твой крок",
+    "visual_intent": "He passes the camera and we turn to watch his back. He is walking away into a vast, misty Belarusian field that borders the city edge. He looks small but free.",
+    "camera_angle": "Wide Shot",
+    "emotion": "Calm",
+    "intensity": "Medium-Low"
+  },
+  {
+    "id": "seg_15",
+    "start_time": 50.56,
+    "end_time": 55.296,
+    "lyric_text": "твой самы важны... твой крок",
+    "visual_intent": "Silhouette of the man fading into the white mist. The image becomes grainy and soft, like old film stock. The movement is slow and peaceful.",
+    "camera_angle": "Long Shot",
+    "emotion": "Accepted destiny",
+    "intensity": "Low"
+  },
+  {
+    "id": "seg_16",
+    "start_time": 55.296,
+    "end_time": 60.0,
+    "lyric_text": "(Instrumental Fade Out)",
+    "visual_intent": "Abstract shots of the environment calming down. Rain dripping from a rusty playground swing. A streetlamp flickering off.",
+    "camera_angle": "Detail / Macro shots",
+    "emotion": "Peaceful",
+    "intensity": "Low"
+  },
+  {
+    "id": "seg_17",
+    "start_time": 60.0,
+    "end_time": 63.5,
+    "lyric_text": "(Instrumental Fade Out)",
+    "visual_intent": "A wide drone shot of the city waking up under the fog. It is still, grey, and beautiful in a melancholic way. No people, just the architecture.",
+    "camera_angle": "Drone / Aerial",
+    "emotion": "Lingering",
+    "intensity": "Very Low"
+  },
+  {
+    "id": "seg_18",
+    "start_time": 63.5,
+    "end_time": 66.36,
+    "lyric_text": "(Silence)",
+    "visual_intent": "Fade to black. Title card appears briefly with the song name.",
+    "camera_angle": "Static",
+    "emotion": "Finality",
+    "intensity": "None"
+  }
+]
+```
+2026-01-26 16:11:09,723 - app.clients.genai - INFO - ----------------------------------------
+2026-01-26 16:11:09,724 - app.services.story_service - INFO - Normalizing 18 segments: total_suggested=66.36s, target_duration=66.36s, scale_factor=1.000
+2026-01-26 16:11:09,724 - app.services.story_service - WARNING - Last segment seg_18 is very long (14.22s). Avg should be 3.69s.
+2026-01-26 16:11:09,724 - app.services.story_service - INFO - Rhythmic normalization complete. Avg: 3.69s, EffMax: 6.00s
+2026-01-26 16:11:09,733 - app.services.pipeline_service - INFO - Deducting 18 credits for user b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7
+2026-01-26 16:11:10,386 - httpx - INFO - HTTP Request: POST https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/rpc/deduct_credits "HTTP/2 200 OK"
+2026-01-26 16:11:10,409 - root - INFO - AFC is enabled with max remote calls: 10.
+2026-01-26 16:12:07,323 - app.clients.genai - INFO - ----------------------------------------
+2026-01-26 16:12:07,324 - app.clients.genai - INFO - GEMINI INTERACTION: build_prompts
+2026-01-26 16:12:07,324 - app.clients.genai - INFO - REQUEST:
+['\n        For each of these segments, create a detailed image generation prompt.\n        \n        Global Style Anchor: "Eastern European Cinematic Noir: Cold color palette (teals, greys, muted greens), high contrast, anamorphic lens flares, shallow depth of field, slow-motion accentuating rain/mist, atmospheric lighting (streetlamps in fog)." \n        (YOU MUST APPEND THIS EXACT STYLE DESCRIPTION TO EVERY SINGLE PROMPT TO ENSURE CONSISTENCY).\n\n        CHARACTER CONSISTENCY:\n        Character Description: "хлопец з прамымі русымі валасамі узростам 25 гадоў"\n        (If the character appears, they MUST match this description. If the scene allows, feature this character).\n        \n        Segments: [{\'id\': \'seg_1\', \'start_time\': 0.0, \'end_time\': 2.4, \'lyric_text\': \'(Intro) Зрабі толькі крок\', \'visual_intent\': "Open on absolute black, then a sharp cut to a close-up of a 25-year-old man\'s eye snapping open in sync with the vinyl crackle. He is lying in a dim room, illuminated only by the orange glow of a sodium streetlight outside. Rain shadows trickle across his face.", \'camera_angle\': \'Extreme Close-up\', \'emotion\': \'Anticipation\', \'intensity\': \'Low\'}, {\'id\': \'seg_2\', \'start_time\': 2.4, \'end_time\': 3.989333333333333, \'lyric_text\': \'будзь сам даеш ты зарок\', \'visual_intent\': \'The man sits on the edge of a bed in a cramped Soviet-style apartment. He runs a hand through his straight light brown hair. The atmosphere is heavy; cigarette smoke hangs in the blue-grey air.\', \'camera_angle\': \'Medium Shot\', \'emotion\': \'Hesitant\', \'intensity\': \'Low\'}, {\'id\': \'seg_3\', \'start_time\': 3.989333333333333, \'end_time\': 7.925333333333334, \'lyric_text\': \'прачніся, пусціш не змрок\', \'visual_intent\': \'He stares into a cracked bathroom mirror. His reflection looks tired. He splashes cold water on his face, the water droplets caught in high contrast against the dingy tiles.\', \'camera_angle\': \'Over-the-shoulder / Mirror reflection\', \'emotion\': \'Contemplative\', \'intensity\': \'Medium-Low\'}, {\'id\': \'seg_4\', \'start_time\': 7.925333333333334, \'end_time\': 11.082666666666666, \'lyric_text\': \'Як толькі вырашыш кроў / нясмелы кволы твой крок\', \'visual_intent\': \'Cut to exterior. Night. The man steps out of a heavy iron door block entrance. He hesitates under the concrete awning. Rain falls heavily, illuminated by a flickering teal neon sign nearby.\', \'camera_angle\': \'Wide Shot\', \'emotion\': \'Melancholic\', \'intensity\': \'Medium\'}, {\'id\': \'seg_5\', \'start_time\': 11.082666666666666, \'end_time\': 15.04, \'lyric_text\': \'на тым скрыжаванні дарог\', \'visual_intent\': \'He walks down a lonely sidewalk flanked by massive brutalist high-rises that fade into the fog. He approaches a large, empty intersection (crossroads). The wet asphalt reflects the city lights like a mirror.\', \'camera_angle\': \'Tracking Shot (Low Angle)\', \'emotion\': \'Tense\', \'intensity\': \'Medium\'}, {\'id\': \'seg_6\', \'start_time\': 15.04, \'end_time\': 18.197333333333333, \'lyric_text\': \'Дзе ты паміраў але змог / пераадолець той змрочны парог\', \'visual_intent\': \'The camera pushes in fast on his face as he stops at the curb. He looks distressed, memories flashing—quick, subliminal cuts of him failing in the past. The lighting shifts to a more sinister red/shadow mix.\', \'camera_angle\': \'Close-up (Dolly In)\', \'emotion\': \'Struggling\', \'intensity\': \'Medium-High\'}, {\'id\': \'seg_7\', \'start_time\': 18.197333333333333, \'end_time\': 23.712, \'lyric_text\': \'Крок, галоўны твой крок\', \'visual_intent\': \'Focus on his boots on the edge of the pavement. The traffic light blinks ominously. The rain intensifies, hitting the ground in slow motion, creating a texture of chaotic noise before the drop.\', \'camera_angle\': \'Low angle / Ground level\', \'emotion\': \'Painful reflection\', \'intensity\': \'High (Buildup)\'}, {\'id\': \'seg_8\', \'start_time\': 23.712, \'end_time\': 27.637333333333334, \'lyric_text\': \'Крок страшны да смерці, як цмок\', \'visual_intent\': \'DROP. Sudden shift to a surreal visual. The man screams silently into the void. The background city warps and twists (anamorphic distortion). The rain seems to freeze and reverse upwards.\', \'camera_angle\': \'Dutch Angle / Disorienting Spin\', \'emotion\': \'Fear / Intensity\', \'intensity\': \'Very High\'}, {\'id\': \'seg_9\', \'start_time\': 27.637333333333334, \'end_time\': 30.826666666666668, \'lyric_text\': \'ногі заблытаў замок\', \'visual_intent\': \'He tries to lift his leg, but invisible chains (represented by heavy shadows or graphical glitch effects) hold him down. He fights against the paralysis. Brutalist concrete walls close in around him.\', \'camera_angle\': \'Medium Shot\', \'emotion\': \'Determination\', \'intensity\': \'Very High\'}, {\'id\': \'seg_10\', \'start_time\': 30.826666666666668, \'end_time\': 33.984, \'lyric_text\': \'Тут толькі ты, яшчэ Бог, гэта апошні ўрок\', \'visual_intent\': \'Time stands still (bullet time). The man is frozen in a moment of exertion. The camera pans around him 180 degrees. The rain droplets are suspended in mid-air like diamonds.\', \'camera_angle\': \'Orbit Shot (Slow Motion)\', \'emotion\': \'Epiphany\', \'intensity\': \'High (Suspended)\'}, {\'id\': \'seg_11\', \'start_time\': 33.984, \'end_time\': 38.67733333333333, \'lyric_text\': \'Стой, гэта твой пілот\', \'visual_intent\': \'Close up on his eyes. The fear vanishes, replaced by a cold, steely resolve. The pupil dilates. He exhales, and we see the breath vapor clearly in the cold air.\', \'camera_angle\': \'Extreme Close-up\', \'emotion\': \'Solitude\', \'intensity\': \'High\'}, {\'id\': \'seg_12\', \'start_time\': 38.67733333333333, \'end_time\': 42.666666666666664, \'lyric_text\': \'Дзе я раблю на знарок / Столькі ўжо здзейсніць свой крок\', \'visual_intent\': \'The foot hits the asphalt. A massive splash of water ripples outwards, clearing the fog physically. He is walking now, breaking into a confident stride across the intersection.\', \'camera_angle\': \'Low angle tracking\', \'emotion\': \'Triumphant\', \'intensity\': \'Medium-High\'}, {\'id\': \'seg_13\', \'start_time\': 42.666666666666664, \'end_time\': 46.58133333333333, \'lyric_text\': \'я сам сабе перамог\', \'visual_intent\': \'Dawn breaks. The dark blue night gives way to a cold, desaturated morning grey. The man walks towards the camera, the Soviet architecture behind him now looking majestic rather than oppressive.\', \'camera_angle\': \'Frontal Medium Shot (Dolly Out)\', \'emotion\': \'Resolved\', \'intensity\': \'Medium\'}, {\'id\': \'seg_14\', \'start_time\': 46.58133333333333, \'end_time\': 51.296, \'lyric_text\': \'Крок, галоўны твой крок\', \'visual_intent\': \'He passes the camera and we turn to watch his back. He is walking away into a vast, misty Belarusian field that borders the city edge. He looks small but free.\', \'camera_angle\': \'Wide Shot\', \'emotion\': \'Calm\', \'intensity\': \'Medium-Low\'}, {\'id\': \'seg_15\', \'start_time\': 51.296, \'end_time\': 52.138666666666666, \'lyric_text\': \'твой самы важны... твой крок\', \'visual_intent\': \'Silhouette of the man fading into the white mist. The image becomes grainy and soft, like old film stock. The movement is slow and peaceful.\', \'camera_angle\': \'Long Shot\', \'emotion\': \'Accepted destiny\', \'intensity\': \'Low\'}, {\'id\': \'seg_16\', \'start_time\': 52.138666666666666, \'end_time\': 58.138666666666666, \'lyric_text\': \'(Instrumental Fade Out)\', \'visual_intent\': \'Abstract shots of the environment calming down. Rain dripping from a rusty playground swing. A streetlamp flickering off.\', \'camera_angle\': \'Detail / Macro shots\', \'emotion\': \'Peaceful\', \'intensity\': \'Low\'}, {\'id\': \'seg_17\', \'start_time\': 58.138666666666666, \'end_time\': 58.138666666666666, \'lyric_text\': \'(Instrumental Fade Out)\', \'visual_intent\': \'A wide drone shot of the city waking up under the fog. It is still, grey, and beautiful in a melancholic way. No people, just the architecture.\', \'camera_angle\': \'Drone / Aerial\', \'emotion\': \'Lingering\', \'intensity\': \'Very Low\'}, {\'id\': \'seg_18\', \'start_time\': 58.138666666666666, \'end_time\': 66.36, \'lyric_text\': \'(Silence)\', \'visual_intent\': \'Fade to black. Title card appears briefly with the song name.\', \'camera_angle\': \'Static\', \'emotion\': \'Finality\', \'intensity\': \'None\'}]\n        \n        Return a JSON object where keys are the segment IDs ("seg_1", etc.) and values are objects containing:\n        - image_prompt: the detailed prompt for the AI image generator\n        - negative_prompt: what to avoid in the image (optional)\n        - style_hints: keywords about the style (optional)\n        \n        Return ONLY the JSON object.\n        ']
+2026-01-26 16:12:07,325 - app.clients.genai - INFO - RESPONSE:
+```json
+{
+  "seg_1": {
+    "image_prompt": "Extreme Close-up of a 25-year-old man's eye snapping open in a pitch black room, iris detail visible. He has straight light brown hair. The scene is dimly illuminated only by the orange glow of a sodium streetlight coming from outside. Shadows of rain droplets trickle across his face like tears. Eastern European Cinematic Noir: Cold color palette (teals, greys, muted greens), high contrast, anamorphic lens flares, shallow depth of field, slow-motion accentuating rain/mist, atmospheric lighting (streetlamps in fog).",
+    "negative_prompt": "bright daylight, sunshine, smiling, cartoon, anime, dry skin, warm colors, bedroom interior visible",
+    "style_hints": "Macro photography, sodium vapor lighting, claustrophobic"
+  },
+  "seg_2": {
+    "image_prompt": "Medium Shot. A 25-year-old man with straight light brown hair sits slumped on the edge of a bed in a cramped, messy Soviet-style apartment. He runs a hand through his hair in frustration. Cigarette smoke hangs heavily in the blue-grey air. Vintage patterned wallpaper, dim interior. Eastern European Cinematic Noir: Cold color palette (teals, greys, muted greens), high contrast, anamorphic lens flares, shallow depth of field, slow-motion accentuating rain/mist, atmospheric lighting (streetlamps in fog).",
+    "negative_prompt": "modern luxury apartment, clean, bright, happy, sunlight, minimalist furniture",
+    "style_hints": "Post-soviet aesthetic, smoky atmosphere, dingy textures"
+  },
+  "seg_3": {
+    "image_prompt": "Over-the-shoulder shot looking into a cracked, dirty bathroom mirror. The reflection shows a tired 25-year-old man with straight light brown hair. He is splashing cold water on his face. Water droplets are caught in mid-air, high contrast against dingy white tiles. Eastern European Cinematic Noir: Cold color palette (teals, greys, muted greens), high contrast, anamorphic lens flares, shallow depth of field, slow-motion accentuating rain/mist, atmospheric lighting (streetlamps in fog).",
+    "negative_prompt": "clean mirror, luxury bathroom, warm lighting, smiling reflection",
+    "style_hints": "Mirror reflection, water splash freezing, gritty textures"
+  },
+  "seg_4": {
+    "image_prompt": "Wide Shot, exterior night. A 25-year-old man with straight light brown hair steps out of a heavy iron door block entrance. He hesitates under a concrete awning. Heavy rain falls, illuminated by a flickering teal neon sign nearby. Soviet block architecture in background. Eastern European Cinematic Noir: Cold color palette (teals, greys, muted greens), high contrast, anamorphic lens flares, shallow depth of field, slow-motion accentuating rain/mist, atmospheric lighting (streetlamps in fog).",
+    "negative_prompt": "sunny, dry ground, modern glass building, crowd, daylight",
+    "style_hints": "Neon noir, brutalist architecture, rain texture"
+  },
+  "seg_5": {
+    "image_prompt": "Tracking Shot, Low Angle. A 25-year-old man with straight light brown hair walks down a lonely sidewalk flanked by massive brutalist high-rise buildings fading into the fog. He approaches a large, empty intersection. Wet asphalt reflects city lights like a mirror. Eastern European Cinematic Noir: Cold color palette (teals, greys, muted greens), high contrast, anamorphic lens flares, shallow depth of field, slow-motion accentuating rain/mist, atmospheric lighting (streetlamps in fog).",
+    "negative_prompt": "cars, traffic, blue sky, people, trees, warm sunset",
+    "style_hints": "Vanishing point, reflective surfaces, oppressive scale"
+  },
+  "seg_6": {
+    "image_prompt": "Close-up (Dolly In). The face of a 25-year-old man with straight light brown hair, expression of distress and struggle. Lighting shifts to a sinister mix of deep shadows and subtle red backlight. Rain soaking his hair. Eastern European Cinematic Noir: Cold color palette (teals, greys, muted greens), high contrast, anamorphic lens flares, shallow depth of field, slow-motion accentuating rain/mist, atmospheric lighting (streetlamps in fog).",
+    "negative_prompt": "calm, happy, neutral lighting, studio lighting, dry hair",
+    "style_hints": "Psychological horror undertone, dramatic shadows, emotional intensity"
+  },
+  "seg_7": {
+    "image_prompt": "Low angle, ground level view. Focus on worn leather boots standing on the edge of the wet pavement curb. Background features an ominously blinking traffic light. Rain hits the asphalt in slow motion, creating a chaotic texture of splashes. Eastern European Cinematic Noir: Cold color palette (teals, greys, muted greens), high contrast, anamorphic lens flares, shallow depth of field, slow-motion accentuating rain/mist, atmospheric lighting (streetlamps in fog).",
+    "negative_prompt": "clean shoes, dry pavement, daylight, clear view",
+    "style_hints": "Texture heavy, macro details, ominous atmosphere"
+  },
+  "seg_8": {
+    "image_prompt": "Dutch Angle / Disorienting Spin. Surreal visual. A 25-year-old man with straight light brown hair screaming silently into the void. The background city warps and twists with heavy anamorphic distortion. Rain droplets appear to freeze and reverse upwards. Eastern European Cinematic Noir: Cold color palette (teals, greys, muted greens), high contrast, anamorphic lens flares, shallow depth of field, slow-motion accentuating rain/mist, atmospheric lighting (streetlamps in fog).",
+    "negative_prompt": "stable horizon, realistic physics, calm, peaceful",
+    "style_hints": "Surrealism, glitch aesthetic, motion blur, psychological breakdown"
+  },
+  "seg_9": {
+    "image_prompt": "Medium Shot. A 25-year-old man with straight light brown hair struggling to walk. Invisible chains represented by heavy shadows and graphical glitch effects hold his legs. Brutalist concrete walls appear to be closing in around him. Eastern European Cinematic Noir: Cold color palette (teals, greys, muted greens), high contrast, anamorphic lens flares, shallow depth of field, slow-motion accentuating rain/mist, atmospheric lighting (streetlamps in fog).",
+    "negative_prompt": "open space, freedom, chains visible as metal, fantasy armor",
+    "style_hints": "Claustrophobia, visual metaphor, concrete textures"
+  },
+  "seg_10": {
+    "image_prompt": "Orbit Shot, Bullet Time. A 25-year-old man with straight light brown hair frozen in a moment of physical exertion. The camera pans 180 degrees around him. Rain droplets are suspended in mid-air around him like glistening diamonds. Eastern European Cinematic Noir: Cold color palette (teals, greys, muted greens), high contrast, anamorphic lens flares, shallow depth of field, slow-motion accentuating rain/mist, atmospheric lighting (streetlamps in fog).",
+    "negative_prompt": "motion blur on character, raining down normally, low resolution",
+    "style_hints": "Time-freeze, Matrix-style photography, crystalline details"
+  },
+  "seg_11": {
+    "image_prompt": "Extreme Close-up on eyes. The eyes of a 25-year-old man with straight light brown hair. Fear is gone, replaced by cold steely resolve. Pupil dilated. He exhales, visible breath vapor clouding the cold air. Eastern European Cinematic Noir: Cold color palette (teals, greys, muted greens), high contrast, anamorphic lens flares, shallow depth of field, slow-motion accentuating rain/mist, atmospheric lighting (streetlamps in fog).",
+    "negative_prompt": "warm breath, scared look, full face, closed eyes",
+    "style_hints": "Hyper-realism, iris detail, atmospheric breath"
+  },
+  "seg_12": {
+    "image_prompt": "Low angle tracking shot. A foot hits the asphalt, creating a massive splash of water that ripples outwards, physically clearing the fog. A 25-year-old man with straight light brown hair breaks into a confident stride across the intersection. Eastern European Cinematic Noir: Cold color palette (teals, greys, muted greens), high contrast, anamorphic lens flares, shallow depth of field, slow-motion accentuating rain/mist, atmospheric lighting (streetlamps in fog).",
+    "negative_prompt": "stumbling, hesitation, thick fog obscuring action, static image",
+    "style_hints": "Action shot, splash photography, dynamic movement"
+  },
+  "seg_13": {
+    "image_prompt": "Frontal Medium Shot, Dolly Out. Dawn breaks. The dark night gives way to a cold, desaturated morning grey. A 25-year-old man with straight light brown hair walks confidently towards the camera. The Soviet architecture behind him looks majestic and monumental. Eastern European Cinematic Noir: Cold color palette (teals, greys, muted greens), high contrast, anamorphic lens flares, shallow depth of field, slow-motion accentuating rain/mist, atmospheric lighting (streetlamps in fog).",
+    "negative_prompt": "warm sunrise, golden hour, orange sky, smiling",
+    "style_hints": "Heroic composition, cold morning light, architectural grandeur"
+  },
+  "seg_14": {
+    "image_prompt": "Wide Shot from behind. A 25-year-old man with straight light brown hair walking away from the camera into a vast, misty Belarusian field that borders the city edge. He looks small but free. Eastern European Cinematic Noir: Cold color palette (teals, greys, muted greens), high contrast, anamorphic lens flares, shallow depth of field, slow-motion accentuating rain/mist, atmospheric lighting (streetlamps in fog).",
+    "negative_prompt": "crowded, urban center, forest, mountains, bright colors",
+    "style_hints": "Minimalism, atmospheric perspective, solitude"
+  },
+  "seg_15": {
+    "image_prompt": "Long Shot. Silhouette of a man fading into white mist. The image is grainy and soft, resembling old film stock. Peaceful and ethereal. Eastern European Cinematic Noir: Cold color palette (teals, greys, muted greens), high contrast, anamorphic lens flares, shallow depth of field, slow-motion accentuating rain/mist, atmospheric lighting (streetlamps in fog).",
+    "negative_prompt": "sharp focus, digital look, vibrant colors, clear details",
+    "style_hints": "Film grain, vintage aesthetic, high key lighting"
+  },
+  "seg_16": {
+    "image_prompt": "Macro detail shot. Rainwater dripping slowly from a rusty metal chain of a playground swing. In the background, a streetlamp flickers off. Abstract and quiet. Eastern European Cinematic Noir: Cold color palette (teals, greys, muted greens), high contrast, anamorphic lens flares, shallow depth of field, slow-motion accentuating rain/mist, atmospheric lighting (streetlamps in fog).",
+    "negative_prompt": "children, playing, bright colors, plastic toys",
+    "style_hints": "Still life, rust texture, bokeh background"
+  },
+  "seg_17": {
+    "image_prompt": "Aerial Drone Shot. A wide view of a Soviet-style city waking up under the fog. Still, grey, and melancholic. No people, just brutalist architecture and wet roads. Eastern European Cinematic Noir: Cold color palette (teals, greys, muted greens), high contrast, anamorphic lens flares, shallow depth of field, slow-motion accentuating rain/mist, atmospheric lighting (streetlamps in fog).",
+    "negative_prompt": "traffic, pedestrians, sun, blue sky, modern skyscrapers",
+    "style_hints": "Cityscape, brutalism, liminal space"
+  },
+  "seg_18": {
+    "image_prompt": "Cinematic black background with heavy film grain texture. Subtle smoke wisps in the absolute darkness. Minimalist. Eastern European Cinematic Noir: Cold color palette (teals, greys, muted greens), high contrast, anamorphic lens flares, shallow depth of field, slow-motion accentuating rain/mist, atmospheric lighting (streetlamps in fog).",
+    "negative_prompt": "text, letters, bright lights, objects, people",
+    "style_hints": "Texture only, fade out, void"
+  }
+}
+```
+2026-01-26 16:12:07,326 - app.clients.genai - INFO - ----------------------------------------
+2026-01-26 16:12:07,336 - app.clients.genai - INFO - GenAI client initialized (API key length: 39)
+2026-01-26 16:12:07,337 - app.services.image_service - INFO - Starting BATCH image generation for project ea2797d6ac214d60ad6be8234d0eab11 with 18 prompts
+2026-01-26 16:12:07,363 - app.services.batch_service - INFO - Created batch file: D:\googlePRJ\clipmaker\Clipmaker\data\batch_jobs\batch-66948832.jsonl
+2026-01-26 16:12:07,363 - app.services.batch_service - INFO - Uploading batch file: D:\googlePRJ\clipmaker\Clipmaker\data\batch_jobs\batch-66948832.jsonl
+2026-01-26 16:12:09,686 - app.services.batch_service - INFO - Uploaded batch file files/1763uas0fte0. Creating job via REST...
+2026-01-26 16:12:11,863 - app.services.batch_service - INFO - Batch job submitted successfully via REST: batches/whskhm455008j30p8uny0phwsaxvffikpx9y
+2026-01-26 16:12:11,865 - app.services.image_service - INFO - Batch job submitted: batches/whskhm455008j30p8uny0phwsaxvffikpx9y. Waiting for completion...
+2026-01-26 16:12:11,865 - app.services.batch_service - INFO - Waiting for batch job batches/whskhm455008j30p8uny0phwsaxvffikpx9y...
+2026-01-26 16:13:58,914 - app.services.batch_service - INFO - Downloading results from files/batch-whskhm455008j30p8uny0phwsaxvffikpx9y...
+2026-01-26 16:14:01,290 - app.services.image_service - INFO - Downloaded 18 results from batch job
+2026-01-26 16:14:01,466 - app.services.image_service - INFO - Successfully saved 18 images from batch.
+2026-01-26 16:36:38,697 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-26 16:36:38,834 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-26 16:36:38,974 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-26 16:36:38,978 - app.clients.genai - INFO - GenAI client initialized (API key length: 39)
+2026-01-26 16:36:38,979 - app.api.projects - INFO - User b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 started render for ea2797d6ac214d60ad6be8234d0eab11
+2026-01-27 03:26:15,987 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-27 03:26:16,197 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 03:26:16,338 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 03:26:16,503 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 03:26:16,736 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-27 03:26:16,878 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 03:26:17,000 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 03:26:17,118 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 03:26:17,296 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-27 03:26:17,422 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 03:26:17,568 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 03:26:17,680 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 03:26:17,800 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-27 03:26:17,945 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 03:26:18,051 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 03:26:18,184 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 03:26:19,009 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-27 03:26:19,155 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 03:26:19,258 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 03:26:19,388 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 09:36:00,013 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-27 09:36:00,356 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 09:36:00,502 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 09:36:00,660 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 09:36:00,846 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-27 09:36:00,995 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 09:36:01,149 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 09:36:01,281 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 09:36:01,437 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-27 09:36:01,595 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 09:36:01,720 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 09:36:01,871 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 09:36:02,001 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-27 09:36:02,160 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 09:36:02,273 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 09:36:02,420 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 09:36:02,556 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-27 09:36:02,677 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 09:36:02,795 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 09:36:02,909 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:17:05,442 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-27 12:17:05,623 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:17:05,767 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:17:05,902 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:17:06,053 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-27 12:17:06,176 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:17:06,334 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:17:06,461 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:17:06,626 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-27 12:17:06,774 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:17:06,923 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:17:07,065 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:17:07,229 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-27 12:17:07,350 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:17:07,503 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:17:07,623 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:17:07,786 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-27 12:17:07,906 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:17:08,053 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:17:08,183 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:17:43,129 - httpx - INFO - HTTP Request: POST https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_projects "HTTP/2 201 Created"
+2026-01-27 12:17:43,137 - app.api.projects - INFO - Linked new project 2af2f958245b481fab1c40d27f1a9a06 to user b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7
+2026-01-27 12:18:04,586 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-27 12:18:04,703 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:18:04,820 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:18:04,834 - app.clients.genai - INFO - GenAI client initialized (API key length: 39)
+2026-01-27 12:18:04,865 - app.services.pipeline_service - INFO - Pipeline started for 2af2f958245b481fab1c40d27f1a9a06. Text Mode: standard, Image Mode: batch
+2026-01-27 12:18:05,089 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-27 12:18:05,217 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:18:05,332 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:18:05,338 - app.clients.genai - INFO - Uploading file: D:\googlePRJ\clipmaker\Clipmaker\data\projects\2af2f958245b481fab1c40d27f1a9a06\source\track.wav
+2026-01-27 12:18:05,444 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:18:08,413 - app.clients.genai - INFO - File uploaded and processed: files/kn2u2z8ngobt
+2026-01-27 12:18:08,413 - app.clients.genai - INFO - Sending audio analysis request to Gemini...
+2026-01-27 12:18:08,413 - root - INFO - AFC is enabled with max remote calls: 10.
+2026-01-27 12:18:39,156 - app.clients.genai - INFO - ----------------------------------------
+2026-01-27 12:18:39,156 - app.clients.genai - INFO - GEMINI INTERACTION: analyze_audio
+2026-01-27 12:18:39,160 - app.clients.genai - INFO - REQUEST:
+['\n        Analyze the audio track in this song to create a video clip. \n        The total duration of the audio is 5.28 seconds.\n        \n        USER REQUEST / PLOT DESCRIPTION:\n        "gay"\n        (This is the most important instruction. The narrative, metaphors, and events MUST follow this description if provided. If empty, invent a creative one).\n        \n        The user has requested the visual style: "anime".\n\n        CHARACTER DESCRIPTION:\n        ""\n        (If provided, this character MUST be the protagonist of the video).\n        \n        \nTechnical Analysis Data (librosa):\n{\n  "bpm": 191.40625,\n  "beat_times": [\n    0.33668934240362813,\n    0.6501587301587302,\n    0.9520181405895691,\n    1.2887074829931973,\n    1.6253968253968254,\n    1.9504761904761905,\n    2.2755555555555556,\n    2.6006349206349206,\n    2.948934240362812,\n    3.297233560090703,\n    3.610702947845805,\n    3.912562358276644,\n    4.2260317460317465,\n    4.539501133786848,\n    4.829750566893424\n  ],\n  "beat_strengths": [\n    0.34870973229408264,\n    0.832187294960022,\n    0.4519956111907959,\n    0.06420387327671051,\n    0.8736666440963745,\n    0.5198363661766052,\n    0.0837445855140686,\n    0.8490664958953857,\n    0.03575202450156212,\n    0.5253130197525024,\n    0.9999998807907104,\n    0.4440905451774597,\n    0.07885102927684784,\n    0.6350892782211304,\n    0.4921402335166931\n  ],\n  "onset_times": [\n    0.18575963718820862,\n    0.26702947845804986,\n    0.33668934240362813,\n    0.46439909297052157,\n    0.5108390022675737,\n    0.603718820861678,\n    0.6501587301587302,\n    0.9404081632653061,\n    1.474467120181406,\n    1.6137868480725623,\n    1.787936507936508,\n    1.9388662131519274,\n    2.3336054421768706,\n    2.4380952380952383,\n    2.589024943310658,\n    2.6354648526077096,\n    2.75156462585034,\n    2.9257142857142857,\n    3.2624036281179136,\n    3.3901133786848074,\n    3.599092970521542,\n    3.645532879818594,\n    3.7616326530612243,\n    3.912562358276644,\n    4.156371882086168,\n    4.446621315192743,\n    4.539501133786848,\n    4.6788208616780045,\n    4.713650793650793,\n    4.818140589569161,\n    4.9806802721088435,\n    5.061950113378685,\n    5.178049886621316\n  ],\n  "beat_confidence": 0.7615692610165391,\n  "tempo_stability": 0.947742252154634,\n  "energy_stats": {\n    "avg": 0.08149248361587524,\n    "max": 0.3839966058731079\n  }\n}\n\n        \n        Please provide:\n        1. A summary of the song\'s energy, mood, and style.\n        2. A "global_visual_narrative": A single, cohesive visual metaphor or story concept (e.g. "journey of an abandoned robot" or "a cyber-gothic dance in rain") that will persist throughout the video. If the user provided a plot description, adapt it here.\n        3. A "visual_style_anchor": A specific, consistent visual style description BASED ON "anime" (e.g. if user said "Anime", generate "90s Cyberpunk Anime, high contrast").\n        4. A list of segments that cover the ENTIRE duration (5.28s).\n        \n        For each segment, identify:\n        - start_time and end_time (0.0 to 5.28)\n        - speaker (if vocals generally)\n        - text (lyrics)\n        - emotion\n        - instrumentation (e.g. "guitar solo", "heavy drums", "minimal synth")\n        - section_type (e.g. "intro", "verse", "chorus", "bridge", "drop", "climax", "outro")\n        - acoustic_environment (e.g. "studio", "live hall", "lo-fi", "underwater", "echoey")\n        \n        Ensure:\n        - Segments have NO GAPS and NO OVERLAPS.\n        - The sequence covers exactly from 0.0 to 5.28.\n        - Use the Technical Analysis (BPM, Energy) to align segments with beats and intense moments if possible.\n        \n        Return as a JSON object with keys: "summary", "global_visual_narrative", "visual_style_anchor", "segments".\n        ', File(name='files/kn2u2z8ngobt', display_name=None, mime_type='audio/wav', size_bytes=466092, create_time=datetime.datetime(2026, 1, 27, 10, 18, 9, 140706, tzinfo=TzInfo(0)), expiration_time=datetime.datetime(2026, 1, 29, 10, 18, 8, 544338, tzinfo=TzInfo(0)), update_time=datetime.datetime(2026, 1, 27, 10, 18, 9, 140706, tzinfo=TzInfo(0)), sha256_hash='ODI5YmViNDAzM2I0NDUwMjc1Y2ZmZjNkNDJmMmY0NjBhYmFlMjgyOGFhM2FhNGY1MTRkYWY3NTE3ZjVjMzg4OQ==', uri='https://generativelanguage.googleapis.com/v1beta/files/kn2u2z8ngobt', download_uri=None, state=<FileState.ACTIVE: 'ACTIVE'>, source=<FileSource.UPLOADED: 'UPLOADED'>, video_metadata=None, error=None)]
+2026-01-27 12:18:39,162 - app.clients.genai - INFO - RESPONSE:
+```json
+{
+  "summary": "A short, spoken-word narrative introduction with a fast rhythmic cadence (191 BPM) but calm, low-energy delivery. The track feels like the opening of an audiobook or a storytelling intro to a song, creating an atmosphere of anticipation and gentle beginnings.",
+  "global_visual_narrative": "A 'Boys Love' (BL) anime opening aesthetic. The video visualizes the start of a romantic summer story between two young men arriving at a secluded, picturesque island. The audio's 'Part one, Chapter one' serves as a meta-narrative for the beginning of their relationship.",
+  "visual_style_anchor": "Romantic BL Anime style, soft focus, pastel colors, Makoto Shinkai-inspired lush backgrounds, sparkling lighting effects, 2D animation.",
+  "segments": [
+    {
+      "start_time": 0.0,
+      "end_time": 1.62,
+      "speaker": "Male Narrator",
+      "text": "Частка першая... (Part one...)",
+      "emotion": "Anticipatory",
+      "instrumentation": "Spoken word, ambient silence",
+      "section_type": "intro",
+      "acoustic_environment": "intimate recording",
+      "visual_description": "A title card with elegant typography fades in over a sparkling, turquoise ocean. In the distance, a lush green island emerges from the mist. The lighting is bright and morning-like."
+    },
+    {
+      "start_time": 1.62,
+      "end_time": 3.29,
+      "speaker": "Male Narrator",
+      "text": "раздзел першы. (chapter one.)",
+      "emotion": "Gentle / Affectionate",
+      "instrumentation": "Spoken word",
+      "section_type": "verse",
+      "acoustic_environment": "intimate recording",
+      "visual_description": "Close-up on a ferry deck. A shy young man with glasses looks up from a book. Across from him, a taller, smiling young man leans against the railing, wind blowing through his hair, gazing fondly at the first character. A subtle blush appears."
+    },
+    {
+      "start_time": 3.29,
+      "end_time": 5.28,
+      "speaker": "Male Narrator",
+      "text": "Хаты былі на востраве (The houses were on the island)",
+      "emotion": "Peaceful / Romantic",
+      "instrumentation": "Spoken word",
+      "section_type": "outro",
+      "acoustic_environment": "intimate recording",
+      "visual_description": "Wide shot panning up from the water to the island cliffs, revealing quaint wooden houses nestled among trees. In the foreground, the two men stand side-by-side on the pier, their hands gently brushing against each other as they look at their new home."
+    }
+  ]
+}
+```
+2026-01-27 12:18:39,164 - app.clients.genai - INFO - ----------------------------------------
+2026-01-27 12:18:39,180 - root - INFO - AFC is enabled with max remote calls: 10.
+2026-01-27 12:19:08,798 - app.clients.genai - INFO - ----------------------------------------
+2026-01-27 12:19:08,798 - app.clients.genai - INFO - GEMINI INTERACTION: build_storyboard
+2026-01-27 12:19:08,799 - app.clients.genai - INFO - REQUEST:
+['\n        Based on this analysis: {\'summary\': \'A short, spoken-word narrative introduction with a fast rhythmic cadence (191 BPM) but calm, low-energy delivery. The track feels like the opening of an audiobook or a storytelling intro to a song, creating an atmosphere of anticipation and gentle beginnings.\', \'global_visual_narrative\': "A \'Boys Love\' (BL) anime opening aesthetic. The video visualizes the start of a romantic summer story between two young men arriving at a secluded, picturesque island. The audio\'s \'Part one, Chapter one\' serves as a meta-narrative for the beginning of their relationship.", \'visual_style_anchor\': \'Romantic BL Anime style, soft focus, pastel colors, Makoto Shinkai-inspired lush backgrounds, sparkling lighting effects, 2D animation.\', \'segments\': [{\'start_time\': 0.0, \'end_time\': 1.62, \'speaker\': \'Male Narrator\', \'text\': \'Частка першая... (Part one...)\', \'emotion\': \'Anticipatory\', \'instrumentation\': \'Spoken word, ambient silence\', \'section_type\': \'intro\', \'acoustic_environment\': \'intimate recording\', \'visual_description\': \'A title card with elegant typography fades in over a sparkling, turquoise ocean. In the distance, a lush green island emerges from the mist. The lighting is bright and morning-like.\'}, {\'start_time\': 1.62, \'end_time\': 3.29, \'speaker\': \'Male Narrator\', \'text\': \'раздзел першы. (chapter one.)\', \'emotion\': \'Gentle / Affectionate\', \'instrumentation\': \'Spoken word\', \'section_type\': \'verse\', \'acoustic_environment\': \'intimate recording\', \'visual_description\': \'Close-up on a ferry deck. A shy young man with glasses looks up from a book. Across from him, a taller, smiling young man leans against the railing, wind blowing through his hair, gazing fondly at the first character. A subtle blush appears.\'}, {\'start_time\': 3.29, \'end_time\': 5.28, \'speaker\': \'Male Narrator\', \'text\': \'Хаты былі на востраве (The houses were on the island)\', \'emotion\': \'Peaceful / Romantic\', \'instrumentation\': \'Spoken word\', \'section_type\': \'outro\', \'acoustic_environment\': \'intimate recording\', \'visual_description\': \'Wide shot panning up from the water to the island cliffs, revealing quaint wooden houses nestled among trees. In the foreground, the two men stand side-by-side on the pier, their hands gently brushing against each other as they look at their new home.\'}], \'total_duration\': 5.28, \'technical_stats\': {\'bpm\': 191.40625, \'beat_times\': [0.33668934240362813, 0.6501587301587302, 0.9520181405895691, 1.2887074829931973, 1.6253968253968254, 1.9504761904761905, 2.2755555555555556, 2.6006349206349206, 2.948934240362812, 3.297233560090703, 3.610702947845805, 3.912562358276644, 4.2260317460317465, 4.539501133786848, 4.829750566893424], \'beat_strengths\': [0.34870973229408264, 0.832187294960022, 0.4519956111907959, 0.06420387327671051, 0.8736666440963745, 0.5198363661766052, 0.0837445855140686, 0.8490664958953857, 0.03575202450156212, 0.5253130197525024, 0.9999998807907104, 0.4440905451774597, 0.07885102927684784, 0.6350892782211304, 0.4921402335166931], \'onset_times\': [0.18575963718820862, 0.26702947845804986, 0.33668934240362813, 0.46439909297052157, 0.5108390022675737, 0.603718820861678, 0.6501587301587302, 0.9404081632653061, 1.474467120181406, 1.6137868480725623, 1.787936507936508, 1.9388662131519274, 2.3336054421768706, 2.4380952380952383, 2.589024943310658, 2.6354648526077096, 2.75156462585034, 2.9257142857142857, 3.2624036281179136, 3.3901133786848074, 3.599092970521542, 3.645532879818594, 3.7616326530612243, 3.912562358276644, 4.156371882086168, 4.446621315192743, 4.539501133786848, 4.6788208616780045, 4.713650793650793, 4.818140589569161, 4.9806802721088435, 5.061950113378685, 5.178049886621316], \'beat_confidence\': 0.7615692610165391, \'tempo_stability\': 0.947742252154634, \'energy_stats\': {\'avg\': 0.08149248361587524, \'max\': 0.3839966058731079}}, \'character_description\': \'\'}\n        \n        Create a storyboard as a JSON list of segments.\n        The total duration MUST be EXACTLY 5.28 seconds.\n        \n        Follow the "global_visual_narrative" defined in the analysis. The video must feel like a cohesive film with a clear Narrative Arc (Beginning, Development, Climax).\n        \n        Crucial: React to changes in music intensity (from technical analysis stats or section_type) by changing the INTENSITY of the plot/visuals. \n        - If the music builds up (climax/drop), the visuals must become more massive, dynamic, or fast-paced.\n        - If the music is calm, the visuals should be steady and atmospheric.\n        \n        PACING INSTRUCTION:\n        - The user wants a dynamic video with MANY segments.\n        - Aim for segment durations between 2 and 5 seconds for most parts.\n        - Only use longer segments (up to 8s) for very slow, atmospheric parts.\n        - Avoid creating few long segments. We need a high "segment density".\n        \n        Each segment MUST have:\n        - id: a unique string like "seg_1", "seg_2", etc.\n        - start_time: "MM:SS" (or total seconds)\n        - end_time: "MM:SS" (or total seconds)\n        - lyric_text: the transcript for this segment\n        - visual_intent: a detailed description of what should be on screen, following the global narrative and current intensity.\n        - camera_angle: suggested camera shot (e.g. "Close-up", "Wide shot", "Drone shot")\n        - emotion: the detected emotion\n        \n        IMPORTANT: The segments MUST tile the entire 5.28 seconds. \n        The first segment must start at 00:00. \n        The last segment must end at 5.28.\n        No gaps, no overlaps.\n        \n        Return ONLY the JSON list.\n        ']
+2026-01-27 12:19:08,801 - app.clients.genai - INFO - RESPONSE:
+[
+    {
+        "id": "seg_1",
+        "start_time": 0.0,
+        "end_time": 1.62,
+        "lyric_text": "Частка першая... (Part one...)",
+        "visual_intent": "Establish the setting with a high-quality animation style. A title card with elegant white typography fades in over a sparkling, turquoise ocean. In the distance, a lush green island emerges from the morning mist, promising a new beginning.",
+        "camera_angle": "Wide Establishing Shot",
+        "emotion": "Anticipatory"
+    },
+    {
+        "id": "seg_2",
+        "start_time": 1.62,
+        "end_time": 2.45,
+        "lyric_text": "раздзел першы. (chapter one.)",
+        "visual_intent": "Introduction of the protagonist. A shy young man with glasses sits on the ferry deck. He pauses his reading and looks up, sunlight reflecting off his lenses, sensing a presence.",
+        "camera_angle": "Close-up",
+        "emotion": "Gentle / Affectionate"
+    },
+    {
+        "id": "seg_3",
+        "start_time": 2.45,
+        "end_time": 3.29,
+        "lyric_text": "(Pause)",
+        "visual_intent": "Reveal the love interest. A taller, confident young man leans against the ferry railing. The wind blows through his hair as he gazes fondly down at the shy boy. Background is the blurred blue sky.",
+        "camera_angle": "Medium Shot / Low Angle",
+        "emotion": "Gentle / Affectionate"
+    },
+    {
+        "id": "seg_4",
+        "start_time": 3.29,
+        "end_time": 4.3,
+        "lyric_text": "Хаты былі... (The houses were...)",
+        "visual_intent": "The destination is revealed. The camera pans up rapidly from the water crashing on rocks to reveal quaint wooden houses nestled among the island's trees, bathed in soft pastel light.",
+        "camera_angle": "Pan Up / Wide Shot",
+        "emotion": "Peaceful / Romantic"
+    },
+    {
+        "id": "seg_5",
+        "start_time": 4.3,
+        "end_time": 5.28,
+        "lyric_text": "...на востраве (...on the island)",
+        "visual_intent": "Symbolic start of the relationship. Focus on the railing where the two men stand side-by-side. Their hands rest on the metal bar, pinky fingers just barely brushing against each other.",
+        "camera_angle": "Extreme Close-up",
+        "emotion": "Peaceful / Romantic"
+    }
+]
+2026-01-27 12:19:08,801 - app.clients.genai - INFO - ----------------------------------------
+2026-01-27 12:19:08,806 - app.services.story_service - WARNING - Generated segment count (5) exceeds limit (2) for duration 5.28s. Truncating.
+2026-01-27 12:19:08,807 - app.services.story_service - INFO - Normalizing 2 segments: total_suggested=2.45s, target_duration=5.28s, scale_factor=2.155
+2026-01-27 12:19:08,808 - app.services.story_service - INFO - Rhythmic normalization complete. Avg: 2.64s, EffMax: 6.00s
+2026-01-27 12:19:08,811 - app.services.pipeline_service - INFO - Deducting 2 credits for user b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7
+2026-01-27 12:19:09,159 - httpx - INFO - HTTP Request: POST https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/rpc/deduct_credits "HTTP/2 200 OK"
+2026-01-27 12:19:09,187 - root - INFO - AFC is enabled with max remote calls: 10.
+2026-01-27 12:19:26,213 - app.clients.genai - INFO - ----------------------------------------
+2026-01-27 12:19:26,214 - app.clients.genai - INFO - GEMINI INTERACTION: build_prompts
+2026-01-27 12:19:26,214 - app.clients.genai - INFO - REQUEST:
+['\n        For each of these segments, create a detailed image generation prompt.\n        \n        Global Style Anchor: "Romantic BL Anime style, soft focus, pastel colors, Makoto Shinkai-inspired lush backgrounds, sparkling lighting effects, 2D animation." \n        (YOU MUST APPEND THIS EXACT STYLE DESCRIPTION TO EVERY SINGLE PROMPT TO ENSURE CONSISTENCY).\n\n        CHARACTER CONSISTENCY:\n        Character Description: ""\n        (If the character appears, they MUST match this description. If the scene allows, feature this character).\n        \n        Segments: [{\'id\': \'seg_1\', \'start_time\': 0.0, \'end_time\': 3.297233560090703, \'lyric_text\': \'Частка першая... (Part one...)\', \'visual_intent\': \'Establish the setting with a high-quality animation style. A title card with elegant white typography fades in over a sparkling, turquoise ocean. In the distance, a lush green island emerges from the morning mist, promising a new beginning.\', \'camera_angle\': \'Wide Establishing Shot\', \'emotion\': \'Anticipatory\'}, {\'id\': \'seg_2\', \'start_time\': 3.297233560090703, \'end_time\': 5.28, \'lyric_text\': \'раздзел першы. (chapter one.)\', \'visual_intent\': \'Introduction of the protagonist. A shy young man with glasses sits on the ferry deck. He pauses his reading and looks up, sunlight reflecting off his lenses, sensing a presence.\', \'camera_angle\': \'Close-up\', \'emotion\': \'Gentle / Affectionate\'}]\n        \n        Return a JSON object where keys are the segment IDs ("seg_1", etc.) and values are objects containing:\n        - image_prompt: the detailed prompt for the AI image generator\n        - negative_prompt: what to avoid in the image (optional)\n        - style_hints: keywords about the style (optional)\n        \n        Return ONLY the JSON object.\n        ']
+2026-01-27 12:19:26,215 - app.clients.genai - INFO - RESPONSE:
+{
+  "seg_1": {
+    "image_prompt": "Wide establishing shot, cinematic view of a sparkling turquoise ocean under a morning sky. In the far distance, a lush green island rises from soft white mist. Rays of sunlight dancing on the water surface. High-definition anime background art. Romantic BL Anime style, soft focus, pastel colors, Makoto Shinkai-inspired lush backgrounds, sparkling lighting effects, 2D animation.",
+    "negative_prompt": "text, typography, subtitles, watermark, signature, blurry, low quality, gloom, storm, dark, 3d render, photorealistic",
+    "style_hints": "Atmospheric, Scenic, Bright, Shinkai-style clouds"
+  },
+  "seg_2": {
+    "image_prompt": "Close-up of a shy young man with glasses sitting on the railing of a ferry deck. He is holding a book but looking up with a gentle expression. Lens flare and sunlight reflecting off his glasses. Wind gently blowing his hair. The ocean is visible in the blurred background. Detailed anime character design. Romantic BL Anime style, soft focus, pastel colors, Makoto Shinkai-inspired lush backgrounds, sparkling lighting effects, 2D animation.",
+    "negative_prompt": "ugly, deformed, noisy, distorted, grainy, extra fingers, bad anatomy, angry, masculine, heavy shadows, 3d, realistic",
+    "style_hints": "Bishounen, Emotional, Soft Lighting, Depth of Field"
+  }
+}
+2026-01-27 12:19:26,215 - app.clients.genai - INFO - ----------------------------------------
+2026-01-27 12:19:26,222 - app.clients.genai - INFO - GenAI client initialized (API key length: 39)
+2026-01-27 12:19:26,224 - app.services.image_service - INFO - Starting BATCH image generation for project 2af2f958245b481fab1c40d27f1a9a06 with 2 prompts
+2026-01-27 12:19:26,241 - app.services.batch_service - INFO - Created batch file: D:\googlePRJ\clipmaker\Clipmaker\data\batch_jobs\batch-1a609d00.jsonl
+2026-01-27 12:19:26,241 - app.services.batch_service - INFO - Uploading batch file: D:\googlePRJ\clipmaker\Clipmaker\data\batch_jobs\batch-1a609d00.jsonl
+2026-01-27 12:19:28,723 - app.services.batch_service - INFO - Uploaded batch file files/7k1amnqdwgj5. Creating job via REST...
+2026-01-27 12:19:31,129 - app.services.batch_service - INFO - Batch job submitted successfully via REST: batches/q6udq4u07k120ho9qttrkj6iv3dtn3doltqp
+2026-01-27 12:19:31,131 - app.services.image_service - INFO - Batch job submitted: batches/q6udq4u07k120ho9qttrkj6iv3dtn3doltqp. Waiting for completion...
+2026-01-27 12:19:31,131 - app.services.batch_service - INFO - Waiting for batch job batches/q6udq4u07k120ho9qttrkj6iv3dtn3doltqp...
+2026-01-27 12:27:01,045 - app.clients.supabase_client - INFO - Supabase client initialized successfully
+2026-01-27 12:27:02,053 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-27 12:27:02,184 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:27:02,342 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:27:02,468 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:27:02,663 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-27 12:27:02,789 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:27:02,946 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:27:03,065 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:27:03,307 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-27 12:27:03,454 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:27:03,570 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:27:03,712 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:27:03,866 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-27 12:27:03,987 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:27:04,120 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:27:04,244 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:27:04,421 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-27 12:27:04,536 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:27:04,681 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:27:04,802 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:27:10,271 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-27 12:27:10,451 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:27:10,589 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:27:10,721 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:27:10,857 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-27 12:27:10,994 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:27:11,130 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:27:11,267 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:27:11,404 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-27 12:27:11,542 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:27:11,680 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:27:11,816 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:27:11,975 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-27 12:27:12,092 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:27:12,217 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:27:12,355 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:27:12,481 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-27 12:27:12,596 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:27:12,754 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:27:12,868 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:27:49,641 - httpx - INFO - HTTP Request: POST https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_projects "HTTP/2 201 Created"
+2026-01-27 12:27:49,643 - app.api.projects - INFO - Linked new project d561ba3f700441f784a7b9420f2c5c7b to user b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7
+2026-01-27 12:28:03,561 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-27 12:28:03,678 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:28:03,794 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:28:03,796 - app.clients.genai - INFO - GenAI client initialized (API key length: 39)
+2026-01-27 12:28:03,830 - app.services.pipeline_service - INFO - Pipeline started for d561ba3f700441f784a7b9420f2c5c7b. Text Mode: standard, Image Mode: batch
+2026-01-27 12:28:04,037 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-27 12:28:04,147 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:28:04,263 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:28:04,383 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:28:19,058 - app.clients.genai - INFO - Uploading file: D:\googlePRJ\clipmaker\Clipmaker\data\projects\d561ba3f700441f784a7b9420f2c5c7b\source\track.wav
+2026-01-27 12:28:21,989 - app.clients.genai - INFO - File uploaded and processed: files/xidtc7emi8ct
+2026-01-27 12:28:21,990 - app.clients.genai - INFO - Sending audio analysis request to Gemini...
+2026-01-27 12:28:21,991 - root - INFO - AFC is enabled with max remote calls: 10.
+2026-01-27 12:28:55,399 - app.clients.genai - INFO - ----------------------------------------
+2026-01-27 12:28:55,400 - app.clients.genai - INFO - GEMINI INTERACTION: analyze_audio
+2026-01-27 12:28:55,400 - app.clients.genai - INFO - REQUEST:
+['\n        Analyze the audio track in this song to create a video clip. \n        The total duration of the audio is 5.28 seconds.\n        \n        USER REQUEST / PLOT DESCRIPTION:\n        "gay"\n        (This is the most important instruction. The narrative, metaphors, and events MUST follow this description if provided. If empty, invent a creative one).\n        \n        The user has requested the visual style: "anime".\n\n        CHARACTER DESCRIPTION:\n        ""\n        (If provided, this character MUST be the protagonist of the video).\n        \n        \nTechnical Analysis Data (librosa):\n{\n  "bpm": 191.40625,\n  "beat_times": [\n    0.33668934240362813,\n    0.6501587301587302,\n    0.9520181405895691,\n    1.2887074829931973,\n    1.6253968253968254,\n    1.9504761904761905,\n    2.2755555555555556,\n    2.6006349206349206,\n    2.948934240362812,\n    3.297233560090703,\n    3.610702947845805,\n    3.912562358276644,\n    4.2260317460317465,\n    4.539501133786848,\n    4.829750566893424\n  ],\n  "beat_strengths": [\n    0.34870973229408264,\n    0.832187294960022,\n    0.4519956111907959,\n    0.06420387327671051,\n    0.8736666440963745,\n    0.5198363661766052,\n    0.0837445855140686,\n    0.8490664958953857,\n    0.03575202450156212,\n    0.5253130197525024,\n    0.9999998807907104,\n    0.4440905451774597,\n    0.07885102927684784,\n    0.6350892782211304,\n    0.4921402335166931\n  ],\n  "onset_times": [\n    0.18575963718820862,\n    0.26702947845804986,\n    0.33668934240362813,\n    0.46439909297052157,\n    0.5108390022675737,\n    0.603718820861678,\n    0.6501587301587302,\n    0.9404081632653061,\n    1.474467120181406,\n    1.6137868480725623,\n    1.787936507936508,\n    1.9388662131519274,\n    2.3336054421768706,\n    2.4380952380952383,\n    2.589024943310658,\n    2.6354648526077096,\n    2.75156462585034,\n    2.9257142857142857,\n    3.2624036281179136,\n    3.3901133786848074,\n    3.599092970521542,\n    3.645532879818594,\n    3.7616326530612243,\n    3.912562358276644,\n    4.156371882086168,\n    4.446621315192743,\n    4.539501133786848,\n    4.6788208616780045,\n    4.713650793650793,\n    4.818140589569161,\n    4.9806802721088435,\n    5.061950113378685,\n    5.178049886621316\n  ],\n  "beat_confidence": 0.7615692610165391,\n  "tempo_stability": 0.947742252154634,\n  "energy_stats": {\n    "avg": 0.08149248361587524,\n    "max": 0.3839966058731079\n  }\n}\n\n        \n        Please provide:\n        1. A summary of the song\'s energy, mood, and style.\n        2. A "global_visual_narrative": A single, cohesive visual metaphor or story concept (e.g. "journey of an abandoned robot" or "a cyber-gothic dance in rain") that will persist throughout the video. If the user provided a plot description, adapt it here.\n        3. A "visual_style_anchor": A specific, consistent visual style description BASED ON "anime" (e.g. if user said "Anime", generate "90s Cyberpunk Anime, high contrast").\n        4. A list of segments that cover the ENTIRE duration (5.28s).\n        \n        For each segment, identify:\n        - start_time and end_time (0.0 to 5.28)\n        - speaker (if vocals generally)\n        - text (lyrics)\n        - emotion\n        - instrumentation (e.g. "guitar solo", "heavy drums", "minimal synth")\n        - section_type (e.g. "intro", "verse", "chorus", "bridge", "drop", "climax", "outro")\n        - acoustic_environment (e.g. "studio", "live hall", "lo-fi", "underwater", "echoey")\n        \n        Ensure:\n        - Segments have NO GAPS and NO OVERLAPS.\n        - The sequence covers exactly from 0.0 to 5.28.\n        - Use the Technical Analysis (BPM, Energy) to align segments with beats and intense moments if possible.\n        \n        Return as a JSON object with keys: "summary", "global_visual_narrative", "visual_style_anchor", "segments".\n        ', File(name='files/xidtc7emi8ct', display_name=None, mime_type='audio/wav', size_bytes=466092, create_time=datetime.datetime(2026, 1, 27, 10, 28, 22, 727529, tzinfo=TzInfo(0)), expiration_time=datetime.datetime(2026, 1, 29, 10, 28, 22, 213330, tzinfo=TzInfo(0)), update_time=datetime.datetime(2026, 1, 27, 10, 28, 22, 727529, tzinfo=TzInfo(0)), sha256_hash='ODI5YmViNDAzM2I0NDUwMjc1Y2ZmZjNkNDJmMmY0NjBhYmFlMjgyOGFhM2FhNGY1MTRkYWY3NTE3ZjVjMzg4OQ==', uri='https://generativelanguage.googleapis.com/v1beta/files/xidtc7emi8ct', download_uri=None, state=<FileState.ACTIVE: 'ACTIVE'>, source=<FileSource.UPLOADED: 'UPLOADED'>, video_metadata=None, error=None)]
+2026-01-27 12:28:55,401 - app.clients.genai - INFO - RESPONSE:
+```json
+{
+  "summary": "A calm, spoken-word introduction (audiobook style) in Russian, setting the scene for a story. The track has a distinct rhythmic cadence despite being narration, characterized by a steady flow and a nostalgic, storytelling mood.",
+  "global_visual_narrative": "The Beginning of a Summer Love. The video opens a visual novel-style memoir of two young men falling in love. The narration 'Part one, Chapter one' serves as the literal opening of their shared romantic history, transitioning from a book cover to the characters meeting, and finally to the secluded island setting where their relationship blossoms.",
+  "visual_style_anchor": "Soft-focus Boys Love (BL) Anime, 90s aesthetic, pastel watercolors, warm golden-hour lighting, sentimental and romantic.",
+  "segments": [
+    {
+      "start_time": 0.0,
+      "end_time": 1.47,
+      "speaker": "Male Narrator",
+      "text": "Частка першая (Part one)",
+      "emotion": "Formal, Anticipatory",
+      "instrumentation": "Spoken word, minimal ambience",
+      "section_type": "intro",
+      "acoustic_environment": "intimate studio",
+      "visual_description": "Close-up of hands gently opening an old, leather-bound book. The pages glow slightly. The title on the page morphs into a heart symbol."
+    },
+    {
+      "start_time": 1.47,
+      "end_time": 2.92,
+      "speaker": "Male Narrator",
+      "text": "раздзел першы (Chapter one)",
+      "emotion": "Nostalgic, Gentle",
+      "instrumentation": "Spoken word, slight rhythmic pulse",
+      "section_type": "verse",
+      "acoustic_environment": "intimate studio",
+      "visual_description": "Two handsome anime boys stand back-to-back against a white background that slowly fills with color. They turn their heads to look at each other with shy, blushing smiles."
+    },
+    {
+      "start_time": 2.92,
+      "end_time": 5.28,
+      "speaker": "Male Narrator",
+      "text": "Хаты былі на востраве (The houses were on the island)",
+      "emotion": "Serene, Descriptive",
+      "instrumentation": "Spoken word, fading echo",
+      "section_type": "exposition",
+      "acoustic_environment": "open air / island breeze",
+      "visual_description": "A wide, scenic shot of a lush green island surrounded by sparkling blue water. A small, cozy wooden house sits on the hill. The two boys are visible in the distance, walking hand-in-hand toward the house."
+    }
+  ]
+}
+```
+2026-01-27 12:28:55,402 - app.clients.genai - INFO - ----------------------------------------
+2026-01-27 12:28:55,415 - root - INFO - AFC is enabled with max remote calls: 10.
+2026-01-27 12:29:21,438 - app.clients.genai - INFO - ----------------------------------------
+2026-01-27 12:29:21,439 - app.clients.genai - INFO - GEMINI INTERACTION: build_storyboard
+2026-01-27 12:29:21,439 - app.clients.genai - INFO - REQUEST:
+['\n        Based on this analysis: {\'summary\': \'A calm, spoken-word introduction (audiobook style) in Russian, setting the scene for a story. The track has a distinct rhythmic cadence despite being narration, characterized by a steady flow and a nostalgic, storytelling mood.\', \'global_visual_narrative\': "The Beginning of a Summer Love. The video opens a visual novel-style memoir of two young men falling in love. The narration \'Part one, Chapter one\' serves as the literal opening of their shared romantic history, transitioning from a book cover to the characters meeting, and finally to the secluded island setting where their relationship blossoms.", \'visual_style_anchor\': \'Soft-focus Boys Love (BL) Anime, 90s aesthetic, pastel watercolors, warm golden-hour lighting, sentimental and romantic.\', \'segments\': [{\'start_time\': 0.0, \'end_time\': 1.47, \'speaker\': \'Male Narrator\', \'text\': \'Частка першая (Part one)\', \'emotion\': \'Formal, Anticipatory\', \'instrumentation\': \'Spoken word, minimal ambience\', \'section_type\': \'intro\', \'acoustic_environment\': \'intimate studio\', \'visual_description\': \'Close-up of hands gently opening an old, leather-bound book. The pages glow slightly. The title on the page morphs into a heart symbol.\'}, {\'start_time\': 1.47, \'end_time\': 2.92, \'speaker\': \'Male Narrator\', \'text\': \'раздзел першы (Chapter one)\', \'emotion\': \'Nostalgic, Gentle\', \'instrumentation\': \'Spoken word, slight rhythmic pulse\', \'section_type\': \'verse\', \'acoustic_environment\': \'intimate studio\', \'visual_description\': \'Two handsome anime boys stand back-to-back against a white background that slowly fills with color. They turn their heads to look at each other with shy, blushing smiles.\'}, {\'start_time\': 2.92, \'end_time\': 5.28, \'speaker\': \'Male Narrator\', \'text\': \'Хаты былі на востраве (The houses were on the island)\', \'emotion\': \'Serene, Descriptive\', \'instrumentation\': \'Spoken word, fading echo\', \'section_type\': \'exposition\', \'acoustic_environment\': \'open air / island breeze\', \'visual_description\': \'A wide, scenic shot of a lush green island surrounded by sparkling blue water. A small, cozy wooden house sits on the hill. The two boys are visible in the distance, walking hand-in-hand toward the house.\'}], \'total_duration\': 5.28, \'technical_stats\': {\'bpm\': 191.40625, \'beat_times\': [0.33668934240362813, 0.6501587301587302, 0.9520181405895691, 1.2887074829931973, 1.6253968253968254, 1.9504761904761905, 2.2755555555555556, 2.6006349206349206, 2.948934240362812, 3.297233560090703, 3.610702947845805, 3.912562358276644, 4.2260317460317465, 4.539501133786848, 4.829750566893424], \'beat_strengths\': [0.34870973229408264, 0.832187294960022, 0.4519956111907959, 0.06420387327671051, 0.8736666440963745, 0.5198363661766052, 0.0837445855140686, 0.8490664958953857, 0.03575202450156212, 0.5253130197525024, 0.9999998807907104, 0.4440905451774597, 0.07885102927684784, 0.6350892782211304, 0.4921402335166931], \'onset_times\': [0.18575963718820862, 0.26702947845804986, 0.33668934240362813, 0.46439909297052157, 0.5108390022675737, 0.603718820861678, 0.6501587301587302, 0.9404081632653061, 1.474467120181406, 1.6137868480725623, 1.787936507936508, 1.9388662131519274, 2.3336054421768706, 2.4380952380952383, 2.589024943310658, 2.6354648526077096, 2.75156462585034, 2.9257142857142857, 3.2624036281179136, 3.3901133786848074, 3.599092970521542, 3.645532879818594, 3.7616326530612243, 3.912562358276644, 4.156371882086168, 4.446621315192743, 4.539501133786848, 4.6788208616780045, 4.713650793650793, 4.818140589569161, 4.9806802721088435, 5.061950113378685, 5.178049886621316], \'beat_confidence\': 0.7615692610165391, \'tempo_stability\': 0.947742252154634, \'energy_stats\': {\'avg\': 0.08149248361587524, \'max\': 0.3839966058731079}}, \'character_description\': \'\'}\n        \n        Create a storyboard as a JSON list of segments.\n        The total duration MUST be EXACTLY 5.28 seconds.\n        \n        Follow the "global_visual_narrative" defined in the analysis. The video must feel like a cohesive film with a clear Narrative Arc (Beginning, Development, Climax).\n        \n        Crucial: React to changes in music intensity (from technical analysis stats or section_type) by changing the INTENSITY of the plot/visuals. \n        - If the music builds up (climax/drop), the visuals must become more massive, dynamic, or fast-paced.\n        - If the music is calm, the visuals should be steady and atmospheric.\n        \n        PACING INSTRUCTION:\n        - The user wants a dynamic video with MANY segments.\n        - Aim for segment durations between 2 and 5 seconds for most parts.\n        - Only use longer segments (up to 8s) for very slow, atmospheric parts.\n        - Avoid creating few long segments. We need a high "segment density".\n        \n        Each segment MUST have:\n        - id: a unique string like "seg_1", "seg_2", etc.\n        - start_time: "MM:SS" (or total seconds)\n        - end_time: "MM:SS" (or total seconds)\n        - lyric_text: the transcript for this segment\n        - visual_intent: a detailed description of what should be on screen, following the global narrative and current intensity.\n        - camera_angle: suggested camera shot (e.g. "Close-up", "Wide shot", "Drone shot")\n        - emotion: the detected emotion\n        \n        IMPORTANT: The segments MUST tile the entire 5.28 seconds. \n        The first segment must start at 00:00. \n        The last segment must end at 5.28.\n        No gaps, no overlaps.\n        \n        Return ONLY the JSON list.\n        ']
+2026-01-27 12:29:21,446 - app.clients.genai - INFO - RESPONSE:
+```json
+[
+    {
+        "id": "seg_1",
+        "start_time": 0.0,
+        "end_time": 1.47,
+        "lyric_text": "Частка першая (Part one)",
+        "visual_intent": "A close-up of slender hands gently opening a worn, vintage leather-bound book on a wooden desk. As the cover opens, the page glows with a soft, warm light, revealing the text in elegant calligraphy. The atmosphere is intimate and quiet.",
+        "camera_angle": "Top-down close-up",
+        "emotion": "Formal, Anticipatory"
+    },
+    {
+        "id": "seg_2",
+        "start_time": 1.47,
+        "end_time": 2.92,
+        "lyric_text": "раздзел першы (Chapter one)",
+        "visual_intent": "The book page dissolves into a soft-focus anime scene. Two handsome young men stand back-to-back against a background of pastel watercolor clouds. They slowly turn their heads to glance at each other with shy, blushing smiles.",
+        "camera_angle": "Medium shot, slight rotation",
+        "emotion": "Nostalgic, Gentle"
+    },
+    {
+        "id": "seg_3",
+        "start_time": 2.92,
+        "end_time": 4.1,
+        "lyric_text": "Хаты былі на востраве (The houses were on the island)",
+        "visual_intent": "A sweeping establishing shot of a lush green island surrounded by sparkling blue ocean water. The lighting is warm golden-hour sun. A small, cozy wooden house is visible on the peak of a hill.",
+        "camera_angle": "Wide aerial / Drone shot",
+        "emotion": "Serene, Descriptive"
+    },
+    {
+        "id": "seg_4",
+        "start_time": 4.1,
+        "end_time": 5.28,
+        "lyric_text": "",
+        "visual_intent": "Zooming in on the grassy path leading to the wooden house. The two boys are now seen from behind, walking hand-in-hand up the hill toward the house, their silhouettes framed by the setting sun.",
+        "camera_angle": "Long shot, slow zoom in",
+        "emotion": "Romantic, Peaceful"
+    }
+]
+```
+2026-01-27 12:29:21,447 - app.clients.genai - INFO - ----------------------------------------
+2026-01-27 12:29:21,448 - app.services.story_service - WARNING - Generated segment count (4) exceeds limit (2) for duration 5.28s. Truncating.
+2026-01-27 12:29:21,448 - app.services.story_service - INFO - Normalizing 2 segments: total_suggested=2.92s, target_duration=5.28s, scale_factor=1.808
+2026-01-27 12:29:21,449 - app.services.story_service - INFO - Rhythmic normalization complete. Avg: 2.64s, EffMax: 6.00s
+2026-01-27 12:29:21,452 - app.services.pipeline_service - INFO - Deducting 2 credits for user b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7
+2026-01-27 12:29:21,733 - httpx - INFO - HTTP Request: POST https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/rpc/deduct_credits "HTTP/2 200 OK"
+2026-01-27 12:29:21,743 - root - INFO - AFC is enabled with max remote calls: 10.
+2026-01-27 12:29:44,324 - app.clients.genai - INFO - ----------------------------------------
+2026-01-27 12:29:44,325 - app.clients.genai - INFO - GEMINI INTERACTION: build_prompts
+2026-01-27 12:29:44,325 - app.clients.genai - INFO - REQUEST:
+['\n        For each of these segments, create a detailed image generation prompt.\n        \n        Global Style Anchor: "Soft-focus Boys Love (BL) Anime, 90s aesthetic, pastel watercolors, warm golden-hour lighting, sentimental and romantic." \n        (YOU MUST APPEND THIS EXACT STYLE DESCRIPTION TO EVERY SINGLE PROMPT TO ENSURE CONSISTENCY).\n\n        CHARACTER CONSISTENCY:\n        Character Description: ""\n        (If the character appears, they MUST match this description. If the scene allows, feature this character).\n        \n        Segments: [{\'id\': \'seg_1\', \'start_time\': 0.0, \'end_time\': 2.6006349206349206, \'lyric_text\': \'Частка першая (Part one)\', \'visual_intent\': \'A close-up of slender hands gently opening a worn, vintage leather-bound book on a wooden desk. As the cover opens, the page glows with a soft, warm light, revealing the text in elegant calligraphy. The atmosphere is intimate and quiet.\', \'camera_angle\': \'Top-down close-up\', \'emotion\': \'Formal, Anticipatory\'}, {\'id\': \'seg_2\', \'start_time\': 2.6006349206349206, \'end_time\': 5.28, \'lyric_text\': \'раздзел першы (Chapter one)\', \'visual_intent\': \'The book page dissolves into a soft-focus anime scene. Two handsome young men stand back-to-back against a background of pastel watercolor clouds. They slowly turn their heads to glance at each other with shy, blushing smiles.\', \'camera_angle\': \'Medium shot, slight rotation\', \'emotion\': \'Nostalgic, Gentle\'}]\n        \n        Return a JSON object where keys are the segment IDs ("seg_1", etc.) and values are objects containing:\n        - image_prompt: the detailed prompt for the AI image generator\n        - negative_prompt: what to avoid in the image (optional)\n        - style_hints: keywords about the style (optional)\n        \n        Return ONLY the JSON object.\n        ']
+2026-01-27 12:29:44,326 - app.clients.genai - INFO - RESPONSE:
+```json
+{
+  "seg_1": {
+    "image_prompt": "Top-down close-up camera angle showing a pair of slender, elegant hands gently opening an old, worn vintage leather-bound book resting on a textured wooden desk. As the cover parts, the open page emits a magical, soft warm light, illuminating elegant calligraphy text written on the paper. The atmosphere is intimate, quiet, and anticipatory. Soft-focus Boys Love (BL) Anime, 90s aesthetic, pastel watercolors, warm golden-hour lighting, sentimental and romantic.",
+    "negative_prompt": "photorealistic, 3d render, modern digital art, sharp focus, harsh lines, ugly hands, malformed fingers, extra fingers, missing fingers, claws, messy text, dark, gloomy, horror, low quality, jpeg artifacts",
+    "style_hints": "90s cel animation style, watercolor background, bloom effect, retro anime"
+  },
+  "seg_2": {
+    "image_prompt": "Medium shot of two handsome young men standing back-to-back against a dreamy, ethereal background of fluffy pastel watercolor clouds. They are turning their heads slightly to glance at each other over their shoulders with shy, blushing smiles on their faces. Their hair creates a soft silhouette against the sky. The scene captures a feeling of nostalgia and gentle longing. Soft-focus Boys Love (BL) Anime, 90s aesthetic, pastel watercolors, warm golden-hour lighting, sentimental and romantic.",
+    "negative_prompt": "photorealistic, 3d, cgi, female, girls, aggressive, angry, frowning, sharp edges, high contrast, neon colors, deformed faces, bad anatomy, cross-eyed, text, watermark",
+    "style_hints": "shoujo manga style, bishounen, blushing, soft gradients, emotional gaze"
+  }
+}
+```
+2026-01-27 12:29:44,326 - app.clients.genai - INFO - ----------------------------------------
+2026-01-27 12:29:44,330 - app.clients.genai - INFO - GenAI client initialized (API key length: 39)
+2026-01-27 12:29:44,331 - app.services.image_service - INFO - Starting BATCH image generation for project d561ba3f700441f784a7b9420f2c5c7b with 2 prompts
+2026-01-27 12:29:44,348 - app.services.batch_service - INFO - Created batch file: D:\googlePRJ\clipmaker\Clipmaker\data\batch_jobs\batch-09b5cdb3.jsonl
+2026-01-27 12:29:44,349 - app.services.batch_service - INFO - Uploading batch file: D:\googlePRJ\clipmaker\Clipmaker\data\batch_jobs\batch-09b5cdb3.jsonl
+2026-01-27 12:29:46,938 - app.services.batch_service - INFO - Uploaded batch file files/gr2lqw8vc51d. Creating job via REST...
+2026-01-27 12:29:49,080 - app.services.batch_service - INFO - Batch job submitted successfully via REST: batches/0928sv6nwkfug07wvdgilr9vc1cq9uvad1eo
+2026-01-27 12:29:49,081 - app.services.image_service - INFO - Batch job submitted: batches/0928sv6nwkfug07wvdgilr9vc1cq9uvad1eo. Waiting for completion...
+2026-01-27 12:29:49,082 - app.services.batch_service - INFO - Waiting for batch job batches/0928sv6nwkfug07wvdgilr9vc1cq9uvad1eo...

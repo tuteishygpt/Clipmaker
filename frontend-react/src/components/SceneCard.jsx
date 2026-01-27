@@ -110,7 +110,7 @@ function SceneCard({ segment }) {
         setPreviewVersion(activeV)
     }, [segment.prompt?.version, segment.max_version])
 
-    const maxVersion = segment.max_version || segment.prompt?.version || 1
+    const maxVersion = segment.max_version !== undefined ? segment.max_version : (segment.prompt?.version || 1)
     const currentVersion = segment.prompt?.version || 1
     const isDifferentVersion = previewVersion !== currentVersion
 
@@ -135,8 +135,9 @@ function SceneCard({ segment }) {
         }
     }
 
+    const hasImage = maxVersion > 0
     const imageUrl = fixImageUrl(
-        projectId && segment?.id
+        projectId && segment?.id && hasImage
             ? `/projects/${projectId}/images/${segment.id}_v${previewVersion}.png`
             : null
     )
