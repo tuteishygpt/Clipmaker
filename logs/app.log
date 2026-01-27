@@ -19177,3 +19177,80 @@ Low angle shot at street level in a narrow, gritty cyberpunk alleyway. Thick ste
 2026-01-27 12:29:49,080 - app.services.batch_service - INFO - Batch job submitted successfully via REST: batches/0928sv6nwkfug07wvdgilr9vc1cq9uvad1eo
 2026-01-27 12:29:49,081 - app.services.image_service - INFO - Batch job submitted: batches/0928sv6nwkfug07wvdgilr9vc1cq9uvad1eo. Waiting for completion...
 2026-01-27 12:29:49,082 - app.services.batch_service - INFO - Waiting for batch job batches/0928sv6nwkfug07wvdgilr9vc1cq9uvad1eo...
+2026-01-27 12:51:10,159 - app.clients.supabase_client - INFO - Supabase client initialized successfully
+2026-01-27 12:51:11,473 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-27 12:51:11,628 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:51:11,781 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:51:11,782 - app.clients.genai - INFO - GenAI client initialized (API key length: 39)
+2026-01-27 12:51:11,784 - root - INFO - AFC is enabled with max remote calls: 10.
+2026-01-27 12:51:32,085 - app.clients.genai - INFO - ----------------------------------------
+2026-01-27 12:51:32,085 - app.clients.genai - INFO - GEMINI INTERACTION: build_prompts
+2026-01-27 12:51:32,085 - app.clients.genai - INFO - REQUEST:
+['\n        For each of these segments, create a detailed image generation prompt.\n        \n        Global Style Anchor: "Soft-focus Boys Love (BL) Anime, 90s aesthetic, pastel watercolors, warm golden-hour lighting, sentimental and romantic." \n        (YOU MUST APPEND THIS EXACT STYLE DESCRIPTION TO EVERY SINGLE PROMPT TO ENSURE CONSISTENCY).\n\n        CHARACTER CONSISTENCY:\n        Character Description: ""\n        (If the character appears, they MUST match this description. If the scene allows, feature this character).\n        \n        Segments: [{\'id\': \'seg_1\', \'start_time\': 0, \'end_time\': 2.6006349206349206, \'lyric_text\': \'Частка першая (Part one)\', \'visual_intent\': \'A close-up of slender hands gently opening a worn, vintage leather-bound book on a wooden desk. As the cover opens, the page glows with a soft, warm light, revealing the text in elegant calligraphy. The atmosphere is intimate and quiet.\', \'camera_angle\': \'Top-down close-up\', \'emotion\': \'Formal, Anticipatory\', \'max_version\': 0}]\n        \n        Return a JSON object where keys are the segment IDs ("seg_1", etc.) and values are objects containing:\n        - image_prompt: the detailed prompt for the AI image generator\n        - negative_prompt: what to avoid in the image (optional)\n        - style_hints: keywords about the style (optional)\n        \n        Return ONLY the JSON object.\n        ']
+2026-01-27 12:51:32,086 - app.clients.genai - INFO - RESPONSE:
+{
+  "seg_1": {
+    "image_prompt": "Top-down close-up view. A pair of slender, elegant hands gently opening the heavy cover of a worn, vintage leather-bound book resting on an old wooden desk. As the book opens, the inner page radiates a magical soft warm light, illuminating elegant calligraphy text on the paper. The atmosphere is intimate, quiet, and anticipatory. Soft-focus Boys Love (BL) Anime, 90s aesthetic, pastel watercolors, warm golden-hour lighting, sentimental and romantic.",
+    "negative_prompt": "photorealistic, 3d, cgi, bad anatomy, extra fingers, missing fingers, deformed hands, messy text, horror, dark, gloomy, cold lighting, sharp digital art, vector art",
+    "style_hints": "90s cel animation, watercolor background, retro anime, golden hour"
+  }
+}
+2026-01-27 12:51:32,086 - app.clients.genai - INFO - ----------------------------------------
+2026-01-27 12:51:32,087 - app.services.image_service - INFO - Regenerated prompt only for seg_1
+2026-01-27 12:51:38,559 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-27 12:51:38,707 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:51:38,830 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:51:38,831 - app.clients.genai - INFO - GenAI client initialized (API key length: 39)
+2026-01-27 12:51:39,180 - httpx - INFO - HTTP Request: POST https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/rpc/deduct_credits "HTTP/2 200 OK"
+2026-01-27 12:51:53,271 - app.clients.genai - INFO - ----------------------------------------
+2026-01-27 12:51:53,271 - app.clients.genai - INFO - GEMINI INTERACTION: generate_image (Multimodal Stream)
+2026-01-27 12:51:53,271 - app.clients.genai - INFO - REQUEST:
+Top-down close-up view. A pair of slender, elegant hands gently opening the heavy cover of a worn, vintage leather-bound book resting on an old wooden desk. As the book opens, the inner page radiates a magical soft warm light, illuminating elegant calligraphy text on the paper. The atmosphere is intimate, quiet, and anticipatory. Soft-focus Boys Love (BL) Anime, 90s aesthetic, pastel watercolors, warm golden-hour lighting, sentimental and romantic.
+2026-01-27 12:51:53,272 - app.clients.genai - INFO - RESPONSE:
+<Generated 1966722 bytes>
+2026-01-27 12:51:53,272 - app.clients.genai - INFO - ----------------------------------------
+2026-01-27 12:51:53,274 - app.services.image_service - INFO - Regenerated image only for seg_1 as v2
+2026-01-27 12:51:53,603 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-27 12:51:53,761 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:51:53,888 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:51:54,024 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:52:26,344 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-27 12:52:26,480 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:52:26,604 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:52:26,605 - app.clients.genai - INFO - GenAI client initialized (API key length: 39)
+2026-01-27 12:52:26,747 - httpx - INFO - HTTP Request: POST https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/rpc/deduct_credits "HTTP/2 200 OK"
+2026-01-27 12:52:26,748 - app.api.projects - INFO - [REGENERATE] Starting regeneration: project_id=d561ba3f700441f784a7b9420f2c5c7b, seg_id=seg_2
+2026-01-27 12:52:26,748 - app.services.image_service - INFO - [REGENERATE_SEGMENT] Found segment with text: 'раздзел першы (Chapter one)...'
+2026-01-27 12:52:26,748 - app.services.image_service - INFO - [REGENERATE_SEGMENT] project_id=d561ba3f700441f784a7b9420f2c5c7b, seg_id=seg_2, style='Soft-focus Boys Love (BL) Anime, 90s aesthetic, pa...'
+2026-01-27 12:52:26,749 - root - INFO - AFC is enabled with max remote calls: 10.
+2026-01-27 12:52:38,461 - app.clients.genai - INFO - ----------------------------------------
+2026-01-27 12:52:38,461 - app.clients.genai - INFO - GEMINI INTERACTION: build_prompts
+2026-01-27 12:52:38,461 - app.clients.genai - INFO - REQUEST:
+['\n        For each of these segments, create a detailed image generation prompt.\n        \n        Global Style Anchor: "Soft-focus Boys Love (BL) Anime, 90s aesthetic, pastel watercolors, warm golden-hour lighting, sentimental and romantic." \n        (YOU MUST APPEND THIS EXACT STYLE DESCRIPTION TO EVERY SINGLE PROMPT TO ENSURE CONSISTENCY).\n\n        CHARACTER CONSISTENCY:\n        Character Description: ""\n        (If the character appears, they MUST match this description. If the scene allows, feature this character).\n        \n        Segments: [{\'id\': \'seg_2\', \'start_time\': 2.6006349206349206, \'end_time\': 5.28, \'lyric_text\': \'раздзел першы (Chapter one)\', \'visual_intent\': \'The book page dissolves into a soft-focus anime scene. Two handsome young men stand back-to-back against a background of pastel watercolor clouds. They slowly turn their heads to glance at each other with shy, blushing smiles.\', \'camera_angle\': \'Medium shot, slight rotation\', \'emotion\': \'Nostalgic, Gentle\', \'max_version\': 0}]\n        \n        Return a JSON object where keys are the segment IDs ("seg_1", etc.) and values are objects containing:\n        - image_prompt: the detailed prompt for the AI image generator\n        - negative_prompt: what to avoid in the image (optional)\n        - style_hints: keywords about the style (optional)\n        \n        Return ONLY the JSON object.\n        ']
+2026-01-27 12:52:38,461 - app.clients.genai - INFO - RESPONSE:
+```json
+{
+  "seg_2": {
+    "image_prompt": "Medium shot, two handsome young men standing back-to-back against dreamy pastel watercolor clouds. They glance over shoulders with shy, blushing smiles. Soft-focus Boys Love (BL) Anime, 90s aesthetic, pastel watercolors, warm golden-hour lighting, sentimental and romantic.",
+    "negative_prompt": "photorealistic, 3d render, harsh lines, angry, high contrast, modern digital art, text, distorted faces",
+    "style_hints": "90s anime, watercolor, pastel, romantic, nostalgic"
+  }
+}
+```
+2026-01-27 12:52:38,462 - app.clients.genai - INFO - ----------------------------------------
+2026-01-27 12:52:50,154 - app.clients.genai - INFO - ----------------------------------------
+2026-01-27 12:52:50,155 - app.clients.genai - INFO - GEMINI INTERACTION: generate_image (Multimodal Stream)
+2026-01-27 12:52:50,155 - app.clients.genai - INFO - REQUEST:
+Medium shot, two handsome young men standing back-to-back against dreamy pastel watercolor clouds. They glance over shoulders with shy, blushing smiles. Soft-focus Boys Love (BL) Anime, 90s aesthetic, pastel watercolors, warm golden-hour lighting, sentimental and romantic.
+2026-01-27 12:52:50,155 - app.clients.genai - INFO - RESPONSE:
+<Generated 1559452 bytes>
+2026-01-27 12:52:50,156 - app.clients.genai - INFO - ----------------------------------------
+2026-01-27 12:52:50,377 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-27 12:52:50,510 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:52:50,626 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:52:50,740 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:54:57,751 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-01-27 12:54:57,879 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:54:57,991 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 "HTTP/2 200 OK"
+2026-01-27 12:54:57,993 - app.clients.genai - INFO - GenAI client initialized (API key length: 39)
+2026-01-27 12:54:57,994 - app.api.projects - INFO - User b8a7c7e8-3a71-4ac2-9a13-d961d26ecff7 started render for d561ba3f700441f784a7b9420f2c5c7b
