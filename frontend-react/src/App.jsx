@@ -191,6 +191,16 @@ function App() {
                     element={(
                         <LegalPage title="Privacy Policy">
                             <p>
+                                HukFlow collects the minimum account information needed to authenticate you, manage
+                                billing, and deliver the product experience. We also store usage analytics to improve
+                                generation quality and reliability.
+                            </p>
+                            <p>
+                                You can request access, correction, or deletion of your data by contacting our team.
+                                This page will be updated with the full privacy policy and regional disclosures.
+                            </p>
+                            <p>
+                                Questions about data practices can be sent to <a href="mailto:privacy@hukflow.ai">privacy@hukflow.ai</a>.
                                 This page will outline how HukFlow collects and uses account, billing, and usage data.
                                 Replace this placeholder with your official privacy policy.
                             </p>
@@ -202,6 +212,16 @@ function App() {
                     element={(
                         <LegalPage title="Terms of Service">
                             <p>
+                                By using HukFlow, you agree to follow our acceptable use guidelines and respect content
+                                ownership rights. You retain ownership of your source audio and generated outputs.
+                            </p>
+                            <p>
+                                Subscription access and usage limits are defined by your current plan. This page will
+                                be updated with the complete terms, including billing, limitations, and dispute
+                                resolution policies.
+                            </p>
+                            <p>
+                                Questions about terms can be sent to <a href="mailto:legal@hukflow.ai">legal@hukflow.ai</a>.
                                 This page will describe the terms that govern use of HukFlow. Replace this placeholder
                                 with your official terms of service.
                             </p>
@@ -213,6 +233,15 @@ function App() {
                     element={(
                         <LegalPage title="Refund Policy">
                             <p>
+                                Refunds are evaluated on a case-by-case basis based on usage and billing history. If
+                                you have questions about a charge, please reach out within 14 days of the transaction.
+                            </p>
+                            <p>
+                                We'll review your request and respond with next steps, including any account credit or
+                                billing adjustments available under your plan.
+                            </p>
+                            <p>
+                                Contact <a href="mailto:billing@hukflow.ai">billing@hukflow.ai</a> to start a refund review.
                                 This page will explain refunds and billing adjustments for HukFlow subscriptions.
                                 Replace this placeholder with your official refund policy.
                             </p>
@@ -224,6 +253,15 @@ function App() {
                     element={(
                         <LegalPage title="Pricing">
                             <p>
+                                HukFlow offers flexible plans with monthly credits, export options, and support levels
+                                tailored to individual creators and teams.
+                            </p>
+                            <p>
+                                Start free to explore the workflow, then upgrade when you are ready to publish more
+                                videos or unlock advanced export formats.
+                            </p>
+                            <p>
+                                For current plan details, contact <a href="mailto:sales@hukflow.ai">sales@hukflow.ai</a>.
                                 Review HukFlow pricing tiers, included credits, and usage details on this page.
                                 Replace this placeholder with your official pricing content.
                             </p>
@@ -235,6 +273,15 @@ function App() {
                     element={(
                         <LegalPage title="Partners">
                             <p>
+                                We collaborate with labels, artist teams, and creator platforms to bring music visuals
+                                to wider audiences. Partners can access co-marketing opportunities and early feature
+                                pilots.
+                            </p>
+                            <p>
+                                If you are interested in a partnership, reach out with your goals and audience size.
+                            </p>
+                            <p>
+                                Email <a href="mailto:partners@hukflow.ai">partners@hukflow.ai</a> to start a conversation.
                                 Share partnership opportunities, media kits, and collaboration details here.
                                 Replace this placeholder with your official partner information.
                             </p>
@@ -246,6 +293,15 @@ function App() {
                     element={(
                         <LegalPage title="Contact Us">
                             <p>
+                                Need help with a project or subscription? Our team is available Monday through Friday
+                                to assist with onboarding, billing, and technical questions.
+                            </p>
+                            <p>
+                                For product support, email <a href="mailto:hello@hukflow.ai">hello@hukflow.ai</a>.
+                                For urgent billing issues, use <a href="mailto:billing@hukflow.ai">billing@hukflow.ai</a>.
+                            </p>
+                            <p>
+                                We aim to respond within one business day.
                                 List your support channels, response times, and preferred contact methods here.
                                 Replace this placeholder with your official contact information.
                             </p>
