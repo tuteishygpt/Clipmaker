@@ -201,6 +201,8 @@ function App() {
                             </p>
                             <p>
                                 Questions about data practices can be sent to <a href="mailto:privacy@hukflow.ai">privacy@hukflow.ai</a>.
+                                This page will outline how HukFlow collects and uses account, billing, and usage data.
+                                Replace this placeholder with your official privacy policy.
                             </p>
                         </LegalPage>
                     )}
@@ -220,6 +222,8 @@ function App() {
                             </p>
                             <p>
                                 Questions about terms can be sent to <a href="mailto:legal@hukflow.ai">legal@hukflow.ai</a>.
+                                This page will describe the terms that govern use of HukFlow. Replace this placeholder
+                                with your official terms of service.
                             </p>
                         </LegalPage>
                     )}
@@ -238,6 +242,8 @@ function App() {
                             </p>
                             <p>
                                 Contact <a href="mailto:billing@hukflow.ai">billing@hukflow.ai</a> to start a refund review.
+                                This page will explain refunds and billing adjustments for HukFlow subscriptions.
+                                Replace this placeholder with your official refund policy.
                             </p>
                         </LegalPage>
                     )}
@@ -256,6 +262,8 @@ function App() {
                             </p>
                             <p>
                                 For current plan details, contact <a href="mailto:sales@hukflow.ai">sales@hukflow.ai</a>.
+                                Review HukFlow pricing tiers, included credits, and usage details on this page.
+                                Replace this placeholder with your official pricing content.
                             </p>
                         </LegalPage>
                     )}
@@ -274,6 +282,8 @@ function App() {
                             </p>
                             <p>
                                 Email <a href="mailto:partners@hukflow.ai">partners@hukflow.ai</a> to start a conversation.
+                                Share partnership opportunities, media kits, and collaboration details here.
+                                Replace this placeholder with your official partner information.
                             </p>
                         </LegalPage>
                     )}
@@ -292,6 +302,8 @@ function App() {
                             </p>
                             <p>
                                 We aim to respond within one business day.
+                                List your support channels, response times, and preferred contact methods here.
+                                Replace this placeholder with your official contact information.
                             </p>
                         </LegalPage>
                     )}

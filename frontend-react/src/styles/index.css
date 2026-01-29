@@ -356,6 +356,7 @@ body.landing-body {
 .section-header h2 {
     font-size: clamp(1.6rem, 3vw, 2.4rem);
     margin-bottom: 0;
+    margin-bottom: 10px;
 }
 
 .section-header p {
