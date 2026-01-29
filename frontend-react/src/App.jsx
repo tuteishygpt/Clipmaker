@@ -17,6 +17,8 @@ import Scenes from './components/Scenes'
 import Analysis from './components/Analysis'
 import Lightbox from './components/Lightbox'
 import Toast from './components/common/Toast'
+import LandingPage from './components/landing/LandingPage'
+import LegalPage from './components/landing/LegalPage'
 
 // Cabinet (new module)
 import AuthPage from './components/auth/AuthPage'
@@ -159,16 +161,14 @@ function App() {
         }
     }, [user?.id, loadBillingData, clearBillingData])
 
-    // If Supabase is not configured, just show the editor
-    if (!isSupabaseConfigured()) {
-        return <EditorView />
-    }
-
     return (
         <BrowserRouter>
             <Routes>
+                {/* Marketing Home */}
+                <Route path="/" element={<LandingPage />} />
+
                 {/* Main Editor - Works without auth */}
-                <Route path="/" element={<EditorView />} />
+                <Route path="/studio" element={<EditorView />} />
 
                 {/* Auth page */}
                 <Route path="/auth" element={<AuthWrapper />} />
@@ -185,6 +185,73 @@ function App() {
 
                 {/* Password reset callback */}
                 <Route path="/reset-password" element={<AuthWrapper />} />
+
+                <Route
+                    path="/privacy"
+                    element={(
+                        <LegalPage title="Privacy Policy">
+                            <p>
+                                This page will outline how HukFlow collects and uses account, billing, and usage data.
+                                Replace this placeholder with your official privacy policy.
+                            </p>
+                        </LegalPage>
+                    )}
+                />
+                <Route
+                    path="/terms"
+                    element={(
+                        <LegalPage title="Terms of Service">
+                            <p>
+                                This page will describe the terms that govern use of HukFlow. Replace this placeholder
+                                with your official terms of service.
+                            </p>
+                        </LegalPage>
+                    )}
+                />
+                <Route
+                    path="/refund"
+                    element={(
+                        <LegalPage title="Refund Policy">
+                            <p>
+                                This page will explain refunds and billing adjustments for HukFlow subscriptions.
+                                Replace this placeholder with your official refund policy.
+                            </p>
+                        </LegalPage>
+                    )}
+                />
+                <Route
+                    path="/pricing"
+                    element={(
+                        <LegalPage title="Pricing">
+                            <p>
+                                Review HukFlow pricing tiers, included credits, and usage details on this page.
+                                Replace this placeholder with your official pricing content.
+                            </p>
+                        </LegalPage>
+                    )}
+                />
+                <Route
+                    path="/partners"
+                    element={(
+                        <LegalPage title="Partners">
+                            <p>
+                                Share partnership opportunities, media kits, and collaboration details here.
+                                Replace this placeholder with your official partner information.
+                            </p>
+                        </LegalPage>
+                    )}
+                />
+                <Route
+                    path="/contact"
+                    element={(
+                        <LegalPage title="Contact Us">
+                            <p>
+                                List your support channels, response times, and preferred contact methods here.
+                                Replace this placeholder with your official contact information.
+                            </p>
+                        </LegalPage>
+                    )}
+                />
 
                 {/* Catch all - redirect to home */}
                 <Route path="*" element={<Navigate to="/" replace />} />
