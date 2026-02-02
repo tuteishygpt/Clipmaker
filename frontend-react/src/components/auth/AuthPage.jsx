@@ -89,7 +89,7 @@ export default function AuthPage({ onSuccess }) {
                 <div className="auth-header">
                     <div className="auth-logo">
                         <span className="logo-icon">🎬</span>
-                        <h1>Clipmaker</h1>
+                        <h1>Studio</h1>
                     </div>
                     <p className="auth-subtitle">
                         {mode === 'signin' && 'Welcome back! Sign in to continue.'}

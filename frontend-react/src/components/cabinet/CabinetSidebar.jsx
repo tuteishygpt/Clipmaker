@@ -28,7 +28,7 @@ export default function CabinetSidebar({
             {/* Logo */}
             <div className="cabinet-logo">
                 <span className="logo-icon">🎬</span>
-                <span className="logo-text">Clipmaker</span>
+                <span className="logo-text">Studio</span>
             </div>
 
             {/* User Card */}

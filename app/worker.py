@@ -9,7 +9,7 @@ from .core.logging import setup_logging
 
 def main() -> None:
     setup_logging()
-    parser = argparse.ArgumentParser(description="Clipmaker worker")
+    parser = argparse.ArgumentParser(description="Studio worker")
     parser.add_argument("--project_id", required=True)
     args = parser.parse_args()
     run_pipeline(args.project_id)
