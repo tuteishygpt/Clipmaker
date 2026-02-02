@@ -1,1 +1,1 @@
-"""Clipmaker MVP application package."""
+"""Studio MVP application package."""

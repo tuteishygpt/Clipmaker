@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { useProjectStore } from '../stores/projectStore'
 import { useAuthStore } from '../stores/authStore'
 import { useBillingStore } from '../stores/billingStore'
@@ -11,14 +12,19 @@ function Header() {
     return (
         <header className="app-header">
             <div className="header-content">
-                <div className="logo-section">
+                <Link to="/" className="logo-section" style={{ textDecoration: 'none', color: 'inherit' }}>
                     <div className="logo">
                         <span className="logo-icon">🎬</span>
-                        <h1>Clipmaker</h1>
+                        <h1>Studio</h1>
                     </div>
-                    <p className="tagline">AI-powered music video generator</p>
+                </Link>
+                <div className="header-nav">
+                    {/* Optional: Add navigation links here if needed */}
                 </div>
+            </div>
 
+            <div className="header-right">
+                <p className="tagline">AI-powered music video generator</p>
                 {/* Right side - User info */}
                 {isSupabaseConfigured() && (
                     <div className="header-actions">
@@ -28,17 +34,17 @@ function Header() {
                                     <span className="credits-icon">💎</span>
                                     <span className="credits-value">{credits}</span>
                                 </div>
-                                <a href="/cabinet" className="btn-cabinet">
+                                <Link to="/cabinet" className="btn-cabinet">
                                     <span className="user-initial">
                                         {user.email?.charAt(0).toUpperCase() || '?'}
                                     </span>
                                     <span className="cabinet-label">My Account</span>
-                                </a>
+                                </Link>
                             </>
                         ) : (
-                            <a href="/auth" className="btn-sign-in">
+                            <Link to="/auth" className="btn-sign-in">
                                 Sign In
-                            </a>
+                            </Link>
                         )}
                     </div>
                 )}

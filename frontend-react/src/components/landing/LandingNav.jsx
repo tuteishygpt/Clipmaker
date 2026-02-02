@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useAuthStore } from '../../stores/authStore'
 
 const navLinks = [
@@ -16,10 +17,10 @@ function LandingNav() {
     return (
         <header className="landing-nav">
             <div className="landing-nav-inner">
-                <a className="brand" href="/">
+                <Link className="brand" to="/">
                     <span className="brand-mark" aria-hidden="true">◆</span>
                     <span className="brand-name">HukFlow</span>
-                </a>
+                </Link>
 
                 <nav className="landing-nav-links" aria-label="Primary">
                     {navLinks.map((link) => (
@@ -31,12 +32,12 @@ function LandingNav() {
 
                 <div className="landing-nav-actions">
                     {!user && (
-                        <a className="nav-link login-link" href="/auth">Login</a>
+                        <Link className="nav-link login-link" to="/auth">Login</Link>
                     )}
                     {user ? (
-                        <a className="btn btn-secondary" href="/studio">Open Studio</a>
+                        <Link className="btn btn-secondary" to="/studio">Open Studio</Link>
                     ) : (
-                        <a className="btn btn-primary" href="/auth">Start free</a>
+                        <Link className="btn btn-primary" to="/auth">Start free</Link>
                     )}
                     <button
                         className="menu-toggle"
@@ -67,12 +68,12 @@ function LandingNav() {
                 </div>
                 <div className="mobile-menu-actions">
                     {!user && (
-                        <a className="btn btn-secondary" href="/auth">Login</a>
+                        <Link className="btn btn-secondary" to="/auth">Login</Link>
                     )}
                     {user ? (
-                        <a className="btn btn-primary" href="/studio">Open Studio</a>
+                        <Link className="btn btn-primary" to="/studio">Open Studio</Link>
                     ) : (
-                        <a className="btn btn-primary" href="/auth">Start free</a>
+                        <Link className="btn btn-primary" to="/auth">Start free</Link>
                     )}
                 </div>
             </div>

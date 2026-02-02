@@ -1,4 +1,4 @@
-"""Clipmaker MVP - FastAPI Application Entry Point."""
+"""Studio MVP - FastAPI Application Entry Point."""
 from __future__ import annotations
 
 from fastapi import FastAPI
@@ -15,7 +15,7 @@ from .api.web import router as web_router
 setup_logging()
 
 # Create FastAPI app
-app = FastAPI(title="Clipmaker MVP")
+app = FastAPI(title="Studio MVP")
 
 # CORS middleware
 app.add_middleware(

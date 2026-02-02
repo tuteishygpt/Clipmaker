@@ -119,10 +119,10 @@ class ProfileUpdate(BaseModel):
 # ==================== User Projects ====================
 
 class UserProject(BaseModel):
-    """User's project record (links to local Clipmaker project)."""
+    """User's project record (links to local Studio project)."""
     id: str
     user_id: str
-    project_id: str  # Local Clipmaker project ID
+    project_id: str  # Local Studio project ID
     title: str
     thumbnail_url: Optional[str] = None
     status: str = "draft"  # draft, processing, completed, error

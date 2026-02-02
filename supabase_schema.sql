@@ -49,7 +49,7 @@ BEGIN
     
     -- Also create initial credits record
     INSERT INTO public.user_credits (user_id, balance)
-    VALUES (NEW.id, 10);  -- 10 free credits for new users
+    VALUES (NEW.id, 100);  -- 100 free credits for new users
     
     -- Create initial free subscription
     INSERT INTO public.subscriptions (
@@ -77,10 +77,10 @@ BEGIN
     )
     VALUES (
         NEW.id, 
-        10, 
+        100, 
         'bonus', 
-        'Welcome bonus - 10 free credits', 
-        10
+        'Welcome bonus - 100 free credits', 
+        100
     );
     
     RETURN NEW;

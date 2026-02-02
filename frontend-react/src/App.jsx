@@ -147,9 +147,7 @@ function App() {
 
     // Initialize auth on mount
     useEffect(() => {
-        if (isSupabaseConfigured()) {
-            initialize()
-        }
+        initialize()
     }, [initialize])
 
     // Load billing when user changes
