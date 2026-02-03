@@ -15,6 +15,7 @@ from ..services.pipeline_service import PipelineService
 from ..services.image_service import ImageService
 from ..services.billing_service import billing_service
 from ..core.logging import get_logger
+from ..core.config import settings
 from ..core.billing import (
     BillingContext,
     get_billing_context,
@@ -23,6 +24,13 @@ from ..core.billing import (
     refund_generation_credits,
 )
 from ..core.auth import AuthenticatedUser, get_optional_user
+from ..core.audio_utils import (
+    validate_audio_format,
+    get_audio_duration,
+    parse_time,
+    AudioValidationError,
+    AudioLoadError,
+)
 
 logger = get_logger(__name__)
 
@@ -84,25 +92,24 @@ async def get_project(project_id: str) -> dict[str, Any]:
     return project
 
 
-from ..core.config import settings
-
 @router.post("/{project_id}/upload", response_model=RunResponse)
 async def upload_audio(project_id: str, audio: UploadFile = File(...)) -> RunResponse:
     """Upload audio file for a project."""
     if not project_repo.exists(project_id):
         raise HTTPException(status_code=404, detail="Project not found")
     
+    # Validate audio format BEFORE saving
+    try:
+        validate_audio_format(audio.content_type, audio.filename)
+    except AudioValidationError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    
     project_repo.ensure_dirs(project_id)
     audio_path = file_storage.save_audio(project_id, audio.file, audio.filename or "track.wav")
     
-    # Validate Duration
+    # Validate Duration using unified function
     try:
-        import moviepy.editor as mp
-        # Use a context manager logic or explicit close to ensure file handle is released
-        # AudioFileClip doesn't support context manager natively in older versions, so we use close()
-        clip = mp.AudioFileClip(str(audio_path))
-        duration = clip.duration
-        clip.close()
+        duration = get_audio_duration(audio_path)
         
         max_duration_seconds = settings.max_audio_duration_minutes * 60
         if duration > max_duration_seconds:
@@ -118,19 +125,19 @@ async def upload_audio(project_id: str, audio: UploadFile = File(...)) -> RunRes
                 detail=f"Audio duration ({duration:.1f}s) exceeds maximum allowed ({settings.max_audio_duration_minutes} min)."
             )
             
-    except ImportError:
-        logger.warning("moviepy not found, skipping duration check")
+    except AudioLoadError as e:
+        # Delete invalid file
+        try:
+            if audio_path.exists():
+                audio_path.unlink()
+        except Exception as delete_err:
+            logger.error(f"Failed to delete invalid audio file: {delete_err}")
+        raise HTTPException(status_code=400, detail=f"Invalid audio file: {e}")
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Audio validation failed: {e}")
-        # Optionally delete if invalid audio format
-        # For now, we proceed or error? 
-        # If moviepy fails to open it, it might be invalid.
-        # Let's try to be safe: if we can't validate, we might warn but let it pass 
-        # OR better, if it's really an audio app, we should probably fail.
-        # But let's act conservative: if check fails, maybe log it.
-        # However, the user asked for a check. If checking fails, likely the file is bad.
+        logger.error(f"Unexpected audio validation error: {e}")
+        # Keep the file but log the issue
         pass
 
     project_repo.update(project_id, {"status": "UPLOADED"})
@@ -175,11 +182,10 @@ async def run_project(
 
 @router.get("/{project_id}/analysis")
 async def get_analysis(project_id: str) -> dict[str, Any]:
-    """Get audio analysis results."""
+    """Get audio analysis results. Returns empty object if not ready yet."""
     analysis = project_repo.get_analysis(project_id)
-    if not analysis:
-        raise HTTPException(status_code=404, detail="Analysis not ready")
-    return analysis
+    # Return empty object instead of 404 to support progressive loading
+    return analysis or {}
 
 
 @router.get("/{project_id}/audio")
@@ -464,20 +470,7 @@ async def recalculate_timings(project_id: str) -> RunResponse:
     if duration <= 0:
         raise HTTPException(status_code=400, detail="Invalid audio duration")
     
-    # Helper for time parsing
-    def parse_t(t_val) -> float:
-        if isinstance(t_val, (int, float)):
-            return float(t_val)
-        if not t_val:
-            return 0.0
-        try:
-            t_str = str(t_val).replace(",", ".").strip()
-            parts = t_str.split(":")
-            if len(parts) == 1: return float(parts[0])
-            if len(parts) == 2: return float(parts[0]) * 60 + float(parts[1])
-            if len(parts) == 3: return float(parts[0]) * 3600 + float(parts[1]) * 60 + float(parts[2])
-        except: pass
-        return 0.0
+    # Use unified time parser from audio_utils
 
     MAX_DURATION = 6.0
     MIN_DURATION = 0.5
@@ -495,8 +488,8 @@ async def recalculate_timings(project_id: str) -> RunResponse:
     # First, calculate weights based on current duration or default to 1.0
     weights = []
     for seg in segments:
-        s = parse_t(seg.get("start_time", 0))
-        e = parse_t(seg.get("end_time", 0))
+        s = parse_time(seg.get("start_time", 0))
+        e = parse_time(seg.get("end_time", 0))
         d = e - s
         if d < 0.1: d = 3.0 # Default weight for broken segments
         weights.append(d)

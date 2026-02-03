@@ -21,6 +21,7 @@ class TechnicalStats(BaseModel):
     """Technical audio analysis from librosa."""
     bpm: Optional[float] = None
     beat_times: List[float] = []
+    beat_strengths: List[float] = []  # Normalized strength at each beat
     onset_times: List[float] = []
     beat_confidence: Optional[float] = None
     tempo_stability: Optional[float] = None

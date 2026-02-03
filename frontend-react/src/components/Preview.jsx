@@ -3,11 +3,16 @@ import { useProjectStore } from '../stores/projectStore'
 import { getDownloadUrl } from '../api'
 import { fixImageUrl } from '../utils'
 import Timeline from './Timeline'
+import AnalysisVisualization from './AnalysisVisualization'
 
 function Preview() {
-    const { projectId, videoOutput, segments } = useProjectStore()
+    const { projectId, videoOutput, segments, jobs } = useProjectStore()
     const videoRef = useRef(null)
     const [imgError, setImgError] = useState(false)
+
+    // Check if pipeline is running
+    const pipeJob = jobs.pipeline
+    const isPipelineRunning = pipeJob?.status === 'RUNNING' || pipeJob?.status === 'RETRYING'
 
     // Reset error when project or segments change
     useEffect(() => {
@@ -22,14 +27,19 @@ function Preview() {
     return (
         <section className="panel cinema-panel">
             <div className="preview-box">
-                {!hasVideo && (!lastImage || imgError) && (
+                {/* Show analysis visualization during pipeline execution */}
+                {isPipelineRunning && (
+                    <AnalysisVisualization />
+                )}
+
+                {!isPipelineRunning && !hasVideo && (!lastImage || imgError) && (
                     <div className="preview-placeholder">
                         <div className="placeholder-icon">🎬</div>
                         <p>{imgError ? "Preview Image Error" : "Preview will appear here"}</p>
                     </div>
                 )}
 
-                {!hasVideo && lastImage && !imgError && (
+                {!isPipelineRunning && !hasVideo && lastImage && !imgError && (
                     <img
                         src={fixImageUrl(lastImage)}
                         alt="Last generated scene"
@@ -38,7 +48,7 @@ function Preview() {
                     />
                 )}
 
-                {hasVideo && (
+                {!isPipelineRunning && hasVideo && (
                     <video
                         key={videoOutput}
                         ref={videoRef}
@@ -50,18 +60,6 @@ function Preview() {
             </div>
 
             <Timeline videoRef={videoRef} />
-
-            <div className="preview-controls">
-                {hasVideo && projectId && (
-                    <a
-                        href={getDownloadUrl(projectId)}
-                        download
-                        className="button-link"
-                    >
-                        Download Video
-                    </a>
-                )}
-            </div>
         </section>
     )
 }

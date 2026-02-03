@@ -6,6 +6,7 @@ import { isSupabaseConfigured } from './lib/supabase'
 
 // Editor (existing app)
 import { useProjectStore } from './stores/projectStore'
+import { getDownloadUrl } from './api'
 import Header from './components/Header'
 import WorkflowStepper from './components/WorkflowStepper'
 import ProjectSelector from './components/ProjectSelector'
@@ -14,7 +15,7 @@ import AudioUpload from './components/AudioUpload'
 import GenerationControls from './components/GenerationControls'
 import Preview from './components/Preview'
 import Scenes from './components/Scenes'
-import Analysis from './components/Analysis'
+import AnalysisModal from './components/AnalysisModal'
 import Lightbox from './components/Lightbox'
 import Toast from './components/common/Toast'
 import LandingPage from './components/landing/LandingPage'
@@ -48,7 +49,7 @@ function ProtectedRoute({ children }) {
 
 // Editor view (existing functionality)
 function EditorView() {
-    const { loadProjects, stopPolling, projectId, refreshJobs } = useProjectStore()
+    const { loadProjects, stopPolling, projectId, refreshJobs, videoOutput } = useProjectStore()
     const { user } = useAuthStore()
     const { canGenerate, generationBlockReason = null } = useBillingStore()
 
@@ -100,27 +101,27 @@ function EditorView() {
                     )}
                 </aside>
 
-                {/* Center - Preview & Scenes */}
-                <section className="content-area">
+                {/* Center - Preview & Scenes (now full width) */}
+                <section className="content-area content-area-wide">
+                    {projectId && <WorkflowStepper />}
                     <Preview />
+                    {projectId && (
+                        <div className="preview-actions">
+                            <AnalysisModal />
+                            {videoOutput && (
+                                <a
+                                    href={getDownloadUrl(projectId)}
+                                    download
+                                    className="preview-btn"
+                                >
+                                    <span className="btn-icon-emoji">⬇️</span>
+                                    Download
+                                </a>
+                            )}
+                        </div>
+                    )}
                     <Scenes />
                 </section>
-
-                {/* Right Panel - Workflow & Status */}
-                <aside className="details-panel">
-                    {projectId && (
-                        <div className="sticky-wrapper" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                            <WorkflowStepper />
-                            <Analysis />
-                        </div>
-                    )}
-                    {!projectId && (
-                        <div className="empty-state-start">
-                            <span className="arrow-left">←</span>
-                            <p>Start by selecting or creating a project</p>
-                        </div>
-                    )}
-                </aside>
             </main>
 
             <Lightbox />

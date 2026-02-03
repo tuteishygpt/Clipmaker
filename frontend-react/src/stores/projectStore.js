@@ -277,6 +277,12 @@ export const useProjectStore = create((set, get) => ({
 
             set({ jobs, videoOutput })
 
+            // Load analysis during pipeline run to show live data
+            const pipelineRunning = pipeJob?.status === 'RUNNING' || pipeJob?.status === 'RETRYING'
+            if (pipelineRunning) {
+                await get().loadAnalysis()
+            }
+
             await get().loadSegments()
             get().updateStep()
 

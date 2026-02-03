@@ -8,22 +8,18 @@ from ..clients.genai import GenAIClient
 from ..repositories.project_repo import ProjectRepository
 from ..repositories.file_storage import FileStorage
 from ..core.logging import get_logger
+from ..core.audio_utils import get_audio_duration, AudioLoadError
 
 logger = get_logger(__name__)
 
 
-def _get_audio_duration(audio_path: Path) -> float:
-    """Get audio file duration using moviepy."""
-    import moviepy.editor as mp
-    
-    clip = mp.AudioFileClip(str(audio_path))
-    duration = clip.duration
-    clip.close()
-    return duration
-
-
 def _analyze_audio_technical(audio_path: Path) -> dict[str, Any]:
-    """Perform technical audio analysis using librosa."""
+    """
+    Perform technical audio analysis using librosa.
+    
+    Returns empty dict if librosa unavailable or analysis fails.
+    Raises AudioLoadError for unrecoverable file issues.
+    """
     try:
         import librosa
         import numpy as np
@@ -33,6 +29,11 @@ def _analyze_audio_technical(audio_path: Path) -> dict[str, Any]:
 
     try:
         y, sr = librosa.load(str(audio_path), sr=None)
+    except Exception as e:
+        logger.error(f"Failed to load audio with librosa: {e}")
+        raise AudioLoadError(f"Cannot load audio for analysis: {e}")
+
+    try:
 
         # Tempo and Beats
         tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr)
@@ -116,8 +117,8 @@ class AudioAnalysisService:
         if not audio_path:
             raise FileNotFoundError(f"No audio file found for project {project_id}")
         
-        # Get duration
-        duration = _get_audio_duration(audio_path)
+        # Get duration using unified function
+        duration = get_audio_duration(audio_path)
         
         # Technical analysis (librosa)
         technical_analysis = _analyze_audio_technical(audio_path)

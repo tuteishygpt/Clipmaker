@@ -1528,8 +1528,57 @@ body.landing-body {
 .main-layout {
     flex: 1;
     display: grid;
-    grid-template-columns: var(--sidebar-width) 1fr var(--details-width);
+    /* Two columns only - no right panel */
+    grid-template-columns: var(--sidebar-width) 1fr;
     overflow: hidden;
+}
+
+/* Wide content area when no right panel */
+.content-area-wide {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Preview actions row below preview */
+.preview-actions {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-sm) 0;
+}
+
+/* Preview buttons - minimalistic style */
+.preview-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--radius-full);
+    color: var(--color-text-secondary);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-decoration: none;
+}
+
+.preview-btn:hover {
+    background: rgba(99, 102, 241, 0.1);
+    border-color: rgba(99, 102, 241, 0.4);
+    color: var(--color-text-primary);
+    transform: translateY(-1px);
+}
+
+.preview-btn:active {
+    transform: translateY(0);
+}
+
+.preview-btn .btn-icon-emoji {
+    font-size: 1rem;
+    line-height: 1;
 }
 
 /* ===== Header ===== */
@@ -2310,11 +2359,12 @@ body.landing-body {
 .edit-toggle-btn {
     background: transparent;
     color: var(--color-primary);
-    padding: 4px 8px;
+    padding: 4px 10px;
     font-size: 0.75rem;
-    border-radius: 4px;
-    border: none;
+    border-radius: 12px;
+    border: 1px solid rgba(99, 102, 241, 0.2);
     cursor: pointer;
+    transition: all 0.2s;
 }
 
 .edit-toggle-btn:hover {
@@ -2482,30 +2532,41 @@ body.landing-body {
 
 .save-btn {
     flex: 1;
+    background: transparent;
+    color: var(--color-primary);
+    border: 1px solid var(--color-primary);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.save-btn:hover {
     background: var(--color-primary);
     color: white;
-    border: none;
-    padding: 8px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    cursor: pointer;
 }
 
 .regenerate-btn {
     flex: 1;
-    background: var(--color-bg-tertiary);
+    background: transparent;
     color: var(--color-text-secondary);
-    border: 1px solid var(--color-border);
-    padding: 8px;
-    border-radius: 4px;
-    font-size: 0.8rem;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
     cursor: pointer;
+    transition: all 0.2s;
 }
 
 .regenerate-btn:hover {
-    background: var(--color-bg-input);
+    border-color: rgba(255, 255, 255, 0.4);
     color: var(--color-text-primary);
+    transform: translateY(-1px);
 }
+
+
 
 @keyframes slideDown {
     from {
@@ -2936,22 +2997,17 @@ body.landing-body {
 
 @media (max-width: 1400px) {
     .main-layout {
-        grid-template-columns: 280px 1fr 340px;
+        grid-template-columns: 280px 1fr;
     }
 }
 
 @media (max-width: 1024px) {
     :root {
         --sidebar-width: 260px;
-        --details-width: 300px;
     }
 
     .main-layout {
         grid-template-columns: var(--sidebar-width) 1fr;
-    }
-
-    .details-panel {
-        display: none;
     }
 
     .scenes {
@@ -3031,13 +3087,6 @@ body.landing-body {
         order: 2;
         padding: var(--spacing-md);
         overflow: visible;
-    }
-
-    .details-panel {
-        display: block;
-        order: 3;
-        border-bottom: none;
-        border-top: 1px solid var(--color-border);
     }
 
     /* Preview Mobile Optimization */
