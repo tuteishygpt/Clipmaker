@@ -132,25 +132,40 @@ class GenAIClient:
         
         Please provide:
         1. A summary of the song's energy, mood, and style.
-        2. A "global_visual_narrative": A single, cohesive visual metaphor or story concept (e.g. "journey of an abandoned robot" or "a cyber-gothic dance in rain") that will persist throughout the video. If the user provided a plot description, adapt it here.
-        3. A "visual_style_anchor": A specific, consistent visual style description BASED ON "{user_style}" (e.g. if user said "Anime", generate "90s Cyberpunk Anime, high contrast").
-        4. A list of segments that cover the ENTIRE duration ({duration:.2f}s).
+        2. A "global_visual_narrative": A single, cohesive visual metaphor or story concept.
+           - MUST be a concrete visual idea (e.g. "A cyberpunk detective walking through neon rain", NOT just "A journey of self-discovery").
+           - Should evolve from beginning to end.
+        3. A "visual_style_anchor": A specific, consistent visual style description BASED ON "{user_style}".
+           - Include lighting, color palette, and texture (e.g. "Cinematic lighting, teal and orange palette, film grain").
+        4. A "video_plan": A structured plan containing "scenes".
         
-        For each segment, identify:
-        - start_time and end_time (0.0 to {duration:.2f})
-        - speaker (if vocals generally)
-        - text (lyrics)
-        - emotion
-        - instrumentation (e.g. "guitar solo", "heavy drums", "minimal synth")
-        - section_type (e.g. "intro", "verse", "chorus", "bridge", "drop", "climax", "outro")
-        - acoustic_environment (e.g. "studio", "live hall", "lo-fi", "underwater", "echoey")
+        "video_plan" structure:
+        {{
+          "scenes": [
+            {{
+              "start_time": float,
+              "end_time": float,
+              "description": "Visual description of the scene",
+              "energy_level": float (0.0 to 1.0),
+              "keyframes": [
+                {{
+                  "time": float,
+                  "type": "cut" | "zoom" | "shake" | "beat",
+                  "description": "Short note",
+                  "parameters": {{}}
+                }}
+              ]
+            }}
+          ]
+        }}
         
-        Ensure:
+        Instructions for Scenes:
         - Segments have NO GAPS and NO OVERLAPS.
-        - The sequence covers exactly from 0.0 to {duration:.2f}.
-        - Use the Technical Analysis (BPM, Energy) to align segments with beats and intense moments if possible.
+        - Cover exactly 0.0 to {duration:.2f}.
+        - Use the technical analysis (Drops, Downbeats) to align scene changes and keyframes.
+        - Create specific keyframes for "drops" or major impacts found in the technical data.
         
-        Return as a JSON object with keys: "summary", "global_visual_narrative", "visual_style_anchor", "segments".
+        Return as a JSON object with keys: "summary", "global_visual_narrative", "visual_style_anchor", "video_plan", "segments" (legacy support, map scenes to segments if needed or keep separate).
         """
         
         contents = [prompt]
@@ -198,15 +213,16 @@ class GenAIClient:
         
         Follow the "global_visual_narrative" defined in the analysis. The video must feel like a cohesive film with a clear Narrative Arc (Beginning, Development, Climax).
         
-        Crucial: React to changes in music intensity (from technical analysis stats or section_type) by changing the INTENSITY of the plot/visuals. 
-        - If the music builds up (climax/drop), the visuals must become more massive, dynamic, or fast-paced.
-        - If the music is calm, the visuals should be steady and atmospheric.
+        VISUAL STORYTELLING:
+        - Don't just list random images. Connect them.
+        - Use cinematographic terms (Wide Shot, Close Up, Dolly Zoom, Tracking Shot).
+        - Describe lighting and movement in EVERY segment.
         
         PACING INSTRUCTION:
-        - The user wants a dynamic video with MANY segments.
-        - Aim for segment durations between 2 and 5 seconds for most parts.
-        - Only use longer segments (up to 8s) for very slow, atmospheric parts.
-        - Avoid creating few long segments. We need a high "segment density".
+        - The user wants a dynamic video.
+        - High Energy / Drop = Short cuts (1-2s), erratic camera.
+        - Low Energy / Intro = Longer takes (4-8s), smooth motion.
+        - Match the "energy_level" of the music.
         
         Each segment MUST have:
         - id: a unique string like "seg_1", "seg_2", etc.
@@ -259,6 +275,10 @@ class GenAIClient:
         
         Global Style Anchor: "{style_anchor}" 
         (YOU MUST APPEND THIS EXACT STYLE DESCRIPTION TO EVERY SINGLE PROMPT TO ENSURE CONSISTENCY).
+        
+        QUALITY BOOSTERS (Include these invisibly in the style):
+        "8k resolution, cinematic lighting, photorealistic, intricate detail, sharp focus, masterpiece"
+        (Unless the user style explicitly contradicts this, e.g. "pixel art").
 
         CHARACTER CONSISTENCY:
         Character Description: "{analysis.get('character_description', '')}"
@@ -267,8 +287,8 @@ class GenAIClient:
         Segments: {segments}
         
         Return a JSON object where keys are the segment IDs ("seg_1", etc.) and values are objects containing:
-        - image_prompt: the detailed prompt for the AI image generator
-        - negative_prompt: what to avoid in the image (optional)
+        - image_prompt: the detailed prompt for the AI image generator. MUST include the Style Anchor and Visual Intent.
+        - negative_prompt: "blurry, low quality, distorted, bad anatomy, text, watermark, signature, ugly"
         - style_hints: keywords about the style (optional)
         
         Return ONLY the JSON object.

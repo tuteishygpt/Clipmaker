@@ -1664,3 +1664,502 @@
 2026-02-03 14:03:34,162 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.1bd681ee-6780-48da-8a6c-6b79fb939424 "HTTP/2 200 OK"
 2026-02-03 14:03:34,270 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.1bd681ee-6780-48da-8a6c-6b79fb939424 "HTTP/2 200 OK"
 2026-02-03 14:03:34,409 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.1bd681ee-6780-48da-8a6c-6b79fb939424 "HTTP/2 200 OK"
+2026-02-03 14:35:28,022 - app.clients.supabase_client - INFO - Supabase client initialized successfully
+2026-02-03 14:35:28,621 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.1bd681ee-6780-48da-8a6c-6b79fb939424&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-02-03 14:35:28,754 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.1bd681ee-6780-48da-8a6c-6b79fb939424 "HTTP/2 200 OK"
+2026-02-03 14:35:28,856 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.1bd681ee-6780-48da-8a6c-6b79fb939424 "HTTP/2 200 OK"
+2026-02-03 14:35:28,963 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.1bd681ee-6780-48da-8a6c-6b79fb939424 "HTTP/2 200 OK"
+2026-02-03 14:35:29,092 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.1bd681ee-6780-48da-8a6c-6b79fb939424&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-02-03 14:35:29,216 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.1bd681ee-6780-48da-8a6c-6b79fb939424 "HTTP/2 200 OK"
+2026-02-03 14:35:29,319 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.1bd681ee-6780-48da-8a6c-6b79fb939424 "HTTP/2 200 OK"
+2026-02-03 14:35:29,424 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.1bd681ee-6780-48da-8a6c-6b79fb939424 "HTTP/2 200 OK"
+2026-02-03 14:35:29,560 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.1bd681ee-6780-48da-8a6c-6b79fb939424&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-02-03 14:35:29,660 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.1bd681ee-6780-48da-8a6c-6b79fb939424 "HTTP/2 200 OK"
+2026-02-03 14:35:29,766 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.1bd681ee-6780-48da-8a6c-6b79fb939424 "HTTP/2 200 OK"
+2026-02-03 14:35:29,885 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.1bd681ee-6780-48da-8a6c-6b79fb939424 "HTTP/2 200 OK"
+2026-02-03 14:35:29,997 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.1bd681ee-6780-48da-8a6c-6b79fb939424&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-02-03 14:35:30,104 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.1bd681ee-6780-48da-8a6c-6b79fb939424 "HTTP/2 200 OK"
+2026-02-03 14:35:30,211 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.1bd681ee-6780-48da-8a6c-6b79fb939424 "HTTP/2 200 OK"
+2026-02-03 14:35:30,313 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.1bd681ee-6780-48da-8a6c-6b79fb939424 "HTTP/2 200 OK"
+2026-02-03 14:35:30,433 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.1bd681ee-6780-48da-8a6c-6b79fb939424&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-02-03 14:35:30,542 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.1bd681ee-6780-48da-8a6c-6b79fb939424 "HTTP/2 200 OK"
+2026-02-03 14:35:30,660 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.1bd681ee-6780-48da-8a6c-6b79fb939424 "HTTP/2 200 OK"
+2026-02-03 14:35:30,763 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.1bd681ee-6780-48da-8a6c-6b79fb939424 "HTTP/2 200 OK"
+2026-02-03 14:35:40,962 - httpx - INFO - HTTP Request: POST https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_projects "HTTP/2 201 Created"
+2026-02-03 14:35:40,964 - app.api.projects - INFO - Linked new project 5d43842cb1da4485a2ba20a7ff123d28 to user 1bd681ee-6780-48da-8a6c-6b79fb939424
+2026-02-03 14:36:01,153 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.1bd681ee-6780-48da-8a6c-6b79fb939424&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-02-03 14:36:01,270 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.1bd681ee-6780-48da-8a6c-6b79fb939424 "HTTP/2 200 OK"
+2026-02-03 14:36:01,395 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.1bd681ee-6780-48da-8a6c-6b79fb939424 "HTTP/2 200 OK"
+2026-02-03 14:36:01,396 - app.clients.genai - INFO - GenAI client initialized (API key length: 39)
+2026-02-03 14:36:01,419 - app.services.pipeline_service - INFO - Pipeline started for 5d43842cb1da4485a2ba20a7ff123d28. Text Mode: standard, Image Mode: batch
+2026-02-03 14:36:01,683 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/subscriptions?select=%2A&user_id=eq.1bd681ee-6780-48da-8a6c-6b79fb939424&status=eq.active&order=created_at.desc&limit=1 "HTTP/2 200 OK"
+2026-02-03 14:36:01,783 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.1bd681ee-6780-48da-8a6c-6b79fb939424 "HTTP/2 200 OK"
+2026-02-03 14:36:01,896 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/user_credits?select=balance&user_id=eq.1bd681ee-6780-48da-8a6c-6b79fb939424 "HTTP/2 200 OK"
+2026-02-03 14:36:01,998 - httpx - INFO - HTTP Request: GET https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/profiles?select=%2A&id=eq.1bd681ee-6780-48da-8a6c-6b79fb939424 "HTTP/2 200 OK"
+2026-02-03 14:36:10,941 - app.clients.genai - INFO - Uploading file: D:\googlePRJ\clipmaker\Clipmaker\data\projects\5d43842cb1da4485a2ba20a7ff123d28\source\track.mp3
+2026-02-03 14:36:13,864 - app.clients.genai - INFO - File uploaded and processed: files/gaqq5urh48nc
+2026-02-03 14:36:13,865 - app.clients.genai - INFO - Sending audio analysis request to Gemini...
+2026-02-03 14:36:13,866 - root - INFO - AFC is enabled with max remote calls: 10.
+2026-02-03 14:36:54,055 - app.clients.genai - INFO - ----------------------------------------
+2026-02-03 14:36:54,056 - app.clients.genai - INFO - GEMINI INTERACTION: analyze_audio
+2026-02-03 14:36:54,057 - app.clients.genai - INFO - REQUEST:
+['\n        Analyze the audio track in this song to create a video clip. \n        The total duration of the audio is 74.11 seconds.\n        \n        USER REQUEST / PLOT DESCRIPTION:\n        "Беларусь"\n        (This is the most important instruction. The narrative, metaphors, and events MUST follow this description if provided. If empty, invent a creative one).\n        \n        The user has requested the visual style: "cinematic".\n\n        CHARACTER DESCRIPTION:\n        ""\n        (If provided, this character MUST be the protagonist of the video).\n        \n        \nTechnical Analysis Data (librosa):\n{\n  "bpm": 156.25,\n  "beat_times": [\n    0.43733333333333335,\n    0.8426666666666667,\n    1.248,\n    1.632,\n    2.026666666666667,\n    2.4106666666666667,\n    2.7946666666666666,\n    3.1786666666666665,\n    3.5733333333333333,\n    3.957333333333333,\n    4.330666666666667,\n    4.725333333333333,\n    5.12,\n    5.504,\n    5.8773333333333335,\n    6.261333333333333,\n    6.656,\n    7.04,\n    7.424,\n    7.808,\n    8.192,\n    8.576,\n    8.949333333333334,\n    9.344,\n    9.728,\n    10.112,\n    10.496,\n    10.88,\n    11.285333333333334,\n    11.658666666666667,\n    12.032,\n    12.426666666666666,\n    12.789333333333333,\n    13.184,\n    13.568,\n    13.952,\n    14.346666666666666,\n    14.730666666666666,\n    15.104,\n    15.488,\n    15.872,\n    16.266666666666666,\n    16.650666666666666,\n    17.034666666666666,\n    17.418666666666667,\n    17.802666666666667,\n    18.186666666666667,\n    18.570666666666668,\n    18.933333333333334,\n    19.338666666666665,\n    19.733333333333334,\n    20.106666666666666,\n    20.501333333333335,\n    20.88533333333333,\n    21.258666666666667,\n    21.653333333333332,\n    22.037333333333333,\n    22.421333333333333,\n    22.805333333333333,\n    23.189333333333334,\n    23.562666666666665,\n    23.957333333333334,\n    24.341333333333335,\n    24.72533333333333,\n    25.045333333333332,\n    25.461333333333332,\n    25.877333333333333,\n    26.250666666666667,\n    26.634666666666668,\n    27.029333333333334,\n    27.413333333333334,\n    27.797333333333334,\n    28.192,\n    28.565333333333335,\n    28.949333333333332,\n    29.333333333333332,\n    29.717333333333332,\n    30.101333333333333,\n    30.496,\n    30.88,\n    31.27466666666667,\n    31.648,\n    32.032,\n    32.416,\n    32.8,\n    33.17333333333333,\n    33.568,\n    33.952,\n    34.336,\n    34.70933333333333,\n    35.104,\n    35.477333333333334,\n    35.872,\n    36.256,\n    36.608,\n    36.970666666666666,\n    37.397333333333336,\n    37.792,\n    38.18666666666667,\n    38.57066666666667,\n    38.95466666666667,\n    39.33866666666667,\n    39.72266666666667,\n    40.10666666666667,\n    40.48,\n    40.864,\n    41.25866666666667,\n    41.64266666666666,\n    42.026666666666664,\n    42.410666666666664,\n    42.794666666666664,\n    43.178666666666665,\n    43.562666666666665,\n    43.946666666666665,\n    44.34133333333333,\n    44.714666666666666,\n    45.06666666666667,\n    45.48266666666667,\n    45.87733333333333,\n    46.25066666666667,\n    46.624,\n    47.01866666666667,\n    47.413333333333334,\n    47.797333333333334,\n    48.17066666666667,\n    48.565333333333335,\n    48.949333333333335,\n    49.333333333333336,\n    49.717333333333336,\n    50.101333333333336,\n    50.48533333333334,\n    50.90133333333333,\n    51.264,\n    51.626666666666665,\n    52.02133333333333,\n    52.416,\n    52.768,\n    53.16266666666667,\n    53.51466666666666,\n    53.86666666666667,\n    54.26133333333333,\n    54.656,\n    55.050666666666665,\n    55.44533333333333,\n    55.82933333333333,\n    56.21333333333333,\n    56.629333333333335,\n    57.013333333333335,\n    57.397333333333336,\n    57.781333333333336,\n    58.165333333333336,\n    58.54933333333334,\n    58.944,\n    59.328,\n    59.72266666666667,\n    60.096,\n    60.48,\n    60.864,\n    61.248,\n    61.632,\n    62.016,\n    62.4,\n    62.784,\n    63.168,\n    63.562666666666665,\n    63.936,\n    64.32,\n    64.704,\n    65.09866666666667,\n    65.48266666666666,\n    65.86666666666666,\n    66.25066666666666,\n    66.63466666666666,\n    67.01866666666666,\n    67.40266666666666,\n    67.78666666666666,\n    68.17066666666666,\n    68.55466666666666\n  ],\n  "beat_strengths": [\n    0.05658451095223427,\n    0.06105126440525055,\n    0.5548580288887024,\n    0.3510897159576416,\n    0.03590364009141922,\n    0.31236281991004944,\n    0.3946544826030731,\n    0.4460652470588684,\n    0.07726920396089554,\n    0.27374330163002014,\n    0.4115067720413208,\n    0.4170904755592346,\n    0.19230856001377106,\n    0.25086021423339844,\n    0.38869497179985046,\n    0.4426324665546417,\n    0.22001558542251587,\n    0.2121134102344513,\n    0.09719062596559525,\n    0.3863988220691681,\n    0.0795542374253273,\n    0.292501837015152,\n    0.3171156048774719,\n    0.3308655917644501,\n    0.16990989446640015,\n    0.29509806632995605,\n    0.37439969182014465,\n    0.43594661355018616,\n    0.10504089295864105,\n    0.3751268684864044,\n    0.2959057688713074,\n    0.26213935017585754,\n    0.12186980992555618,\n    0.3298443853855133,\n    0.21798811852931976,\n    0.3798557221889496,\n    0.23068048059940338,\n    0.21400415897369385,\n    0.169472336769104,\n    0.3324379324913025,\n    0.05939348787069321,\n    0.244940847158432,\n    0.22572916746139526,\n    0.3126395046710968,\n    0.2850661873817444,\n    0.38934245705604553,\n    0.15938733518123627,\n    0.3602016270160675,\n    0.588039755821228,\n    0.46842843294143677,\n    0.2385864555835724,\n    0.19336318969726562,\n    0.07127918303012848,\n    0.11543937772512436,\n    0.18998391926288605,\n    0.4283442497253418,\n    0.2736583352088928,\n    0.175266832113266,\n    0.4714668095111847,\n    0.42060133814811707,\n    0.2921712100505829,\n    0.19297631084918976,\n    0.16615842282772064,\n    0.32976478338241577,\n    0.39264610409736633,\n    0.23811140656471252,\n    0.5089336633682251,\n    0.28657400608062744,\n    0.06091838702559471,\n    0.3148413896560669,\n    0.18158763647079468,\n    0.2772468030452728,\n    0.15300489962100983,\n    0.5041945576667786,\n    0.30589476227760315,\n    0.41534972190856934,\n    0.20097695291042328,\n    0.2859742343425751,\n    0.2026239037513733,\n    0.34315598011016846,\n    0.14337126910686493,\n    0.1886095255613327,\n    0.32908767461776733,\n    0.20982703566551208,\n    0.3116725981235504,\n    0.27084580063819885,\n    0.1874573677778244,\n    0.34895941615104675,\n    0.2271907925605774,\n    0.733078122138977,\n    0.732116162776947,\n    0.9999998807907104,\n    0.12494964897632599,\n    0.4269375205039978,\n    0.11797472089529037,\n    0.3177609145641327,\n    0.48345455527305603,\n    0.08623605966567993,\n    0.2724333107471466,\n    0.2565789520740509,\n    0.08369085192680359,\n    0.3791271150112152,\n    0.3092428743839264,\n    0.31620609760284424,\n    0.24827660620212555,\n    0.33278894424438477,\n    0.3675430119037628,\n    0.22663846611976624,\n    0.14372055232524872,\n    0.3678150773048401,\n    0.4680381417274475,\n    0.3526014983654022,\n    0.07308778166770935,\n    0.5094195008277893,\n    0.32038015127182007,\n    0.29809361696243286,\n    0.2188257873058319,\n    0.22119705379009247,\n    0.3113386929035187,\n    0.47213101387023926,\n    0.1077098622918129,\n    0.3204798996448517,\n    0.30731087923049927,\n    0.19664373993873596,\n    0.20182006061077118,\n    0.36510565876960754,\n    0.4555087685585022,\n    0.42928460240364075,\n    0.07237362116575241,\n    0.5424985885620117,\n    0.36707037687301636,\n    0.21324677765369415,\n    0.08456677943468094,\n    0.1042192354798317,\n    0.18797484040260315,\n    0.056081853806972504,\n    0.233758807182312,\n    0.20065033435821533,\n    0.04459741711616516,\n    0.14574012160301208,\n    0.034816205501556396,\n    0.04169141501188278,\n    0.051485124975442886,\n    0.06024841591715813,\n    0.10356593132019043,\n    0.11180499196052551,\n    0.3106132447719574,\n    0.4299488365650177,\n    0.3730998933315277,\n    0.8186019062995911,\n    0.462497353553772,\n    0.6325793862342834,\n    0.40035387873649597,\n    0.39304670691490173,\n    0.15490016341209412,\n    0.20469319820404053,\n    0.18828612565994263,\n    0.18946024775505066,\n    0.2739943563938141,\n    0.28390663862228394,\n    0.21396507322788239,\n    0.2560230493545532,\n    0.2577083706855774,\n    0.31368014216423035,\n    0.19600170850753784,\n    0.27420172095298767,\n    0.261312872171402,\n    0.4143947660923004,\n    0.30880096554756165,\n    0.3065956234931946,\n    0.3062111437320709,\n    0.35939326882362366,\n    0.3297831416130066,\n    0.4092283248901367,\n    0.3584107756614685,\n    0.49162817001342773,\n    0.4814436733722687,\n    0.47601455450057983\n  ],\n  "onset_times": [\n    0.032,\n    0.30933333333333335,\n    1.248,\n    1.6213333333333333,\n    2.2293333333333334,\n    2.4106666666666667,\n    2.6026666666666665,\n    2.7946666666666666,\n    3.168,\n    3.7546666666666666,\n    3.9466666666666668,\n    4.1386666666666665,\n    4.330666666666667,\n    4.714666666666667,\n    5.12,\n    5.301333333333333,\n    5.493333333333333,\n    5.685333333333333,\n    5.866666666666666,\n    6.250666666666667,\n    6.656,\n    6.8373333333333335,\n    7.04,\n    7.221333333333333,\n    7.7973333333333334,\n    8.576,\n    8.949333333333334,\n    9.333333333333334,\n    9.717333333333332,\n    9.930666666666667,\n    10.112,\n    10.496,\n    10.88,\n    11.456,\n    11.648,\n    11.84,\n    12.021333333333333,\n    12.416,\n    12.704,\n    12.746666666666666,\n    12.992,\n    13.162666666666667,\n    13.568,\n    13.76,\n    13.952,\n    14.346666666666666,\n    14.378666666666666,\n    14.656,\n    14.730666666666666,\n    14.848,\n    15.104,\n    15.306666666666667,\n    15.477333333333334,\n    15.786666666666667,\n    16.074666666666666,\n    16.256,\n    16.352,\n    16.64,\n    16.85333333333333,\n    17.024,\n    17.152,\n    17.418666666666667,\n    17.589333333333332,\n    17.802666666666667,\n    17.930666666666667,\n    18.176,\n    18.56,\n    18.933333333333334,\n    19.14666666666667,\n    19.328,\n    19.456,\n    19.722666666666665,\n    19.936,\n    20.106666666666666,\n    20.234666666666666,\n    20.736,\n    21.066666666666666,\n    21.258666666666667,\n    21.290666666666667,\n    21.482666666666667,\n    21.642666666666667,\n    22.026666666666667,\n    22.229333333333333,\n    22.421333333333333,\n    22.794666666666668,\n    23.093333333333334,\n    23.17866666666667,\n    23.552,\n    23.733333333333334,\n    23.914666666666665,\n    23.957333333333334,\n    24.096,\n    24.330666666666666,\n    24.533333333333335,\n    24.576,\n    24.714666666666666,\n    25.034666666666666,\n    25.237333333333332,\n    25.408,\n    25.461333333333332,\n    25.525333333333332,\n    25.674666666666667,\n    25.866666666666667,\n    26.250666666666667,\n    26.848,\n    27.029333333333334,\n    27.221333333333334,\n    27.413333333333334,\n    27.701333333333334,\n    27.797333333333334,\n    27.978666666666665,\n    28.106666666666666,\n    28.192,\n    28.32,\n    28.373333333333335,\n    28.437333333333335,\n    28.554666666666666,\n    28.949333333333332,\n    29.333333333333332,\n    29.706666666666667,\n    29.909333333333333,\n    30.090666666666667,\n    30.304,\n    30.485333333333333,\n    30.688,\n    30.869333333333334,\n    31.072,\n    31.27466666666667,\n    31.402666666666665,\n    31.445333333333334,\n    31.637333333333334,\n    31.829333333333334,\n    32.02133333333333,\n    32.40533333333333,\n    32.78933333333333,\n    32.98133333333333,\n    33.16266666666667,\n    33.38666666666666,\n    33.55733333333333,\n    33.76,\n    33.94133333333333,\n    34.154666666666664,\n    34.32533333333333,\n    34.70933333333333,\n    34.922666666666665,\n    35.093333333333334,\n    35.296,\n    35.477333333333334,\n    35.690666666666665,\n    36.04266666666667,\n    36.181333333333335,\n    36.245333333333335,\n    36.40533333333333,\n    36.448,\n    36.714666666666666,\n    36.842666666666666,\n    36.96,\n    37.19466666666667,\n    37.30133333333333,\n    37.38666666666666,\n    37.568,\n    37.696,\n    37.824,\n    38.176,\n    38.56,\n    38.752,\n    39.136,\n    39.328,\n    39.488,\n    39.541333333333334,\n    39.712,\n    39.91466666666667,\n    40.096,\n    40.23466666666667,\n    40.288,\n    40.46933333333333,\n    40.608,\n    40.768,\n    40.864,\n    41.077333333333335,\n    41.248,\n    41.632,\n    41.80266666666667,\n    41.834666666666664,\n    42.026666666666664,\n    42.208,\n    42.4,\n    42.61333333333334,\n    42.794666666666664,\n    42.986666666666665,\n    43.178666666666665,\n    43.370666666666665,\n    43.68,\n    43.733333333333334,\n    43.936,\n    44.330666666666666,\n    44.522666666666666,\n    44.704,\n    44.842666666666666,\n    44.906666666666666,\n    45.056,\n    45.10933333333333,\n    45.269333333333336,\n    45.397333333333336,\n    45.461333333333336,\n    45.664,\n    45.86666666666667,\n    46.06933333333333,\n    46.25066666666667,\n    46.82666666666667,\n    46.99733333333333,\n    47.40266666666667,\n    47.712,\n    47.78666666666667,\n    47.946666666666665,\n    48.096,\n    48.17066666666667,\n    48.36266666666667,\n    48.55466666666667,\n    48.714666666666666,\n    48.768,\n    48.93866666666667,\n    49.10933333333333,\n    49.32266666666667,\n    49.898666666666664,\n    50.090666666666664,\n    50.282666666666664,\n    50.48533333333334,\n    50.77333333333333,\n    50.90133333333333,\n    51.136,\n    51.605333333333334,\n    51.797333333333334,\n    51.84,\n    52.010666666666665,\n    52.757333333333335,\n    52.896,\n    53.00266666666667,\n    53.152,\n    53.29066666666667,\n    53.408,\n    53.845333333333336,\n    56.629333333333335,\n    57.013333333333335,\n    57.397333333333336,\n    57.589333333333336,\n    57.781333333333336,\n    57.984,\n    58.154666666666664,\n    58.538666666666664,\n    58.93333333333333,\n    59.136,\n    59.306666666666665,\n    59.57333333333333,\n    59.72266666666667,\n    60.08533333333333,\n    60.48,\n    60.85333333333333,\n    61.23733333333333,\n    61.62133333333333,\n    62.016,\n    62.38933333333333,\n    62.784,\n    63.168,\n    63.552,\n    63.744,\n    63.936,\n    64.32,\n    64.69333333333333,\n    65.088,\n    65.28,\n    65.472,\n    65.664,\n    65.84533333333333,\n    66.24,\n    66.624,\n    66.816,\n    67.008,\n    67.21066666666667,\n    67.392,\n    67.776,\n    68.16,\n    68.352,\n    68.544,\n    68.74666666666667,\n    68.94933333333333\n  ],\n  "beat_confidence": 0.6957273901202452,\n  "tempo_stability": 0.967799759316938,\n  "energy_stats": {\n    "avg": 0.10853215306997299,\n    "max": 0.26707619428634644\n  }\n}\n\n        \n        Please provide:\n        1. A summary of the song\'s energy, mood, and style.\n        2. A "global_visual_narrative": A single, cohesive visual metaphor or story concept (e.g. "journey of an abandoned robot" or "a cyber-gothic dance in rain") that will persist throughout the video. If the user provided a plot description, adapt it here.\n        3. A "visual_style_anchor": A specific, consistent visual style description BASED ON "cinematic" (e.g. if user said "Anime", generate "90s Cyberpunk Anime, high contrast").\n        4. A list of segments that cover the ENTIRE duration (74.11s).\n        \n        For each segment, identify:\n        - start_time and end_time (0.0 to 74.11)\n        - speaker (if vocals generally)\n        - text (lyrics)\n        - emotion\n        - instrumentation (e.g. "guitar solo", "heavy drums", "minimal synth")\n        - section_type (e.g. "intro", "verse", "chorus", "bridge", "drop", "climax", "outro")\n        - acoustic_environment (e.g. "studio", "live hall", "lo-fi", "underwater", "echoey")\n        \n        Ensure:\n        - Segments have NO GAPS and NO OVERLAPS.\n        - The sequence covers exactly from 0.0 to 74.11.\n        - Use the Technical Analysis (BPM, Energy) to align segments with beats and intense moments if possible.\n        \n        Return as a JSON object with keys: "summary", "global_visual_narrative", "visual_style_anchor", "segments".\n        ', File(name='files/gaqq5urh48nc', display_name=None, mime_type='audio/mpeg', size_bytes=1186029, create_time=datetime.datetime(2026, 2, 3, 12, 36, 14, 505136, tzinfo=TzInfo(0)), expiration_time=datetime.datetime(2026, 2, 5, 12, 36, 14, 91105, tzinfo=TzInfo(0)), update_time=datetime.datetime(2026, 2, 3, 12, 36, 14, 505136, tzinfo=TzInfo(0)), sha256_hash='N2E4Yzg2NTNhOWUzYmM0ZGQ0ZmJiYzk2N2VmMjhiZjIwNGI1YTc1NjFmODA4OGFiNWNhNDIzZGViZTA0YzA2Ng==', uri='https://generativelanguage.googleapis.com/v1beta/files/gaqq5urh48nc', download_uri=None, state=<FileState.ACTIVE: 'ACTIVE'>, source=<FileSource.UPLOADED: 'UPLOADED'>, video_metadata=None, error=None)]
+2026-02-03 14:36:54,060 - app.clients.genai - INFO - RESPONSE:
+```json
+{
+  "summary": "An uplifting, driving pop-rock track with a distinct folk-modern fusion vibe. The song features soulful vocalizing in the intro and outro, sandwiching a high-energy verse and anthemic chorus. The lyrics speak of morning rituals, the rhythm of the city, and the simple magic of everyday life ('Just another day'). The energy builds from atmospheric to driving and triumphant.",
+  "global_visual_narrative": "A cinematic love letter to Belarus, contrasting the eternal serenity of its nature with the pulse of modern life. The camera follows a 'Day in the Life' of the country itself, starting with misty forests and lakes at sunrise (The Blue-Eyed Country), transitioning to the awakening vibrant streets of Minsk, and culminating in a golden-hour drive through vast landscapes. The visual metaphor represents the heartbeat of the land syncing with the rhythm of the people.",
+  "visual_style_anchor": "Modern European Cinematic: Wide anamorphic lens look, high dynamic range. Color palette shifts from cool teal/morning mist (Intro) to warm amber/golden hour (Chorus) to deep twilight blue (Outro). Slow-motion drone shots intercut with fast-paced, handheld urban photography.",
+  "segments": [
+    {
+      "start_time": 0.0,
+      "end_time": 12.78,
+      "speaker": "Female Vocals",
+      "text": "(Melodic humming/Vocalizing)",
+      "emotion": "Serene, Mysterious, Awakening",
+      "instrumentation": "Soft synth pads, acoustic guitar picking, atmospheric ambience",
+      "section_type": "intro",
+      "acoustic_environment": "Open vast nature, misty morning",
+      "visual_description": "Aerial drone shot flying low over the misty marshes of Polesie. A herd of European bison moves slowly through the fog. The sun just begins to peek over the horizon, illuminating a calm blue lake (Braslav). Slow, majestic movement."
+    },
+    {
+      "start_time": 12.78,
+      "end_time": 19.33,
+      "speaker": "Female Vocals",
+      "text": "Rani pa use, pa mae padlaze...",
+      "emotion": "Anticipatory, Fresh",
+      "instrumentation": "Rhythmic bass enters, clean electric guitar strumming",
+      "section_type": "verse",
+      "acoustic_environment": "Urban morning, studio clean mix",
+      "visual_description": "Cut to the city (Minsk). Close-up of morning dew on grass, rack focus to the 'Gates of Minsk' towers in the background. Sunlight flares through the architecture. A person pours coffee, steam rising in slow motion."
+    },
+    {
+      "start_time": 19.33,
+      "end_time": 26.25,
+      "speaker": "Female Vocals",
+      "text": "Chuyu mashyny, uzho na paroze...",
+      "emotion": "Active, Busy",
+      "instrumentation": "Drums kick in, driving beat (156 BPM)",
+      "section_type": "verse",
+      "acoustic_environment": "City street ambience",
+      "visual_description": "The city wakes up. Fast cuts synchronized with the beat. Trams moving, people walking on Independence Avenue, reflections in modern glass buildings. The visual rhythm matches the driving drum beat."
+    },
+    {
+      "start_time": 26.25,
+      "end_time": 36.6,
+      "speaker": "Female Vocals",
+      "text": "Znow i znow... ya tvyordo stayus...",
+      "emotion": "Determined, Focused",
+      "instrumentation": "Building tension, rising synth, louder drums",
+      "section_type": "pre_chorus",
+      "acoustic_environment": "Tunnel/Underpass echo feel",
+      "visual_description": "A car speeding through a tunnel, lights streaking overhead. The camera tracks a young person standing still in a busy crowd, looking up at the sky with determination. The National Library of Belarus lights up with patterns."
+    },
+    {
+      "start_time": 36.6,
+      "end_time": 46.25,
+      "speaker": "Female Vocals",
+      "text": "Kozhny dzen svetlo vyartaecca! Kozhny dzen agon zaymaeca!",
+      "emotion": "Euphoric, Triumphant, Powerful",
+      "instrumentation": "Full band explosion, distorted guitars, crashing cymbals",
+      "section_type": "chorus",
+      "acoustic_environment": "Stadium/Anthem rock sound",
+      "visual_description": "Explosion of light. Wide shot of a golden wheat field with a giant stork taking flight. Rapid intercut with joyful people running with red and white flares or lights at sunset. High energy, handheld camera shake."
+    },
+    {
+      "start_time": 46.25,
+      "end_time": 54.65,
+      "speaker": "Female Vocals",
+      "text": "My edzem pa vulicy udvaich... geta magiya...",
+      "emotion": "Free, United, Joyful",
+      "instrumentation": "Driving rock rhythm, sustained vocals",
+      "section_type": "chorus",
+      "acoustic_environment": "Open road, wind noise implication",
+      "visual_description": "POV from a convertible driving down a long straight road lined with birch trees. The sun is setting, casting long golden shadows. Friends in the car laughing. Traditional Belarusian ornaments (Vyshyvanka) subtly overlaid on the sky."
+    },
+    {
+      "start_time": 54.65,
+      "end_time": 63.56,
+      "speaker": "Female Vocals",
+      "text": "Prosto yashche adzin dzen... kozhny kozhny dzen...",
+      "emotion": "Reflective, Grateful",
+      "instrumentation": "Music starts to strip back, rhythm remains but softer",
+      "section_type": "bridge/post_chorus",
+      "acoustic_environment": "Intimate, warm",
+      "visual_description": "Twilight. A campfire by a river. Close-up on faces illuminated by firelight. The Mir Castle Complex silhouette against a deep purple and orange sky. Time-lapse of clouds moving over the castle."
+    },
+    {
+      "start_time": 63.56,
+      "end_time": 74.11,
+      "speaker": "Female Vocals",
+      "text": "(Melodic humming/Vocalizing fading out)",
+      "emotion": "Peaceful, Resolving",
+      "instrumentation": "Fading instruments, return to atmospheric pads",
+      "section_type": "outro",
+      "acoustic_environment": "Night sky, expansive",
+      "visual_description": "Camera pulls back from the earth, showing city lights connecting like a neural network. Final shot is a solitary stork standing in a nest silhouetted against a giant full moon. Fade to black."
+    }
+  ]
+}
+```
+2026-02-03 14:36:54,061 - app.clients.genai - INFO - ----------------------------------------
+2026-02-03 14:36:54,075 - root - INFO - AFC is enabled with max remote calls: 10.
+2026-02-03 14:37:41,900 - app.clients.genai - INFO - ----------------------------------------
+2026-02-03 14:37:41,900 - app.clients.genai - INFO - GEMINI INTERACTION: build_storyboard
+2026-02-03 14:37:41,900 - app.clients.genai - INFO - REQUEST:
+['\n        Based on this analysis: {\'summary\': "An uplifting, driving pop-rock track with a distinct folk-modern fusion vibe. The song features soulful vocalizing in the intro and outro, sandwiching a high-energy verse and anthemic chorus. The lyrics speak of morning rituals, the rhythm of the city, and the simple magic of everyday life (\'Just another day\'). The energy builds from atmospheric to driving and triumphant.", \'global_visual_narrative\': "A cinematic love letter to Belarus, contrasting the eternal serenity of its nature with the pulse of modern life. The camera follows a \'Day in the Life\' of the country itself, starting with misty forests and lakes at sunrise (The Blue-Eyed Country), transitioning to the awakening vibrant streets of Minsk, and culminating in a golden-hour drive through vast landscapes. The visual metaphor represents the heartbeat of the land syncing with the rhythm of the people.", \'visual_style_anchor\': \'Modern European Cinematic: Wide anamorphic lens look, high dynamic range. Color palette shifts from cool teal/morning mist (Intro) to warm amber/golden hour (Chorus) to deep twilight blue (Outro). Slow-motion drone shots intercut with fast-paced, handheld urban photography.\', \'segments\': [{\'start_time\': 0.0, \'end_time\': 12.78, \'speaker\': \'Female Vocals\', \'text\': \'(Melodic humming/Vocalizing)\', \'emotion\': \'Serene, Mysterious, Awakening\', \'instrumentation\': \'Soft synth pads, acoustic guitar picking, atmospheric ambience\', \'section_type\': \'intro\', \'acoustic_environment\': \'Open vast nature, misty morning\', \'visual_description\': \'Aerial drone shot flying low over the misty marshes of Polesie. A herd of European bison moves slowly through the fog. The sun just begins to peek over the horizon, illuminating a calm blue lake (Braslav). Slow, majestic movement.\'}, {\'start_time\': 12.78, \'end_time\': 19.33, \'speaker\': \'Female Vocals\', \'text\': \'Rani pa use, pa mae padlaze...\', \'emotion\': \'Anticipatory, Fresh\', \'instrumentation\': \'Rhythmic bass enters, clean electric guitar strumming\', \'section_type\': \'verse\', \'acoustic_environment\': \'Urban morning, studio clean mix\', \'visual_description\': "Cut to the city (Minsk). Close-up of morning dew on grass, rack focus to the \'Gates of Minsk\' towers in the background. Sunlight flares through the architecture. A person pours coffee, steam rising in slow motion."}, {\'start_time\': 19.33, \'end_time\': 26.25, \'speaker\': \'Female Vocals\', \'text\': \'Chuyu mashyny, uzho na paroze...\', \'emotion\': \'Active, Busy\', \'instrumentation\': \'Drums kick in, driving beat (156 BPM)\', \'section_type\': \'verse\', \'acoustic_environment\': \'City street ambience\', \'visual_description\': \'The city wakes up. Fast cuts synchronized with the beat. Trams moving, people walking on Independence Avenue, reflections in modern glass buildings. The visual rhythm matches the driving drum beat.\'}, {\'start_time\': 26.25, \'end_time\': 36.6, \'speaker\': \'Female Vocals\', \'text\': \'Znow i znow... ya tvyordo stayus...\', \'emotion\': \'Determined, Focused\', \'instrumentation\': \'Building tension, rising synth, louder drums\', \'section_type\': \'pre_chorus\', \'acoustic_environment\': \'Tunnel/Underpass echo feel\', \'visual_description\': \'A car speeding through a tunnel, lights streaking overhead. The camera tracks a young person standing still in a busy crowd, looking up at the sky with determination. The National Library of Belarus lights up with patterns.\'}, {\'start_time\': 36.6, \'end_time\': 46.25, \'speaker\': \'Female Vocals\', \'text\': \'Kozhny dzen svetlo vyartaecca! Kozhny dzen agon zaymaeca!\', \'emotion\': \'Euphoric, Triumphant, Powerful\', \'instrumentation\': \'Full band explosion, distorted guitars, crashing cymbals\', \'section_type\': \'chorus\', \'acoustic_environment\': \'Stadium/Anthem rock sound\', \'visual_description\': \'Explosion of light. Wide shot of a golden wheat field with a giant stork taking flight. Rapid intercut with joyful people running with red and white flares or lights at sunset. High energy, handheld camera shake.\'}, {\'start_time\': 46.25, \'end_time\': 54.65, \'speaker\': \'Female Vocals\', \'text\': \'My edzem pa vulicy udvaich... geta magiya...\', \'emotion\': \'Free, United, Joyful\', \'instrumentation\': \'Driving rock rhythm, sustained vocals\', \'section_type\': \'chorus\', \'acoustic_environment\': \'Open road, wind noise implication\', \'visual_description\': \'POV from a convertible driving down a long straight road lined with birch trees. The sun is setting, casting long golden shadows. Friends in the car laughing. Traditional Belarusian ornaments (Vyshyvanka) subtly overlaid on the sky.\'}, {\'start_time\': 54.65, \'end_time\': 63.56, \'speaker\': \'Female Vocals\', \'text\': \'Prosto yashche adzin dzen... kozhny kozhny dzen...\', \'emotion\': \'Reflective, Grateful\', \'instrumentation\': \'Music starts to strip back, rhythm remains but softer\', \'section_type\': \'bridge/post_chorus\', \'acoustic_environment\': \'Intimate, warm\', \'visual_description\': \'Twilight. A campfire by a river. Close-up on faces illuminated by firelight. The Mir Castle Complex silhouette against a deep purple and orange sky. Time-lapse of clouds moving over the castle.\'}, {\'start_time\': 63.56, \'end_time\': 74.11, \'speaker\': \'Female Vocals\', \'text\': \'(Melodic humming/Vocalizing fading out)\', \'emotion\': \'Peaceful, Resolving\', \'instrumentation\': \'Fading instruments, return to atmospheric pads\', \'section_type\': \'outro\', \'acoustic_environment\': \'Night sky, expansive\', \'visual_description\': \'Camera pulls back from the earth, showing city lights connecting like a neural network. Final shot is a solitary stork standing in a nest silhouetted against a giant full moon. Fade to black.\'}], \'total_duration\': 74.11, \'technical_stats\': {\'bpm\': 156.25, \'beat_times\': [0.43733333333333335, 0.8426666666666667, 1.248, 1.632, 2.026666666666667, 2.4106666666666667, 2.7946666666666666, 3.1786666666666665, 3.5733333333333333, 3.957333333333333, 4.330666666666667, 4.725333333333333, 5.12, 5.504, 5.8773333333333335, 6.261333333333333, 6.656, 7.04, 7.424, 7.808, 8.192, 8.576, 8.949333333333334, 9.344, 9.728, 10.112, 10.496, 10.88, 11.285333333333334, 11.658666666666667, 12.032, 12.426666666666666, 12.789333333333333, 13.184, 13.568, 13.952, 14.346666666666666, 14.730666666666666, 15.104, 15.488, 15.872, 16.266666666666666, 16.650666666666666, 17.034666666666666, 17.418666666666667, 17.802666666666667, 18.186666666666667, 18.570666666666668, 18.933333333333334, 19.338666666666665, 19.733333333333334, 20.106666666666666, 20.501333333333335, 20.88533333333333, 21.258666666666667, 21.653333333333332, 22.037333333333333, 22.421333333333333, 22.805333333333333, 23.189333333333334, 23.562666666666665, 23.957333333333334, 24.341333333333335, 24.72533333333333, 25.045333333333332, 25.461333333333332, 25.877333333333333, 26.250666666666667, 26.634666666666668, 27.029333333333334, 27.413333333333334, 27.797333333333334, 28.192, 28.565333333333335, 28.949333333333332, 29.333333333333332, 29.717333333333332, 30.101333333333333, 30.496, 30.88, 31.27466666666667, 31.648, 32.032, 32.416, 32.8, 33.17333333333333, 33.568, 33.952, 34.336, 34.70933333333333, 35.104, 35.477333333333334, 35.872, 36.256, 36.608, 36.970666666666666, 37.397333333333336, 37.792, 38.18666666666667, 38.57066666666667, 38.95466666666667, 39.33866666666667, 39.72266666666667, 40.10666666666667, 40.48, 40.864, 41.25866666666667, 41.64266666666666, 42.026666666666664, 42.410666666666664, 42.794666666666664, 43.178666666666665, 43.562666666666665, 43.946666666666665, 44.34133333333333, 44.714666666666666, 45.06666666666667, 45.48266666666667, 45.87733333333333, 46.25066666666667, 46.624, 47.01866666666667, 47.413333333333334, 47.797333333333334, 48.17066666666667, 48.565333333333335, 48.949333333333335, 49.333333333333336, 49.717333333333336, 50.101333333333336, 50.48533333333334, 50.90133333333333, 51.264, 51.626666666666665, 52.02133333333333, 52.416, 52.768, 53.16266666666667, 53.51466666666666, 53.86666666666667, 54.26133333333333, 54.656, 55.050666666666665, 55.44533333333333, 55.82933333333333, 56.21333333333333, 56.629333333333335, 57.013333333333335, 57.397333333333336, 57.781333333333336, 58.165333333333336, 58.54933333333334, 58.944, 59.328, 59.72266666666667, 60.096, 60.48, 60.864, 61.248, 61.632, 62.016, 62.4, 62.784, 63.168, 63.562666666666665, 63.936, 64.32, 64.704, 65.09866666666667, 65.48266666666666, 65.86666666666666, 66.25066666666666, 66.63466666666666, 67.01866666666666, 67.40266666666666, 67.78666666666666, 68.17066666666666, 68.55466666666666], \'beat_strengths\': [0.05658451095223427, 0.06105126440525055, 0.5548580288887024, 0.3510897159576416, 0.03590364009141922, 0.31236281991004944, 0.3946544826030731, 0.4460652470588684, 0.07726920396089554, 0.27374330163002014, 0.4115067720413208, 0.4170904755592346, 0.19230856001377106, 0.25086021423339844, 0.38869497179985046, 0.4426324665546417, 0.22001558542251587, 0.2121134102344513, 0.09719062596559525, 0.3863988220691681, 0.0795542374253273, 0.292501837015152, 0.3171156048774719, 0.3308655917644501, 0.16990989446640015, 0.29509806632995605, 0.37439969182014465, 0.43594661355018616, 0.10504089295864105, 0.3751268684864044, 0.2959057688713074, 0.26213935017585754, 0.12186980992555618, 0.3298443853855133, 0.21798811852931976, 0.3798557221889496, 0.23068048059940338, 0.21400415897369385, 0.169472336769104, 0.3324379324913025, 0.05939348787069321, 0.244940847158432, 0.22572916746139526, 0.3126395046710968, 0.2850661873817444, 0.38934245705604553, 0.15938733518123627, 0.3602016270160675, 0.588039755821228, 0.46842843294143677, 0.2385864555835724, 0.19336318969726562, 0.07127918303012848, 0.11543937772512436, 0.18998391926288605, 0.4283442497253418, 0.2736583352088928, 0.175266832113266, 0.4714668095111847, 0.42060133814811707, 0.2921712100505829, 0.19297631084918976, 0.16615842282772064, 0.32976478338241577, 0.39264610409736633, 0.23811140656471252, 0.5089336633682251, 0.28657400608062744, 0.06091838702559471, 0.3148413896560669, 0.18158763647079468, 0.2772468030452728, 0.15300489962100983, 0.5041945576667786, 0.30589476227760315, 0.41534972190856934, 0.20097695291042328, 0.2859742343425751, 0.2026239037513733, 0.34315598011016846, 0.14337126910686493, 0.1886095255613327, 0.32908767461776733, 0.20982703566551208, 0.3116725981235504, 0.27084580063819885, 0.1874573677778244, 0.34895941615104675, 0.2271907925605774, 0.733078122138977, 0.732116162776947, 0.9999998807907104, 0.12494964897632599, 0.4269375205039978, 0.11797472089529037, 0.3177609145641327, 0.48345455527305603, 0.08623605966567993, 0.2724333107471466, 0.2565789520740509, 0.08369085192680359, 0.3791271150112152, 0.3092428743839264, 0.31620609760284424, 0.24827660620212555, 0.33278894424438477, 0.3675430119037628, 0.22663846611976624, 0.14372055232524872, 0.3678150773048401, 0.4680381417274475, 0.3526014983654022, 0.07308778166770935, 0.5094195008277893, 0.32038015127182007, 0.29809361696243286, 0.2188257873058319, 0.22119705379009247, 0.3113386929035187, 0.47213101387023926, 0.1077098622918129, 0.3204798996448517, 0.30731087923049927, 0.19664373993873596, 0.20182006061077118, 0.36510565876960754, 0.4555087685585022, 0.42928460240364075, 0.07237362116575241, 0.5424985885620117, 0.36707037687301636, 0.21324677765369415, 0.08456677943468094, 0.1042192354798317, 0.18797484040260315, 0.056081853806972504, 0.233758807182312, 0.20065033435821533, 0.04459741711616516, 0.14574012160301208, 0.034816205501556396, 0.04169141501188278, 0.051485124975442886, 0.06024841591715813, 0.10356593132019043, 0.11180499196052551, 0.3106132447719574, 0.4299488365650177, 0.3730998933315277, 0.8186019062995911, 0.462497353553772, 0.6325793862342834, 0.40035387873649597, 0.39304670691490173, 0.15490016341209412, 0.20469319820404053, 0.18828612565994263, 0.18946024775505066, 0.2739943563938141, 0.28390663862228394, 0.21396507322788239, 0.2560230493545532, 0.2577083706855774, 0.31368014216423035, 0.19600170850753784, 0.27420172095298767, 0.261312872171402, 0.4143947660923004, 0.30880096554756165, 0.3065956234931946, 0.3062111437320709, 0.35939326882362366, 0.3297831416130066, 0.4092283248901367, 0.3584107756614685, 0.49162817001342773, 0.4814436733722687, 0.47601455450057983], \'onset_times\': [0.032, 0.30933333333333335, 1.248, 1.6213333333333333, 2.2293333333333334, 2.4106666666666667, 2.6026666666666665, 2.7946666666666666, 3.168, 3.7546666666666666, 3.9466666666666668, 4.1386666666666665, 4.330666666666667, 4.714666666666667, 5.12, 5.301333333333333, 5.493333333333333, 5.685333333333333, 5.866666666666666, 6.250666666666667, 6.656, 6.8373333333333335, 7.04, 7.221333333333333, 7.7973333333333334, 8.576, 8.949333333333334, 9.333333333333334, 9.717333333333332, 9.930666666666667, 10.112, 10.496, 10.88, 11.456, 11.648, 11.84, 12.021333333333333, 12.416, 12.704, 12.746666666666666, 12.992, 13.162666666666667, 13.568, 13.76, 13.952, 14.346666666666666, 14.378666666666666, 14.656, 14.730666666666666, 14.848, 15.104, 15.306666666666667, 15.477333333333334, 15.786666666666667, 16.074666666666666, 16.256, 16.352, 16.64, 16.85333333333333, 17.024, 17.152, 17.418666666666667, 17.589333333333332, 17.802666666666667, 17.930666666666667, 18.176, 18.56, 18.933333333333334, 19.14666666666667, 19.328, 19.456, 19.722666666666665, 19.936, 20.106666666666666, 20.234666666666666, 20.736, 21.066666666666666, 21.258666666666667, 21.290666666666667, 21.482666666666667, 21.642666666666667, 22.026666666666667, 22.229333333333333, 22.421333333333333, 22.794666666666668, 23.093333333333334, 23.17866666666667, 23.552, 23.733333333333334, 23.914666666666665, 23.957333333333334, 24.096, 24.330666666666666, 24.533333333333335, 24.576, 24.714666666666666, 25.034666666666666, 25.237333333333332, 25.408, 25.461333333333332, 25.525333333333332, 25.674666666666667, 25.866666666666667, 26.250666666666667, 26.848, 27.029333333333334, 27.221333333333334, 27.413333333333334, 27.701333333333334, 27.797333333333334, 27.978666666666665, 28.106666666666666, 28.192, 28.32, 28.373333333333335, 28.437333333333335, 28.554666666666666, 28.949333333333332, 29.333333333333332, 29.706666666666667, 29.909333333333333, 30.090666666666667, 30.304, 30.485333333333333, 30.688, 30.869333333333334, 31.072, 31.27466666666667, 31.402666666666665, 31.445333333333334, 31.637333333333334, 31.829333333333334, 32.02133333333333, 32.40533333333333, 32.78933333333333, 32.98133333333333, 33.16266666666667, 33.38666666666666, 33.55733333333333, 33.76, 33.94133333333333, 34.154666666666664, 34.32533333333333, 34.70933333333333, 34.922666666666665, 35.093333333333334, 35.296, 35.477333333333334, 35.690666666666665, 36.04266666666667, 36.181333333333335, 36.245333333333335, 36.40533333333333, 36.448, 36.714666666666666, 36.842666666666666, 36.96, 37.19466666666667, 37.30133333333333, 37.38666666666666, 37.568, 37.696, 37.824, 38.176, 38.56, 38.752, 39.136, 39.328, 39.488, 39.541333333333334, 39.712, 39.91466666666667, 40.096, 40.23466666666667, 40.288, 40.46933333333333, 40.608, 40.768, 40.864, 41.077333333333335, 41.248, 41.632, 41.80266666666667, 41.834666666666664, 42.026666666666664, 42.208, 42.4, 42.61333333333334, 42.794666666666664, 42.986666666666665, 43.178666666666665, 43.370666666666665, 43.68, 43.733333333333334, 43.936, 44.330666666666666, 44.522666666666666, 44.704, 44.842666666666666, 44.906666666666666, 45.056, 45.10933333333333, 45.269333333333336, 45.397333333333336, 45.461333333333336, 45.664, 45.86666666666667, 46.06933333333333, 46.25066666666667, 46.82666666666667, 46.99733333333333, 47.40266666666667, 47.712, 47.78666666666667, 47.946666666666665, 48.096, 48.17066666666667, 48.36266666666667, 48.55466666666667, 48.714666666666666, 48.768, 48.93866666666667, 49.10933333333333, 49.32266666666667, 49.898666666666664, 50.090666666666664, 50.282666666666664, 50.48533333333334, 50.77333333333333, 50.90133333333333, 51.136, 51.605333333333334, 51.797333333333334, 51.84, 52.010666666666665, 52.757333333333335, 52.896, 53.00266666666667, 53.152, 53.29066666666667, 53.408, 53.845333333333336, 56.629333333333335, 57.013333333333335, 57.397333333333336, 57.589333333333336, 57.781333333333336, 57.984, 58.154666666666664, 58.538666666666664, 58.93333333333333, 59.136, 59.306666666666665, 59.57333333333333, 59.72266666666667, 60.08533333333333, 60.48, 60.85333333333333, 61.23733333333333, 61.62133333333333, 62.016, 62.38933333333333, 62.784, 63.168, 63.552, 63.744, 63.936, 64.32, 64.69333333333333, 65.088, 65.28, 65.472, 65.664, 65.84533333333333, 66.24, 66.624, 66.816, 67.008, 67.21066666666667, 67.392, 67.776, 68.16, 68.352, 68.544, 68.74666666666667, 68.94933333333333], \'beat_confidence\': 0.6957273901202452, \'tempo_stability\': 0.967799759316938, \'energy_stats\': {\'avg\': 0.10853215306997299, \'max\': 0.26707619428634644}}, \'character_description\': \'\'}\n        \n        Create a storyboard as a JSON list of segments.\n        The total duration MUST be EXACTLY 74.11 seconds.\n        \n        Follow the "global_visual_narrative" defined in the analysis. The video must feel like a cohesive film with a clear Narrative Arc (Beginning, Development, Climax).\n        \n        Crucial: React to changes in music intensity (from technical analysis stats or section_type) by changing the INTENSITY of the plot/visuals. \n        - If the music builds up (climax/drop), the visuals must become more massive, dynamic, or fast-paced.\n        - If the music is calm, the visuals should be steady and atmospheric.\n        \n        PACING INSTRUCTION:\n        - The user wants a dynamic video with MANY segments.\n        - Aim for segment durations between 2 and 5 seconds for most parts.\n        - Only use longer segments (up to 8s) for very slow, atmospheric parts.\n        - Avoid creating few long segments. We need a high "segment density".\n        \n        Each segment MUST have:\n        - id: a unique string like "seg_1", "seg_2", etc.\n        - start_time: "MM:SS" (or total seconds)\n        - end_time: "MM:SS" (or total seconds)\n        - lyric_text: the transcript for this segment\n        - visual_intent: a detailed description of what should be on screen, following the global narrative and current intensity.\n        - camera_angle: suggested camera shot (e.g. "Close-up", "Wide shot", "Drone shot")\n        - emotion: the detected emotion\n        \n        IMPORTANT: The segments MUST tile the entire 74.11 seconds. \n        The first segment must start at 00:00. \n        The last segment must end at 74.11.\n        No gaps, no overlaps.\n        \n        Return ONLY the JSON list.\n        ']
+2026-02-03 14:37:41,903 - app.clients.genai - INFO - RESPONSE:
+```json
+[
+    {
+        "id": "seg_1",
+        "start_time": 0.0,
+        "end_time": 4.5,
+        "lyric_text": "(Melodic humming...)",
+        "visual_intent": "Thick morning mist rolling over the marshlands of Polesie. The light is cool teal and blue. Nature is asleep.",
+        "camera_angle": "Low-altitude Drone Shot",
+        "emotion": "Serene"
+    },
+    {
+        "id": "seg_2",
+        "start_time": 4.5,
+        "end_time": 8.5,
+        "lyric_text": "(Melodic humming...)",
+        "visual_intent": "A herd of European bison emerges slowly from the fog, their breath visible in the cold morning air. Ancient and heavy movement.",
+        "camera_angle": "Long Lens / Telephoto",
+        "emotion": "Mysterious"
+    },
+    {
+        "id": "seg_3",
+        "start_time": 8.5,
+        "end_time": 12.78,
+        "lyric_text": "(Vocalizing swells)",
+        "visual_intent": "The sun breaks the horizon over the Braslav Lakes, turning the water from grey to brilliant sparking blue. The world wakes up.",
+        "camera_angle": "Wide Aerial Shot",
+        "emotion": "Awakening"
+    },
+    {
+        "id": "seg_4",
+        "start_time": 12.78,
+        "end_time": 16.0,
+        "lyric_text": "Rani pa use...",
+        "visual_intent": "Transition to the city. Extreme close-up of morning dew on a park lawn, rack focus to the 'Gates of Minsk' towers in the distance.",
+        "camera_angle": "Macro to Wide Rack Focus",
+        "emotion": "Fresh"
+    },
+    {
+        "id": "seg_5",
+        "start_time": 16.0,
+        "end_time": 19.33,
+        "lyric_text": "pa mae padlaze...",
+        "visual_intent": "Sunlight flares through modern architecture. A person pours coffee near a window, steam rising in slow motion against the city backlight.",
+        "camera_angle": "Medium Shot",
+        "emotion": "Anticipatory"
+    },
+    {
+        "id": "seg_6",
+        "start_time": 19.33,
+        "end_time": 21.6,
+        "lyric_text": "Chuyu mashyny...",
+        "visual_intent": "Rhythm kicks in. A red tram passes swiftly by the camera. The city pulse begins.",
+        "camera_angle": "Low Angle / Tracking",
+        "emotion": "Active"
+    },
+    {
+        "id": "seg_7",
+        "start_time": 21.6,
+        "end_time": 24.0,
+        "lyric_text": "uzho na paroze...",
+        "visual_intent": "Reflections of rushing clouds and pedestrians in the glass facade of a modern skyscraper.",
+        "camera_angle": "Tilt Up",
+        "emotion": "Busy"
+    },
+    {
+        "id": "seg_8",
+        "start_time": 24.0,
+        "end_time": 26.25,
+        "lyric_text": "(Beat driving)",
+        "visual_intent": "Fast cuts of feet walking on Independence Avenue, synchronized with the kick drum. Urban energy.",
+        "camera_angle": "Ground Level / Handheld",
+        "emotion": "Active"
+    },
+    {
+        "id": "seg_9",
+        "start_time": 26.25,
+        "end_time": 29.5,
+        "lyric_text": "Znow i znow...",
+        "visual_intent": "A car enters a tunnel/underpass. The overhead lights streak by, creating a sense of acceleration and focus.",
+        "camera_angle": "Vehicle POV",
+        "emotion": "Determined"
+    },
+    {
+        "id": "seg_10",
+        "start_time": 29.5,
+        "end_time": 33.0,
+        "lyric_text": "ya tvyordo stayus...",
+        "visual_intent": "A young person stands perfectly still in the middle of a moving crowd in a busy square. They look up at the sky with purpose.",
+        "camera_angle": "Static Shot in Time-lapse",
+        "emotion": "Focused"
+    },
+    {
+        "id": "seg_11",
+        "start_time": 33.0,
+        "end_time": 36.6,
+        "lyric_text": "(Tension builds)",
+        "visual_intent": "The National Library of Belarus lights up with rapid geometric patterns. The camera pushes in fast as the music swells to the drop.",
+        "camera_angle": "Hyperlapse / Zoom In",
+        "emotion": "Tense"
+    },
+    {
+        "id": "seg_12",
+        "start_time": 36.6,
+        "end_time": 39.0,
+        "lyric_text": "Kozhny dzen svetlo vyartaecca!",
+        "visual_intent": "DROP: Sudden explosion of light. A giant stork takes flight from a golden wheat field. The colors shift to warm amber and gold.",
+        "camera_angle": "Wide Slo-Mo",
+        "emotion": "Euphoric"
+    },
+    {
+        "id": "seg_13",
+        "start_time": 39.0,
+        "end_time": 42.5,
+        "lyric_text": "Kozhny dzen agon zaymaeca!",
+        "visual_intent": "Group of friends running through a field at sunset holding red and white flares/lights. Smoke trails in the golden hour light.",
+        "camera_angle": "Handheld Tracking",
+        "emotion": "Triumphant"
+    },
+    {
+        "id": "seg_14",
+        "start_time": 42.5,
+        "end_time": 46.25,
+        "lyric_text": "(Anthemic energy)",
+        "visual_intent": "Sunburst lens flare over a vast Belarusian landscape. Cut to ecstatic faces laughing and cheering.",
+        "camera_angle": "Dynamic Pan / Close-ups",
+        "emotion": "Powerful"
+    },
+    {
+        "id": "seg_15",
+        "start_time": 46.25,
+        "end_time": 49.0,
+        "lyric_text": "My edzem pa vulicy udvaich...",
+        "visual_intent": "Driving shot: POV from a convertible on a straight road lined with birch trees. The trees whiz by rhythmically.",
+        "camera_angle": "POV High Speed",
+        "emotion": "Free"
+    },
+    {
+        "id": "seg_16",
+        "start_time": 49.0,
+        "end_time": 51.8,
+        "lyric_text": "geta magiya...",
+        "visual_intent": "The car drives into the sunset. Long shadows stretch across the asphalt. The wind blows hair and scarves.",
+        "camera_angle": "Drone Tracking Car",
+        "emotion": "Joyful"
+    },
+    {
+        "id": "seg_17",
+        "start_time": 51.8,
+        "end_time": 54.65,
+        "lyric_text": "(Sustained vocals)",
+        "visual_intent": "Looking up from the car at the blue sky. Subtle traditional Vyshyvanka patterns overlay the clouds briefly.",
+        "camera_angle": "Low Angle looking up",
+        "emotion": "United"
+    },
+    {
+        "id": "seg_18",
+        "start_time": 54.65,
+        "end_time": 57.5,
+        "lyric_text": "Prosto yashche adzin dzen...",
+        "visual_intent": "Music strips back. Twilight sets in. The silhouette of Mir Castle Complex stands against a deep purple sky.",
+        "camera_angle": "Wide Static Shot",
+        "emotion": "Reflective"
+    },
+    {
+        "id": "seg_19",
+        "start_time": 57.5,
+        "end_time": 60.5,
+        "lyric_text": "kozhny kozhny dzen...",
+        "visual_intent": "A campfire crackles by a river bank. Sparks fly up into the darkening air.",
+        "camera_angle": "Close-up",
+        "emotion": "Grateful"
+    },
+    {
+        "id": "seg_20",
+        "start_time": 60.5,
+        "end_time": 63.56,
+        "lyric_text": "(Music softening)",
+        "visual_intent": "Warm light from the fire illuminates smiling faces. An intimate moment of connection.",
+        "camera_angle": "Medium Close-up",
+        "emotion": "Intimate"
+    },
+    {
+        "id": "seg_21",
+        "start_time": 63.56,
+        "end_time": 67.0,
+        "lyric_text": "(Melodic humming...)",
+        "visual_intent": "Night falls. Aerial view pulling back from the earth, showing city lights of Minsk connecting like a glowing neural network.",
+        "camera_angle": "High Altitude Aerial",
+        "emotion": "Peaceful"
+    },
+    {
+        "id": "seg_22",
+        "start_time": 67.0,
+        "end_time": 70.5,
+        "lyric_text": "(Vocalizing fading)",
+        "visual_intent": "A giant full moon rises behind a dark forest treeline. The world is silent again.",
+        "camera_angle": "Telephoto",
+        "emotion": "Resolving"
+    },
+    {
+        "id": "seg_23",
+        "start_time": 70.5,
+        "end_time": 74.11,
+        "lyric_text": "(Fade out)",
+        "visual_intent": "Final shot: A solitary stork standing in a nest, perfectly silhouetted against the moon. Fade to black.",
+        "camera_angle": "Silhouette / Static",
+        "emotion": "Serene"
+    }
+]
+```
+2026-02-03 14:37:41,905 - app.clients.genai - INFO - ----------------------------------------
+2026-02-03 14:37:41,905 - app.services.story_service - INFO - Normalizing 23 segments: total_suggested=74.11s, target_duration=74.11s, scale_factor=1.000
+2026-02-03 14:37:41,906 - app.services.story_service - INFO - Rhythmic normalization complete. Avg: 3.22s, EffMax: 6.00s
+2026-02-03 14:37:41,908 - app.services.pipeline_service - INFO - Deducting 23 credits for user 1bd681ee-6780-48da-8a6c-6b79fb939424
+2026-02-03 14:37:42,170 - httpx - INFO - HTTP Request: POST https://aqcdxlnzrfxqmftsemek.supabase.co/rest/v1/rpc/deduct_credits "HTTP/2 200 OK"
+2026-02-03 14:37:42,183 - root - INFO - AFC is enabled with max remote calls: 10.
+2026-02-03 14:38:40,465 - app.clients.genai - INFO - ----------------------------------------
+2026-02-03 14:38:40,465 - app.clients.genai - INFO - GEMINI INTERACTION: build_prompts
+2026-02-03 14:38:40,466 - app.clients.genai - INFO - REQUEST:
+['\n        For each of these segments, create a detailed image generation prompt.\n        \n        Global Style Anchor: "Modern European Cinematic: Wide anamorphic lens look, high dynamic range. Color palette shifts from cool teal/morning mist (Intro) to warm amber/golden hour (Chorus) to deep twilight blue (Outro). Slow-motion drone shots intercut with fast-paced, handheld urban photography." \n        (YOU MUST APPEND THIS EXACT STYLE DESCRIPTION TO EVERY SINGLE PROMPT TO ENSURE CONSISTENCY).\n\n        CHARACTER CONSISTENCY:\n        Character Description: ""\n        (If the character appears, they MUST match this description. If the scene allows, feature this character).\n        \n        Segments: [{\'id\': \'seg_1\', \'start_time\': 0.0, \'end_time\': 4.330666666666667, \'lyric_text\': \'(Melodic humming...)\', \'visual_intent\': \'Thick morning mist rolling over the marshlands of Polesie. The light is cool teal and blue. Nature is asleep.\', \'camera_angle\': \'Low-altitude Drone Shot\', \'emotion\': \'Serene\'}, {\'id\': \'seg_2\', \'start_time\': 4.330666666666667, \'end_time\': 7.808, \'lyric_text\': \'(Melodic humming...)\', \'visual_intent\': \'A herd of European bison emerges slowly from the fog, their breath visible in the cold morning air. Ancient and heavy movement.\', \'camera_angle\': \'Long Lens / Telephoto\', \'emotion\': \'Mysterious\'}, {\'id\': \'seg_3\', \'start_time\': 7.808, \'end_time\': 12.789333333333333, \'lyric_text\': \'(Vocalizing swells)\', \'visual_intent\': \'The sun breaks the horizon over the Braslav Lakes, turning the water from grey to brilliant sparking blue. The world wakes up.\', \'camera_angle\': \'Wide Aerial Shot\', \'emotion\': \'Awakening\'}, {\'id\': \'seg_4\', \'start_time\': 12.789333333333333, \'end_time\': 15.488, \'lyric_text\': \'Rani pa use...\', \'visual_intent\': "Transition to the city. Extreme close-up of morning dew on a park lawn, rack focus to the \'Gates of Minsk\' towers in the distance.", \'camera_angle\': \'Macro to Wide Rack Focus\', \'emotion\': \'Fresh\'}, {\'id\': \'seg_5\', \'start_time\': 15.488, \'end_time\': 19.338666666666665, \'lyric_text\': \'pa mae padlaze...\', \'visual_intent\': \'Sunlight flares through modern architecture. A person pours coffee near a window, steam rising in slow motion against the city backlight.\', \'camera_angle\': \'Medium Shot\', \'emotion\': \'Anticipatory\'}, {\'id\': \'seg_6\', \'start_time\': 19.338666666666665, \'end_time\': 21.653333333333332, \'lyric_text\': \'Chuyu mashyny...\', \'visual_intent\': \'Rhythm kicks in. A red tram passes swiftly by the camera. The city pulse begins.\', \'camera_angle\': \'Low Angle / Tracking\', \'emotion\': \'Active\'}, {\'id\': \'seg_7\', \'start_time\': 21.653333333333332, \'end_time\': 23.189333333333334, \'lyric_text\': \'uzho na paroze...\', \'visual_intent\': \'Reflections of rushing clouds and pedestrians in the glass facade of a modern skyscraper.\', \'camera_angle\': \'Tilt Up\', \'emotion\': \'Busy\'}, {\'id\': \'seg_8\', \'start_time\': 23.189333333333334, \'end_time\': 26.250666666666667, \'lyric_text\': \'(Beat driving)\', \'visual_intent\': \'Fast cuts of feet walking on Independence Avenue, synchronized with the kick drum. Urban energy.\', \'camera_angle\': \'Ground Level / Handheld\', \'emotion\': \'Active\'}, {\'id\': \'seg_9\', \'start_time\': 26.250666666666667, \'end_time\': 29.333333333333332, \'lyric_text\': \'Znow i znow...\', \'visual_intent\': \'A car enters a tunnel/underpass. The overhead lights streak by, creating a sense of acceleration and focus.\', \'camera_angle\': \'Vehicle POV\', \'emotion\': \'Determined\'}, {\'id\': \'seg_10\', \'start_time\': 29.333333333333332, \'end_time\': 32.8, \'lyric_text\': \'ya tvyordo stayus...\', \'visual_intent\': \'A young person stands perfectly still in the middle of a moving crowd in a busy square. They look up at the sky with purpose.\', \'camera_angle\': \'Static Shot in Time-lapse\', \'emotion\': \'Focused\'}, {\'id\': \'seg_11\', \'start_time\': 32.8, \'end_time\': 36.608, \'lyric_text\': \'(Tension builds)\', \'visual_intent\': \'The National Library of Belarus lights up with rapid geometric patterns. The camera pushes in fast as the music swells to the drop.\', \'camera_angle\': \'Hyperlapse / Zoom In\', \'emotion\': \'Tense\'}, {\'id\': \'seg_12\', \'start_time\': 36.608, \'end_time\': 39.33866666666667, \'lyric_text\': \'Kozhny dzen svetlo vyartaecca!\', \'visual_intent\': \'DROP: Sudden explosion of light. A giant stork takes flight from a golden wheat field. The colors shift to warm amber and gold.\', \'camera_angle\': \'Wide Slo-Mo\', \'emotion\': \'Euphoric\'}, {\'id\': \'seg_13\', \'start_time\': 39.33866666666667, \'end_time\': 42.794666666666664, \'lyric_text\': \'Kozhny dzen agon zaymaeca!\', \'visual_intent\': \'Group of friends running through a field at sunset holding red and white flares/lights. Smoke trails in the golden hour light.\', \'camera_angle\': \'Handheld Tracking\', \'emotion\': \'Triumphant\'}, {\'id\': \'seg_14\', \'start_time\': 42.794666666666664, \'end_time\': 46.25066666666667, \'lyric_text\': \'(Anthemic energy)\', \'visual_intent\': \'Sunburst lens flare over a vast Belarusian landscape. Cut to ecstatic faces laughing and cheering.\', \'camera_angle\': \'Dynamic Pan / Close-ups\', \'emotion\': \'Powerful\'}, {\'id\': \'seg_15\', \'start_time\': 46.25066666666667, \'end_time\': 49.333333333333336, \'lyric_text\': \'My edzem pa vulicy udvaich...\', \'visual_intent\': \'Driving shot: POV from a convertible on a straight road lined with birch trees. The trees whiz by rhythmically.\', \'camera_angle\': \'POV High Speed\', \'emotion\': \'Free\'}, {\'id\': \'seg_16\', \'start_time\': 49.333333333333336, \'end_time\': 52.02133333333333, \'lyric_text\': \'geta magiya...\', \'visual_intent\': \'The car drives into the sunset. Long shadows stretch across the asphalt. The wind blows hair and scarves.\', \'camera_angle\': \'Drone Tracking Car\', \'emotion\': \'Joyful\'}, {\'id\': \'seg_17\', \'start_time\': 52.02133333333333, \'end_time\': 54.656, \'lyric_text\': \'(Sustained vocals)\', \'visual_intent\': \'Looking up from the car at the blue sky. Subtle traditional Vyshyvanka patterns overlay the clouds briefly.\', \'camera_angle\': \'Low Angle looking up\', \'emotion\': \'United\'}, {\'id\': \'seg_18\', \'start_time\': 54.656, \'end_time\': 57.781333333333336, \'lyric_text\': \'Prosto yashche adzin dzen...\', \'visual_intent\': \'Music strips back. Twilight sets in. The silhouette of Mir Castle Complex stands against a deep purple sky.\', \'camera_angle\': \'Wide Static Shot\', \'emotion\': \'Reflective\'}, {\'id\': \'seg_19\', \'start_time\': 57.781333333333336, \'end_time\': 60.864, \'lyric_text\': \'kozhny kozhny dzen...\', \'visual_intent\': \'A campfire crackles by a river bank. Sparks fly up into the darkening air.\', \'camera_angle\': \'Close-up\', \'emotion\': \'Grateful\'}, {\'id\': \'seg_20\', \'start_time\': 60.864, \'end_time\': 63.562666666666665, \'lyric_text\': \'(Music softening)\', \'visual_intent\': \'Warm light from the fire illuminates smiling faces. An intimate moment of connection.\', \'camera_angle\': \'Medium Close-up\', \'emotion\': \'Intimate\'}, {\'id\': \'seg_21\', \'start_time\': 63.562666666666665, \'end_time\': 67.01866666666666, \'lyric_text\': \'(Melodic humming...)\', \'visual_intent\': \'Night falls. Aerial view pulling back from the earth, showing city lights of Minsk connecting like a glowing neural network.\', \'camera_angle\': \'High Altitude Aerial\', \'emotion\': \'Peaceful\'}, {\'id\': \'seg_22\', \'start_time\': 67.01866666666666, \'end_time\': 68.55466666666666, \'lyric_text\': \'(Vocalizing fading)\', \'visual_intent\': \'A giant full moon rises behind a dark forest treeline. The world is silent again.\', \'camera_angle\': \'Telephoto\', \'emotion\': \'Resolving\'}, {\'id\': \'seg_23\', \'start_time\': 68.55466666666666, \'end_time\': 74.11, \'lyric_text\': \'(Fade out)\', \'visual_intent\': \'Final shot: A solitary stork standing in a nest, perfectly silhouetted against the moon. Fade to black.\', \'camera_angle\': \'Silhouette / Static\', \'emotion\': \'Serene\'}]\n        \n        Return a JSON object where keys are the segment IDs ("seg_1", etc.) and values are objects containing:\n        - image_prompt: the detailed prompt for the AI image generator\n        - negative_prompt: what to avoid in the image (optional)\n        - style_hints: keywords about the style (optional)\n        \n        Return ONLY the JSON object.\n        ']
+2026-02-03 14:38:40,467 - app.clients.genai - INFO - RESPONSE:
+```json
+{
+  "seg_1": {
+    "image_prompt": "Low-altitude cinematic drone shot over the vast marshlands of Polesie, Belarus. Thick, ethereal morning mist rolls over the swampy terrain and tall reeds. The lighting is moody and cool teal, representing early dawn. Nature is still and asleep. Ultra-realistic, 8k resolution. Modern European Cinematic: Wide anamorphic lens look, high dynamic range. Color palette shifts from cool teal/morning mist (Intro) to warm amber/golden hour (Chorus) to deep twilight blue (Outro). Slow-motion drone shots intercut with fast-paced, handheld urban photography.",
+    "negative_prompt": "warm colors, bright sun, buildings, people, dry land, low resolution, noise",
+    "style_hints": "Cinematic, Atmospheric, Cool Tones, Nature"
+  },
+  "seg_2": {
+    "image_prompt": "Telephoto long-lens shot of a majestic herd of European bison emerging from dense fog. Their heavy fur is detailed, and their warm breath creates visible steam in the freezing morning air. The atmosphere is mysterious and ancient. Soft diffused blue morning light. Modern European Cinematic: Wide anamorphic lens look, high dynamic range. Color palette shifts from cool teal/morning mist (Intro) to warm amber/golden hour (Chorus) to deep twilight blue (Outro). Slow-motion drone shots intercut with fast-paced, handheld urban photography.",
+    "negative_prompt": "cartoon, illustration, bright sunshine, summer, zoo fences",
+    "style_hints": "Wildlife photography, Telephoto compression, Texture"
+  },
+  "seg_3": {
+    "image_prompt": "Wide aerial shot of the Braslav Lakes at the moment of sunrise. The sun just breaks the horizon, piercing through the grey dawn and turning the water into a brilliant, sparkling blue. Islands are scattered across the water. A sense of awakening and majesty. Modern European Cinematic: Wide anamorphic lens look, high dynamic range. Color palette shifts from cool teal/morning mist (Intro) to warm amber/golden hour (Chorus) to deep twilight blue (Outro). Slow-motion drone shots intercut with fast-paced, handheld urban photography.",
+    "negative_prompt": "night, overcast, flat lighting, boats",
+    "style_hints": "Landscape, Aerial, High Contrast, sunrise"
+  },
+  "seg_4": {
+    "image_prompt": "Extreme close-up macro photography of morning dew clinging to fresh green grass blades on a park lawn. In the background, softly out of focus (bokeh), are the distinctive twin towers of the 'Gates of Minsk'. The lighting is fresh and crisp. Modern European Cinematic: Wide anamorphic lens look, high dynamic range. Color palette shifts from cool teal/morning mist (Intro) to warm amber/golden hour (Chorus) to deep twilight blue (Outro). Slow-motion drone shots intercut with fast-paced, handheld urban photography.",
+    "negative_prompt": "dirty, brown grass, sharp background, night",
+    "style_hints": "Macro, Shallow Depth of Field, Urban Nature"
+  },
+  "seg_5": {
+    "image_prompt": "Medium cinematic shot of a person pouring hot coffee near a large floor-to-ceiling window. Sunlight flares through the glass, illuminating the rising steam in slow motion. Outside the window is a modern cityscape with sharp architectural lines. Backlit silhouette aesthetic. Modern European Cinematic: Wide anamorphic lens look, high dynamic range. Color palette shifts from cool teal/morning mist (Intro) to warm amber/golden hour (Chorus) to deep twilight blue (Outro). Slow-motion drone shots intercut with fast-paced, handheld urban photography.",
+    "negative_prompt": "dark room, messy, direct flash, pixelated",
+    "style_hints": "Backlighting, Volumetric lighting, Lifestyle"
+  },
+  "seg_6": {
+    "image_prompt": "Low angle tracking shot of a vibrant red tram rushing past the camera in a European city. Motion blur emphasizes speed. The surrounding architecture is a mix of Soviet classicism and modern glass. Rhythmic visual energy. Modern European Cinematic: Wide anamorphic lens look, high dynamic range. Color palette shifts from cool teal/morning mist (Intro) to warm amber/golden hour (Chorus) to deep twilight blue (Outro). Slow-motion drone shots intercut with fast-paced, handheld urban photography.",
+    "negative_prompt": "static, slow, empty street, vintage filter",
+    "style_hints": "Action, Motion Blur, Urban Street"
+  },
+  "seg_7": {
+    "image_prompt": "Abstract architectural shot looking up at the glass facade of a modern skyscraper. The glass reflects rushing clouds and distorted silhouettes of pedestrians below. Cold urban tones transitioning to day. Modern European Cinematic: Wide anamorphic lens look, high dynamic range. Color palette shifts from cool teal/morning mist (Intro) to warm amber/golden hour (Chorus) to deep twilight blue (Outro). Slow-motion drone shots intercut with fast-paced, handheld urban photography.",
+    "negative_prompt": "brick wall, rural, interior, flat",
+    "style_hints": "Reflections, Geometric, Modern Architecture"
+  },
+  "seg_8": {
+    "image_prompt": "Ground-level handheld photography of feet walking briskly on the pavement of Independence Avenue. The focus is on the movement of shoes and the texture of the sidewalk. Sunlight casts sharp, rhythmic shadows. Urban energy and rush. Modern European Cinematic: Wide anamorphic lens look, high dynamic range. Color palette shifts from cool teal/morning mist (Intro) to warm amber/golden hour (Chorus) to deep twilight blue (Outro). Slow-motion drone shots intercut with fast-paced, handheld urban photography.",
+    "negative_prompt": "stillness, faces, grass, dirt road",
+    "style_hints": "Street Photography, Low Angle, High Shutter Speed"
+  },
+  "seg_9": {
+    "image_prompt": "POV shot from inside a vehicle speeding through a modern urban tunnel. Overhead artificial lights streak by in long lines of light (light trails), creating a warp-speed effect. Sense of determination and focus. Modern European Cinematic: Wide anamorphic lens look, high dynamic range. Color palette shifts from cool teal/morning mist (Intro) to warm amber/golden hour (Chorus) to deep twilight blue (Outro). Slow-motion drone shots intercut with fast-paced, handheld urban photography.",
+    "negative_prompt": "traffic jam, stopped car, daylight, nature",
+    "style_hints": "Light Trails, Long Exposure, Motion"
+  },
+  "seg_10": {
+    "image_prompt": "Time-lapse style static shot. A young person stands perfectly still and focused in the center of a busy Minsk square, looking upward. The surrounding crowd is blurred into ghostly trails of motion. Contrast between stillness and chaos. Modern European Cinematic: Wide anamorphic lens look, high dynamic range. Color palette shifts from cool teal/morning mist (Intro) to warm amber/golden hour (Chorus) to deep twilight blue (Outro). Slow-motion drone shots intercut with fast-paced, handheld urban photography.",
+    "negative_prompt": "empty square, sharp crowd, night, studio",
+    "style_hints": "Time-lapse, Isolation, Conceptual"
+  },
+  "seg_11": {
+    "image_prompt": "Hyperlapse zoom-in on the National Library of Belarus (Rhombicuboctahedron shape). The exterior is covered in rapidly changing geometric LED light patterns against a darkening sky. High tension and technological feel. Modern European Cinematic: Wide anamorphic lens look, high dynamic range. Color palette shifts from cool teal/morning mist (Intro) to warm amber/golden hour (Chorus) to deep twilight blue (Outro). Slow-motion drone shots intercut with fast-paced, handheld urban photography.",
+    "negative_prompt": "daytime, plain building, static lights",
+    "style_hints": "Hyperlapse, Neon, Geometric, Architecture"
+  },
+  "seg_12": {
+    "image_prompt": "Wide slow-motion shot of a giant white stork taking flight from a golden wheat field. The scene is bathed in intense warm amber light (Golden Hour). Dust motes dance in the air. Euphoric explosion of light and nature. Modern European Cinematic: Wide anamorphic lens look, high dynamic range. Color palette shifts from cool teal/morning mist (Intro) to warm amber/golden hour (Chorus) to deep twilight blue (Outro). Slow-motion drone shots intercut with fast-paced, handheld urban photography.",
+    "negative_prompt": "rain, night, blue tones, city, cage",
+    "style_hints": "Golden Hour, Epic, Slow Motion, Nature"
+  },
+  "seg_13": {
+    "image_prompt": "Handheld tracking shot of a group of friends running through a field at sunset. They are holding red and white flares that leave smoke trails in the golden light. Silhouettes against the sun. Triumphant and energetic atmosphere. Modern European Cinematic: Wide anamorphic lens look, high dynamic range. Color palette shifts from cool teal/morning mist (Intro) to warm amber/golden hour (Chorus) to deep twilight blue (Outro). Slow-motion drone shots intercut with fast-paced, handheld urban photography.",
+    "negative_prompt": "static, sad, dark, indoor, cold colors",
+    "style_hints": "Lens Flare, Smoke, Silhouette, Action"
+  },
+  "seg_14": {
+    "image_prompt": "A massive cinematic sunburst lens flare dominating a vast Belarusian landscape. Below, a collage of close-ups of young people laughing and cheering, bathed in warm sunlight. Anthemic and powerful. Modern European Cinematic: Wide anamorphic lens look, high dynamic range. Color palette shifts from cool teal/morning mist (Intro) to warm amber/golden hour (Chorus) to deep twilight blue (Outro). Slow-motion drone shots intercut with fast-paced, handheld urban photography.",
+    "negative_prompt": "frown, rain, grey sky, studio portrait",
+    "style_hints": "Lens Flare, High Key, Emotional, Montage"
+  },
+  "seg_15": {
+    "image_prompt": "High-speed POV shot from a convertible driving down a straight country road. Rows of white birch trees line the road and whiz by in a rhythmic blur. Sunlight flickers through the leaves. Freedom and speed. Modern European Cinematic: Wide anamorphic lens look, high dynamic range. Color palette shifts from cool teal/morning mist (Intro) to warm amber/golden hour (Chorus) to deep twilight blue (Outro). Slow-motion drone shots intercut with fast-paced, handheld urban photography.",
+    "negative_prompt": "traffic, city, night, snow, stopped car",
+    "style_hints": "Motion Blur, Road Trip, Summer"
+  },
+  "seg_16": {
+    "image_prompt": "Cinematic drone shot tracking a car driving straight into a vibrant sunset. Long dramatic shadows stretch across the asphalt. The wind is visible blowing hair and scarves of the passengers. Warm orange and gold palette. Modern European Cinematic: Wide anamorphic lens look, high dynamic range. Color palette shifts from cool teal/morning mist (Intro) to warm amber/golden hour (Chorus) to deep twilight blue (Outro). Slow-motion drone shots intercut with fast-paced, handheld urban photography.",
+    "negative_prompt": "rain, midday sun, short shadows, traffic jam",
+    "style_hints": "Aerial, Sunset, Cinematic, Travel"
+  },
+  "seg_17": {
+    "image_prompt": "Low angle shot looking straight up at a deep blue sky with fluffy white clouds. Faint, ethereal traditional red and white Vyshyvanka embroidery patterns are superimposed over the clouds. Surreal and symbolic. Modern European Cinematic: Wide anamorphic lens look, high dynamic range. Color palette shifts from cool teal/morning mist (Intro) to warm amber/golden hour (Chorus) to deep twilight blue (Outro). Slow-motion drone shots intercut with fast-paced, handheld urban photography.",
+    "negative_prompt": "storm, grey, ground, buildings, heavy text",
+    "style_hints": "Double Exposure, Surreal, Cultural, Minimalist"
+  },
+  "seg_18": {
+    "image_prompt": "Wide static shot of the Mir Castle Complex silhouette against a deep purple and blue twilight sky. The castle reflects in a still moat or lake nearby. The mood is reflective and historical. Transitioning to night. Modern European Cinematic: Wide anamorphic lens look, high dynamic range. Color palette shifts from cool teal/morning mist (Intro) to warm amber/golden hour (Chorus) to deep twilight blue (Outro). Slow-motion drone shots intercut with fast-paced, handheld urban photography.",
+    "negative_prompt": "daylight, sun, bright lights, tourists, cars",
+    "style_hints": "Silhouette, Gothic, Twilight, Historical"
+  },
+  "seg_19": {
+    "image_prompt": "Close-up of a crackling campfire on a riverbank at night. Bright orange sparks fly upwards into the dark blue air, creating bokeh effects. The scene is grounded and grateful. Modern European Cinematic: Wide anamorphic lens look, high dynamic range. Color palette shifts from cool teal/morning mist (Intro) to warm amber/golden hour (Chorus) to deep twilight blue (Outro). Slow-motion drone shots intercut with fast-paced, handheld urban photography.",
+    "negative_prompt": "forest fire, daylight, white room, electric light",
+    "style_hints": "Fire, Sparks, Bokeh, Night"
+  },
+  "seg_20": {
+    "image_prompt": "Medium close-up of friends' faces illuminated solely by the warm glow of a campfire. They are smiling softly, sharing a moment of connection. Deep shadows surround them. Intimate chiaroscuro lighting. Modern European Cinematic: Wide anamorphic lens look, high dynamic range. Color palette shifts from cool teal/morning mist (Intro) to warm amber/golden hour (Chorus) to deep twilight blue (Outro). Slow-motion drone shots intercut with fast-paced, handheld urban photography.",
+    "negative_prompt": "flash photography, daylight, sad faces, arguing",
+    "style_hints": "Chiaroscuro, Portrait, Intimate, Warmth"
+  },
+  "seg_21": {
+    "image_prompt": "High altitude aerial view of Minsk at night. The street lights form a glowing orange and gold web resembling a neural network against the black earth. Peaceful and interconnected. Modern European Cinematic: Wide anamorphic lens look, high dynamic range. Color palette shifts from cool teal/morning mist (Intro) to warm amber/golden hour (Chorus) to deep twilight blue (Outro). Slow-motion drone shots intercut with fast-paced, handheld urban photography.",
+    "negative_prompt": "clouds, day, chaotic, blurry",
+    "style_hints": "Aerial, Cityscape, Night, Grid"
+  },
+  "seg_22": {
+    "image_prompt": "Telephoto shot of a giant, super-detailed full moon rising behind a silhouette of a dark pine forest treeline. The image is dominated by deep blues and the pale glow of the moon. Resolving and quiet. Modern European Cinematic: Wide anamorphic lens look, high dynamic range. Color palette shifts from cool teal/morning mist (Intro) to warm amber/golden hour (Chorus) to deep twilight blue (Outro). Slow-motion drone shots intercut with fast-paced, handheld urban photography.",
+    "negative_prompt": "sun, daylight, city, noise",
+    "style_hints": "Telephoto, Moon, Silhouette, Nature"
+  },
+  "seg_23": {
+    "image_prompt": "Final shot: A solitary stork standing in a large nest, perfectly silhouetted against the bright face of the moon. The rest of the image is pitch black. Serene and symbolic fade out. Modern European Cinematic: Wide anamorphic lens look, high dynamic range. Color palette shifts from cool teal/morning mist (Intro) to warm amber/golden hour (Chorus) to deep twilight blue (Outro). Slow-motion drone shots intercut with fast-paced, handheld urban photography.",
+    "negative_prompt": "daylight, multiple birds, movement, color",
+    "style_hints": "Silhouette, Minimalist, Iconic, High Contrast"
+  }
+}
+```
+2026-02-03 14:38:40,476 - app.clients.genai - INFO - ----------------------------------------
+2026-02-03 14:38:40,481 - app.clients.genai - INFO - GenAI client initialized (API key length: 39)
+2026-02-03 14:38:40,481 - app.services.image_service - INFO - Starting BATCH image generation for project 5d43842cb1da4485a2ba20a7ff123d28 with 23 prompts
+2026-02-03 14:38:40,498 - app.services.batch_service - INFO - Created batch file: D:\googlePRJ\clipmaker\Clipmaker\data\batch_jobs\batch-8f185bca.jsonl
+2026-02-03 14:38:40,498 - app.services.batch_service - INFO - Uploading batch file: D:\googlePRJ\clipmaker\Clipmaker\data\batch_jobs\batch-8f185bca.jsonl
+2026-02-03 14:38:42,751 - app.services.batch_service - INFO - Uploaded batch file files/b6jlc2mvb7wx. Creating job via REST...
+2026-02-03 14:38:44,958 - app.services.batch_service - INFO - Batch job submitted successfully via REST: batches/upg4lknw2ljwzeiqdu4g6i7h7hm8a5b91eje
+2026-02-03 14:38:44,961 - app.services.image_service - INFO - Batch job submitted: batches/upg4lknw2ljwzeiqdu4g6i7h7hm8a5b91eje. Waiting for completion...
+2026-02-03 14:38:44,961 - app.services.batch_service - INFO - Waiting for batch job batches/upg4lknw2ljwzeiqdu4g6i7h7hm8a5b91eje...
+2026-02-03 14:46:10,594 - app.services.batch_service - INFO - Downloading results from files/batch-upg4lknw2ljwzeiqdu4g6i7h7hm8a5b91eje...
+2026-02-03 14:46:15,568 - app.services.image_service - INFO - Downloaded 23 results from batch job
+2026-02-03 14:46:15,781 - app.services.image_service - INFO - Successfully saved 22 images from batch.
+2026-02-03 14:46:17,333 - app.services.render_service - WARNING - Missing image for segment seg_10 (version 1)
