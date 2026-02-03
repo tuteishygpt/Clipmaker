@@ -207,7 +207,8 @@ async def get_segments(project_id: str) -> dict[str, Any]:
     """Get storyboard segments."""
     segments = project_repo.get_segments(project_id)
     if not segments:
-        raise HTTPException(status_code=404, detail="Segments not ready")
+        # Return empty list instead of 404 to support progressive loading
+        return {"segments": []}
     
     # Handle malformed segments
     if isinstance(segments, list) and len(segments) == 1 and "raw" in segments[0]:
@@ -461,14 +462,14 @@ async def recalculate_timings(project_id: str) -> RunResponse:
     analysis = project_repo.get_analysis(project_id)
     
     if not segments:
-        raise HTTPException(status_code=404, detail="No segments found")
+        return RunResponse(status="SKIPPED", message="No segments to recalculate")
     
     if not analysis:
-        raise HTTPException(status_code=404, detail="No analysis found")
+        return RunResponse(status="SKIPPED", message="Analysis not ready yet")
     
     duration = analysis.get("total_duration", 0.0)
     if duration <= 0:
-        raise HTTPException(status_code=400, detail="Invalid audio duration")
+        return RunResponse(status="SKIPPED", message="Invalid audio duration")
     
     # Use unified time parser from audio_utils
 
