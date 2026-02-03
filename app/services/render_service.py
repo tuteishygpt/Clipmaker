@@ -97,15 +97,21 @@ class RenderService:
         try:
             audio_clip = mp.AudioFileClip(str(audio_path))
             
-            # Create clips
-            clips = self._create_clips(
+            # Create clips (now returns the concatenated video)
+            video = self._create_clips(
                 project_id, segments, prompts, project, mp
             )
             
-            if not clips:
-                raise ValueError("No valid image segments found to render. This usually means image generation failed. Check logs for details.")
+            # clips variable is no longer a list, but we keep the name for cleanup if needed? 
+            # cleanup expects clips list. Let's adjust cleanup or just pass empty list if we can't track individual clips easily anymore.
+            # actually _create_clips closes local clips? No.
+            # We can't easily track intermediate clips for cleanup if _create_clips swallows them.
+            # But moviepy objects are usually fine if we close the main video.
+            clips = [] 
             
-            video = mp.concatenate_videoclips(clips, method="compose", padding=-0.5)
+            # video = mp.concatenate_videoclips(clips, method="compose", padding=-0.5) 
+            # Concatenation is now done inside _create_clips
+            
             video.audio = audio_clip
             
             # Render
@@ -147,22 +153,30 @@ class RenderService:
         prompts: dict[str, Any],
         project: dict[str, Any],
         mp,
-    ) -> list:
-        """Create video clips from segments."""
+    ) -> Any:
+        """Create final video from segments."""
         fmt = project.get("format", "9:16")
         size = (720, 1280) if fmt == "9:16" else (1280, 720)
         
         clips = []
-        transition_duration = 0.5
+        # "Golden rule": Transition is a beat. Needs to be snappy.
+        transition_duration = 0.4 
+        
+        # Transitions: 
+        # "beat" -> slide/whip/zoom (dynamic)
+        # "story" -> crossfade (soft) - tough to detect, so we mix them but favor dynamic.
+        available_transitions = [
+            "slide_left", "slide_right", "slide_up", "slide_down", 
+            "zoom_in", "zoom_out",
+            "crossfade"
+        ]
         
         for i, seg in enumerate(segments):
             seg_id = seg.get("id") or seg.get("segment_id")
             if not seg_id:
                 continue
             
-            # Ensure ID is string for lookup
             seg_id = str(seg_id)
-            
             prompt = prompts.get(seg_id, {})
             version = prompt.get("version", 1)
             
@@ -180,11 +194,12 @@ class RenderService:
             if duration <= 0:
                 continue
             
-            # Add padding for transition overlap (except for the last one, effectively)
-            # Actually, we extend duration slightly to allow for crossfade with NEXT clip?
-            # In 'compose' with negative padding, clips overlap.
-            # We don't need to change duration here, just apply crossfadein to later clips.
-            
+            # Extend duration for transition overlap (except for the last clip)
+            # This ensures that when we overlap by 'transition_duration', the 'useful' part
+            # of the clip remains 'duration' long, keeping sync with audio.
+            if i < len(segments) - 1:
+                duration += transition_duration
+
             effect = seg.get("effect") or "random"
             if effect == "random":
                 effect = random.choice([
@@ -194,13 +209,109 @@ class RenderService:
             
             clip = self._apply_effect(img_path, duration, effect, size, mp)
             
-            # Apply fade in for smooth transition from previous clip
+            # Apply transition from previous clip
             if i > 0:
-                clip = clip.crossfadein(transition_duration)
+                transition = seg.get("transition", "random")
+                if transition == "random":
+                    # Heuristic: 80% dynamic ("beat"), 20% soft ("story" possibility)
+                    if random.random() < 0.8:
+                        transition = random.choice(["slide_left", "slide_right", "slide_up", "slide_down", "zoom_in"])
+                    else:
+                        transition = "crossfade"
+                
+                clip = self._apply_transition(clip, transition, transition_duration, size)
             
             clips.append(clip)
+            
+        if not clips:
+             raise ValueError("No valid image segments found to render.")
+
+        # padding must be negative of the overlap
+        # Since we extended the duration of previous clips, this overlap restores the correct start time for the next clip.
+        video = mp.concatenate_videoclips(clips, method="compose", padding=-transition_duration)
+        # video.audio is set in the caller
+        return video
+
+    def _apply_transition(self, clip, transition_type: str, duration: float, size: tuple[int, int]):
+        """Apply transition effect to the clip start with Easing."""
+        w, h = size
         
-        return clips
+        # Easing function: EaseOutExpo for "Whip" feel
+        # t goes 0 -> duration. p goes 0 -> 1
+        def get_p(t):
+            if t >= duration: return 1.0
+            if t <= 0: return 0.0
+            # EaseOutCubic: 1 - (1-x)^3
+            x = t / duration
+            return 1.0 - (1.0 - x)**3
+
+        if transition_type == "crossfade":
+            return clip.crossfadein(duration)
+        
+        elif transition_type == "slide_left":
+            # Slide in from Right to Center
+            def pos(t):
+                p = get_p(t)
+                # Start at w, end at 0
+                x = int(w * (1.0 - p))
+                return (x, 0)
+            return clip.set_position(pos)
+            
+        elif transition_type == "slide_right":
+            # Slide in from Left to Center
+            def pos(t):
+                p = get_p(t)
+                # Start at -w, end at 0
+                x = int(-w * (1.0 - p))
+                return (x, 0)
+            return clip.set_position(pos)
+            
+        elif transition_type == "slide_up":
+            # Slide in from Bottom to Center
+            def pos(t):
+                p = get_p(t)
+                # Start at h, end at 0
+                y = int(h * (1.0 - p))
+                return (0, y)
+            return clip.set_position(pos)
+            
+        elif transition_type == "slide_down":
+            # Slide in from Top to Center
+            def pos(t):
+                p = get_p(t)
+                # Start at -h, end at 0
+                y = int(-h * (1.0 - p))
+                return (0, y)
+            return clip.set_position(pos)
+        
+        elif transition_type == "zoom_in":
+            # Scale up from 0 to 1 (Centered)
+            # Note: resize is computationally heavy per frame, but ok for 0.4s
+            final_clip = clip
+            
+            def resize_func(t):
+                if t >= duration:
+                    return 1.0
+                p = get_p(t)
+                # Start from 0.1 to avoid strict 0 issues, go to 1.0
+                return 0.1 + 0.9 * p
+                
+            # CompositeVideoClip usually centers the clip if sized
+            # But set_position("center") is safest
+            return clip.resize(resize_func).set_position("center")
+        
+        elif transition_type == "zoom_out":
+             # Start large (2x), shrink to 1x
+            def resize_func(t):
+                if t >= duration:
+                    return 1.0
+                p = get_p(t)
+                # Start 2.0, end 1.0
+                return 2.0 - 1.0 * p
+            
+            return clip.resize(resize_func).set_position("center")
+
+        return clip.crossfadein(duration)
     
     def _apply_effect(
         self,

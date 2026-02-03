@@ -261,21 +261,38 @@ export const useProjectStore = create((set, get) => ({
             if (pipeJob?.status === 'DONE' && pipeJob.output) {
                 const parts = pipeJob.output.split(/[\\/]/)
                 const filename = parts[parts.length - 1]
-                videoOutput = `${BASE_URL}/projects/${projectId}/renders/${filename}?t=${Date.now()}`
+                const baseUrl = `${BASE_URL}/projects/${projectId}/renders/${filename}`
+
+                // Only update if currently different (ignoring query params)
+                const currentUrlBase = get().videoOutput?.split('?')[0]
+                if (currentUrlBase !== baseUrl) {
+                    videoOutput = `${baseUrl}?t=${Date.now()}`
+                } else {
+                    videoOutput = get().videoOutput
+                }
             }
 
             if (renderJob?.status === 'DONE' && renderJob.output) {
                 const parts = renderJob.output.split(/[\\/]/)
                 const filename = parts[parts.length - 1]
-                videoOutput = `${BASE_URL}/projects/${projectId}/renders/${filename}?t=${Date.now()}`
+                const baseUrl = `${BASE_URL}/projects/${projectId}/renders/${filename}`
 
-                // Show completion toast once
-                if (!get().videoOutput && videoOutput) {
-                    get().addToast('🎉 Video render complete!', 'success')
+                const currentUrlBase = get().videoOutput?.split('?')[0]
+                if (currentUrlBase !== baseUrl) {
+                    videoOutput = `${baseUrl}?t=${Date.now()}`
+                    // Show completion toast once
+                    if (!get().videoOutput) {
+                        get().addToast('🎉 Video render complete!', 'success')
+                    }
+                } else {
+                    videoOutput = get().videoOutput
                 }
             }
 
-            set({ jobs, videoOutput })
+            // Only update state if something changed to avoid re-renders
+            if (JSON.stringify(jobs) !== JSON.stringify(get().jobs) || videoOutput !== get().videoOutput) {
+                set({ jobs, videoOutput })
+            }
 
             // Load analysis during pipeline run to show live data
             const pipelineRunning = pipeJob?.status === 'RUNNING' || pipeJob?.status === 'RETRYING'
@@ -283,7 +300,12 @@ export const useProjectStore = create((set, get) => ({
                 await get().loadAnalysis()
             }
 
-            await get().loadSegments()
+            // Only load segments if pipeline is running (to see new thumbnails) 
+            // or if we just finished some job that might update segments
+            if (pipelineRunning) {
+                await get().loadSegments()
+            }
+
             get().updateStep()
 
             const anyRunning = Object.values(jobs).some(
@@ -295,7 +317,9 @@ export const useProjectStore = create((set, get) => ({
             } else {
                 get().stopPolling()
                 if (pipeJob?.status === 'DONE') {
+                    // One final load
                     await get().loadAnalysis()
+                    await get().loadSegments()
                 }
             }
 
@@ -311,7 +335,7 @@ export const useProjectStore = create((set, get) => ({
 
         const interval = setInterval(() => {
             get().refreshJobs()
-        }, 3000)
+        }, 5000)
 
         set({ pollingInterval: interval })
     },

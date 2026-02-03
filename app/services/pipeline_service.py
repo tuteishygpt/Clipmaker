@@ -171,10 +171,16 @@ class PipelineService:
                     "status": "RUNNING", "step": "render", "progress": 0
                 })
                 
+                last_reported = -1
+                
                 def render_progress(p: int):
-                    self._update_job(project_id, "render", {
-                        "progress": p
-                    })
+                    nonlocal last_reported
+                    # Throttle updates: only every 5% or at start/end
+                    if p == 0 or p == 100 or (p > last_reported and p % 5 == 0):
+                        last_reported = p
+                        self._update_job(project_id, "render", {
+                            "progress": p
+                        })
                 
                 loop = asyncio.get_running_loop()
                 output_path, render_duration = await loop.run_in_executor(
