@@ -13,6 +13,7 @@ from ..repositories.project_repo import ProjectRepository
 from ..repositories.file_storage import FileStorage
 from ..services.pipeline_service import PipelineService
 from ..services.image_service import ImageService
+from ..services.story_service import StoryboardService
 from ..services.billing_service import billing_service
 from ..core.logging import get_logger
 from ..core.config import settings
@@ -45,6 +46,9 @@ def get_pipeline_service() -> PipelineService:
 
 def get_image_service() -> ImageService:
     return ImageService(project_repo=project_repo, file_storage=file_storage)
+
+def get_story_service() -> StoryboardService:
+    return StoryboardService(project_repo=project_repo)
 
 
 @router.get("", response_model=list[ProjectResponse])
@@ -452,8 +456,11 @@ async def regenerate_image_only(
 
 
 @router.post("/{project_id}/recalculate-timings", response_model=RunResponse)
-async def recalculate_timings(project_id: str) -> RunResponse:
-    """Recalculate segment timings to evenly distribute across audio duration."""
+async def recalculate_timings(
+    project_id: str,
+    story_service: StoryboardService = Depends(get_story_service)
+) -> RunResponse:
+    """Recalculate segment timings to evenly distribute across audio duration using RHYTHMIC analysis."""
     if not project_repo.exists(project_id):
         raise HTTPException(status_code=404, detail="Project not found")
     
@@ -471,73 +478,25 @@ async def recalculate_timings(project_id: str) -> RunResponse:
     if duration <= 0:
         return RunResponse(status="SKIPPED", message="Invalid audio duration")
     
-    # Use unified time parser from audio_utils
-
-    MAX_DURATION = 6.0
-    MIN_DURATION = 0.5
+    # 1. Recover original intentions based on text density or Keep current length as 'suggested'
+    # The normalize_segments function expects '_orig_duration' or looks at start/end
+    # We should prep the segments so they have 'start_time' and 'end_time' which they already do.
+    # normalize_segments calculates 'suggested' duration from current s/e.
     
-    # Calculate proportional timings
-    num_segments = len(segments)
-    if num_segments == 0:
-        return RunResponse(status="OK", message="No segments to recalculate")
-
-    # If the track is very long, we might need to increase MAX_DURATION to fill it
-    # but we should do it uniformly.
-    ideal_avg = duration / num_segments
-    effective_max = max(MAX_DURATION, ideal_avg * 1.5)
-    
-    # First, calculate weights based on current duration or default to 1.0
-    weights = []
-    for seg in segments:
-        s = parse_time(seg.get("start_time", 0))
-        e = parse_time(seg.get("end_time", 0))
-        d = e - s
-        if d < 0.1: d = 3.0 # Default weight for broken segments
-        weights.append(d)
-    
-    total_weight = sum(weights)
-    
-    # Step 1: Assign initial durations based on weights, but clamp to effective_max
-    durations = []
-    for w in weights:
-        d = (w / total_weight) * duration if total_weight > 0 else ideal_avg
-        d = max(MIN_DURATION, min(d, effective_max))
-        durations.append(d)
-    
-    # Step 2: Recalculate and distribute the difference to hit exactly total_duration
-    # This prevents the last segment from being huge
-    for _ in range(3): # Iterate a few times to settle
-        current_total = sum(durations)
-        diff = duration - current_total
-        if abs(diff) < 0.01: break
+    # 2. Run Smart Rhythmic Normalization
+    try:
+        updated_segments = story_service.normalize_segments(segments, duration, analysis)
         
-        # Distribute diff among segments that are NOT at their limits (if possible)
-        # or just distribute among all
-        per_seg_diff = diff / num_segments
-        for j in range(num_segments):
-            durations[j] = max(MIN_DURATION, min(durations[j] + per_seg_diff, effective_max))
-
-    # Step 3: Apply timings
-    current_time = 0.0
-    for i, seg in enumerate(segments):
-        seg["start_time"] = current_time
-        seg_dur = durations[i]
+        # 3. Save updated segments
+        project_repo.save_segments(project_id, updated_segments)
         
-        # Last segment MUST hit the end exactly
-        if i == num_segments - 1:
-            seg["end_time"] = duration
-        else:
-            seg["end_time"] = current_time + seg_dur
-            
-        current_time = seg["end_time"]
-    
-    # Save updated segments
-    project_repo.save_segments(project_id, segments)
-    
-    return RunResponse(
-        status="OK", 
-        message=f"Recalculated timings for {num_segments} segments (Avg: {duration/num_segments:.2f}s, Max set to {effective_max:.1f}s)"
-    )
+        return RunResponse(
+            status="OK", 
+            message=f"Recalculated timings with Beat Sync for {len(updated_segments)} segments."
+        )
+    except Exception as e:
+        logger.error(f"Recalculation failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Recalculation failed: {e}")
 
 
 @router.post("/{project_id}/render", response_model=RunResponse)

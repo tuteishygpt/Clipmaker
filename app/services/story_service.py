@@ -107,21 +107,21 @@ class StoryboardService:
 
         # Normalize segments to perfectly fit the duration
         if segments and duration > 0:
-            segments = self._normalize_segments(segments, duration, analysis)
+            segments = self.normalize_segments(segments, duration, analysis)
 
         # Save results
         self.project_repo.save_segments(project_id, segments)
 
         return segments
 
-    def _normalize_segments(
+    def normalize_segments(
         self,
         segments: list[dict[str, Any]],
         duration: float,
         analysis: dict[str, Any],
     ) -> list[dict[str, Any]]:
         """Normalize segment times to exactly fit the duration with rhythmic awareness."""
-        MAX_DURATION = 6.0  # Maximum length for a single segment
+        MAX_DURATION = 8.0  # Maximum length for a single segment
         MIN_DURATION = 0.5  # Minimum length
         
         # Calculate original durations

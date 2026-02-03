@@ -115,12 +115,12 @@ class GenAIClient:
             tech_context = f"\nTechnical Analysis Data (librosa):\n{json.dumps(technical_analysis, indent=2)}\n"
         
         prompt = f"""
-        Analyze the audio track in this song to create a video clip. 
+        Analyze the audio track in this song to create a PROFESSIONAL music video plan.
         The total duration of the audio is {duration:.2f} seconds.
         
         USER REQUEST / PLOT DESCRIPTION:
         "{user_description}"
-        (This is the most important instruction. The narrative, metaphors, and events MUST follow this description if provided. If empty, invent a creative one).
+        (The narrative, metaphors, and events MUST follow this description if provided. If empty, invent a creative one).
         
         The user has requested the visual style: "{user_style}".
 
@@ -129,6 +129,15 @@ class GenAIClient:
         (If provided, this character MUST be the protagonist of the video).
         
         {tech_context}
+        
+        EDITING RULES (CRITICAL):
+        1. RHYTHM IS KING: Cut to the beat. Visuals must sync with the audio.
+        2. SONG STRUCTURE: You MUST identify the sections: Intro, Verse, Pre-Chorus, Chorus, Bridge, Outro.
+        3. PACING BY SECTION:
+           - Verses: Longer, cinematic shots. Focus on storytelling.
+           - Choruses: FAST cuts. Short, rhythmic clips. "Micro-series" of shots on beats. High energy.
+           - Transitions: 1-2 distinct "accent" shots with strong movement/impact.
+        4. MARKERS: Place keyframes on strong beats (kick/snare, drops).
         
         Please provide:
         1. A summary of the song's energy, mood, and style.
@@ -145,6 +154,7 @@ class GenAIClient:
             {{
               "start_time": float,
               "end_time": float,
+              "section_type": "Intro" | "Verse" | "Chorus" | "Bridge" | "Outro",
               "description": "Visual description of the scene",
               "energy_level": float (0.0 to 1.0),
               "keyframes": [
@@ -162,8 +172,8 @@ class GenAIClient:
         Instructions for Scenes:
         - Segments have NO GAPS and NO OVERLAPS.
         - Cover exactly 0.0 to {duration:.2f}.
+        - The pacing MUST follow the structure (Verse=Slow, Chorus=Fast).
         - Use the technical analysis (Drops, Downbeats) to align scene changes and keyframes.
-        - Create specific keyframes for "drops" or major impacts found in the technical data.
         
         Return as a JSON object with keys: "summary", "global_visual_narrative", "visual_style_anchor", "video_plan", "segments" (legacy support, map scenes to segments if needed or keep separate).
         """
@@ -218,11 +228,12 @@ class GenAIClient:
         - Use cinematographic terms (Wide Shot, Close Up, Dolly Zoom, Tracking Shot).
         - Describe lighting and movement in EVERY segment.
         
-        PACING INSTRUCTION:
-        - The user wants a dynamic video.
-        - High Energy / Drop = Short cuts (1-2s), erratic camera.
-        - Low Energy / Intro = Longer takes (4-8s), smooth motion.
-        - Match the "energy_level" of the music.
+        PACING & RHYTHM RULES (STRICT):
+        1. RHYTHM IS KING: Align cuts with the music's rhythm.
+        2. VERSES / INTRO = Cinematic, Longer Shots (4-8s). Focus on storytelling and establishing atmosphere.
+        3. CHORUSES / DROPS = Fast Cuts, High Energy (0.5s-2s). Flash different angles/actions on beats. "Micro-series" of shots.
+        4. TRANSITIONS = Accent shots (fast zooms/whips) on section changes.
+        5. Match the "energy_level" of the music. If the rhythm "sits", even simple pan/zoom looks professional.
         
         Each segment MUST have:
         - id: a unique string like "seg_1", "seg_2", etc.
@@ -232,6 +243,8 @@ class GenAIClient:
         - visual_intent: a detailed description of what should be on screen, following the global narrative and current intensity.
         - camera_angle: suggested camera shot (e.g. "Close-up", "Wide shot", "Drone shot")
         - emotion: the detected emotion
+        - effect: "zoom_in" | "zoom_out" | "pan_left" | "pan_right" | "pan_up" | "pan_down" (Verse = smooth pans, Chorus = fast zooms)
+        - transition: "cut" | "crossfade" | "slide_left" | "slide_right" | "zoom_in" (High Energy = slide/zoom, Low Energy = crossfade)
         
         IMPORTANT: The segments MUST tile the entire {total_duration:.2f} seconds. 
         The first segment must start at 00:00. 
