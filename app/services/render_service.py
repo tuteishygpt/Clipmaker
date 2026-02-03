@@ -105,7 +105,7 @@ class RenderService:
             if not clips:
                 raise ValueError("No valid image segments found to render. This usually means image generation failed. Check logs for details.")
             
-            video = mp.concatenate_videoclips(clips, method="chain")
+            video = mp.concatenate_videoclips(clips, method="compose", padding=-0.5)
             video.audio = audio_clip
             
             # Render
@@ -126,6 +126,7 @@ class RenderService:
                 preset=render_preset,
                 ffmpeg_params=["-crf", "23"],
             )
+            
             
             render_duration = time.time() - start_time
             return output_path, render_duration
@@ -152,8 +153,9 @@ class RenderService:
         size = (720, 1280) if fmt == "9:16" else (1280, 720)
         
         clips = []
+        transition_duration = 0.5
         
-        for seg in segments:
+        for i, seg in enumerate(segments):
             seg_id = seg.get("id") or seg.get("segment_id")
             if not seg_id:
                 continue
@@ -178,6 +180,11 @@ class RenderService:
             if duration <= 0:
                 continue
             
+            # Add padding for transition overlap (except for the last one, effectively)
+            # Actually, we extend duration slightly to allow for crossfade with NEXT clip?
+            # In 'compose' with negative padding, clips overlap.
+            # We don't need to change duration here, just apply crossfadein to later clips.
+            
             effect = seg.get("effect") or "random"
             if effect == "random":
                 effect = random.choice([
@@ -186,6 +193,11 @@ class RenderService:
                 ])
             
             clip = self._apply_effect(img_path, duration, effect, size, mp)
+            
+            # Apply fade in for smooth transition from previous clip
+            if i > 0:
+                clip = clip.crossfadein(transition_duration)
+            
             clips.append(clip)
         
         return clips
@@ -219,12 +231,18 @@ class RenderService:
             max_crop_w = w
             max_crop_h = w * (th / tw)
         
-        zoom_level = 0.85
+        # Randomize zoom intensity for more dynamic feel
+        zoom_level = random.uniform(0.75, 0.88)
+        
         has_pan_room_x = w > (max_crop_w * 1.05)
         has_pan_room_y = h > (max_crop_h * 1.05)
         
         def make_frame(t):
-            p = t / duration
+            # Ease-in-out interpolation
+            # p goes from 0 to 1
+            linear_p = t / duration
+            # Sinusoidal easing: 0.5 * (1 - cos(pi * p))
+            p = 0.5 * (1.0 - np.cos(linear_p * np.pi))
             
             scale = 1.0
             cx, cy = w / 2, h / 2
@@ -268,6 +286,8 @@ class RenderService:
             
             part = img_arr[y1:y2, x1:x2]
             part_img = Image.fromarray(part)
+            
+            # High quality resize
             resized = part_img.resize((tw, th), Image.BICUBIC)
             return np.array(resized)
         
