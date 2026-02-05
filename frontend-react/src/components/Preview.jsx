@@ -295,15 +295,36 @@ function Preview({ showSubtitlePreview = false }) {
     const getActiveSubtitle = useCallback(() => {
         if (!subtitleData?.entries?.length) return null
 
-        // Helper to parse SRT time "00:00:00,000" to seconds
+        // Helper to parse SRT time "00:00:00,000" (or looser formats) to seconds
         const parseSrt = (t) => {
-            if (!t) return 0
-            t = t.replace(',', '.')
-            const parts = t.split(':')
-            if (parts.length === 3) {
-                return parseFloat(parts[0]) * 3600 + parseFloat(parts[1]) * 60 + parseFloat(parts[2])
+            if (t === null || t === undefined) return 0
+            if (typeof t === 'number' && Number.isFinite(t)) return t
+            if (typeof t !== 'string') return 0
+
+            const normalized = t.trim().replace(',', '.')
+
+            if (!normalized) return 0
+
+            if (normalized.includes(':')) {
+                const parts = normalized.split(':')
+                if (parts.length === 3) {
+                    const hours = parseFloat(parts[0])
+                    const minutes = parseFloat(parts[1])
+                    const seconds = parseFloat(parts[2])
+                    if ([hours, minutes, seconds].some(Number.isNaN)) return 0
+                    return hours * 3600 + minutes * 60 + seconds
+                }
+                if (parts.length === 2) {
+                    const minutes = parseFloat(parts[0])
+                    const seconds = parseFloat(parts[1])
+                    if ([minutes, seconds].some(Number.isNaN)) return 0
+                    return minutes * 60 + seconds
+                }
+                return 0
             }
-            return 0
+
+            const asSeconds = parseFloat(normalized)
+            return Number.isNaN(asSeconds) ? 0 : asSeconds
         }
 
         const active = subtitleData.entries.find(e => {
