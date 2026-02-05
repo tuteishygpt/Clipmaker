@@ -176,7 +176,7 @@ class GenAIClient:
         LANGUAGE INSTRUCTION: {language_instruction}
         
         TIMING & FORMATTING:
-        1. **Precision**: Start time must match the exact first sound of the phrase. Use SRT format `HH:MM:SS,mmm`.
+        1. **Precision**: Start time must match the exact first sound of the phrase. Use SRT format `HH:MM:SS,mmm` (e.g. `00:00:15,500`). ALWAYS include hours, minutes, seconds, and milliseconds.
         2. **Gaps**: If there is a silence >= 0.5s, close the previous segment. Do not bridge large gaps.
         3. **No Overlap**: The start of a segment must be >= the end of the previous one.
         

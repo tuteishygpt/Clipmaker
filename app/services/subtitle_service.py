@@ -222,15 +222,34 @@ class SubtitleService:
         
         Format: 00:00:01,000 -> 1.0
         """
-        # Replace comma with dot for parsing
-        srt_time = srt_time.replace(',', '.')
+        if isinstance(srt_time, (int, float)):
+            return float(srt_time)
+
+        srt_time = str(srt_time).replace(',', '.')
         parts = srt_time.split(':')
         
         if len(parts) == 3:
-            hours = float(parts[0])
-            minutes = float(parts[1])
-            seconds = float(parts[2])
-            return hours * 3600 + minutes * 60 + seconds
+            try:
+                hours = float(parts[0])
+                minutes = float(parts[1])
+                seconds = float(parts[2])
+                return hours * 3600 + minutes * 60 + seconds
+            except ValueError:
+                pass
+        
+        if len(parts) == 2:
+            try:
+                minutes = float(parts[0])
+                seconds = float(parts[1])
+                return minutes * 60 + seconds
+            except ValueError:
+                pass
+                
+        if len(parts) == 1:
+            try:
+                return float(parts[0])
+            except ValueError:
+                pass
         
         return 0.0
     
