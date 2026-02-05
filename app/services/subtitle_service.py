@@ -56,11 +56,18 @@ class SubtitleService:
         # Convert to SubtitleEntry objects
         entries = []
         for i, entry in enumerate(raw_entries, start=1):
+            # Normalize timestamps to allow loose AI output to be saved correctly
+            start_norm = self.seconds_to_srt_time(self.srt_time_to_seconds(entry["start"]))
+            end_norm = self.seconds_to_srt_time(self.srt_time_to_seconds(entry["end"]))
+            
+            # Clean text: remove double newlines which might break SRT format
+            clean_text = entry["text"].replace("\r\n", "\n").replace("\n\n", "\n").strip()
+            
             entries.append(SubtitleEntry(
                 id=i,
-                start_time=entry["start"],
-                end_time=entry["end"],
-                text=entry["text"],
+                start_time=start_norm,
+                end_time=end_norm,
+                text=clean_text,
             ))
         
         # Save as SRT
@@ -127,7 +134,8 @@ class SubtitleService:
                     # Find the timing line (could be first or second line)
                     timing_line_idx = -1
                     for idx, line in enumerate(lines[:3]):  # Check first 3 lines
-                        if re.match(r'\d{2}:\d{2}:\d{2}[,\.]\d{3}\s*-->', line.strip()):
+                        # Relaxed regex: \d{1,2} for hours/mins/secs
+                        if re.match(r'\d{1,2}:\d{1,2}:\d{1,2}[,\.]\d{1,3}\s*-->', line.strip()):
                             timing_line_idx = idx
                             break
                     
@@ -142,13 +150,16 @@ class SubtitleService:
                         except ValueError:
                             pass
                     
+                    # Relaxed regex capture
                     time_match = re.match(
-                        r'(\d{2}:\d{2}:\d{2}[,\.]\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}[,\.]\d{3})',
+                        r'(\d{1,2}:\d{1,2}:\d{1,2}[,\.]\d{1,3})\s*-->\s*(\d{1,2}:\d{1,2}:\d{1,2}[,\.]\d{1,3})',
                         lines[timing_line_idx].strip()
                     )
                     if time_match:
-                        start_time = time_match.group(1).replace('.', ',')
-                        end_time = time_match.group(2).replace('.', ',')
+                        # We should normalize these when reading too, just in case
+                        start_time = self.seconds_to_srt_time(self.srt_time_to_seconds(time_match.group(1)))
+                        end_time = self.seconds_to_srt_time(self.srt_time_to_seconds(time_match.group(2)))
+                        
                         text_lines = lines[timing_line_idx + 1:]
                         text = '\n'.join(text_lines).strip()
                         

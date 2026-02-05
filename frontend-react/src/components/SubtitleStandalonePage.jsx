@@ -14,7 +14,46 @@ export default function SubtitleStandalonePage() {
     const [progress, setProgress] = useState(0)
     const [outputUrl, setOutputUrl] = useState(null)
     const [showEditor, setShowEditor] = useState(false)
+    const [subtitleUrl, setSubtitleUrl] = useState(null)
     const fileInputRef = useRef(null)
+
+    // Load subtitles for preview
+    const loadSubtitles = useCallback(async () => {
+        if (!projectId) return
+        try {
+            const res = await fetch(`${API_BASE}/projects/${projectId}/subtitles`)
+            if (res.ok) {
+                const data = await res.json()
+                const entries = data.entries || []
+
+                if (entries.length === 0) {
+                    setSubtitleUrl(null)
+                    return
+                }
+
+                // Convert to WebVTT format for <track>
+                const vttContent = "WEBVTT\n\n" + entries.map(e => {
+                    // Start and end times: Replace comma with dot (SRT -> VTT)
+                    const start = e.start_time.replace(',', '.')
+                    const end = e.end_time.replace(',', '.')
+                    return `${start} --> ${end}\n${e.text}`
+                }).join('\n\n')
+
+                const blob = new Blob([vttContent], { type: 'text/vtt' })
+                const url = URL.createObjectURL(blob)
+                setSubtitleUrl(url)
+            }
+        } catch (err) {
+            console.error("Failed to load subtitles for preview:", err)
+        }
+    }, [projectId])
+
+    // Reload subtitles when editor closes or status becomes ready
+    useEffect(() => {
+        if (status === 'ready' && !showEditor) {
+            loadSubtitles()
+        }
+    }, [status, showEditor, loadSubtitles])
 
     const handleFileDrop = useCallback((e) => {
         e.preventDefault()
@@ -163,7 +202,17 @@ export default function SubtitleStandalonePage() {
                                     src={videoUrl}
                                     controls
                                     className="preview-video"
-                                />
+                                >
+                                    {subtitleUrl && (
+                                        <track
+                                            kind="subtitles"
+                                            src={subtitleUrl}
+                                            srcLang="en"
+                                            label="English"
+                                            default
+                                        />
+                                    )}
+                                </video>
                             </div>
 
                             <div className="video-actions">

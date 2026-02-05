@@ -1,0 +1,22 @@
+{
+  "font_family": "Montserrat",
+  "font_size": 48,
+  "font_weight": "bold",
+  "font_color": "#FFFFFF",
+  "stroke_color": "#000000",
+  "stroke_width": 3,
+  "shadow_color": "#000000",
+  "shadow_offset": 2,
+  "background_enabled": false,
+  "background_color": "#000000",
+  "background_opacity": 0.7,
+  "background_padding": 12,
+  "background_radius": 8,
+  "position": "bottom",
+  "margin_x": 50,
+  "margin_y": 60,
+  "text_align": "center",
+  "max_width_percent": 90,
+  "uppercase": false,
+  "animation": "none"
+}

@@ -48,10 +48,15 @@ class GenAIClient:
             elif hasattr(response, "text"):
                 log_response = response.text
             
+            response_len = len(str(log_response))
+            display_response = str(log_response)
+            if response_len > 2000:
+                display_response = display_response[:2000] + f" ... <truncated, total {response_len} chars>"
+
             logger.info("-" * 40)
             logger.info(f"GEMINI INTERACTION: {method}")
             logger.info(f"REQUEST:\n{request}")
-            logger.info(f"RESPONSE:\n{log_response}")
+            logger.info(f"RESPONSE (Length: {response_len}):\n{display_response}")
             logger.info("-" * 40)
         except Exception as e:
             logger.error(f"Failed to log interaction: {e}")
@@ -165,94 +170,118 @@ class GenAIClient:
         else:
             language_instruction = "Detect the language automatically and transcribe in the original language."
         
-        system_instruction = f"""
-        You are an expert video subtitler and audio engineer. Your task is to create PIXEL-PERFECT SYNCHRONIZED subtitles for the provided audio.
+        system_instruction_text = f"""
+        You are an expert audio subtitler. Your task is to generate precise, synchronized subtitles for the provided audio.
         
-        CRITICAL TIMING INSTRUCTIONS (READ CAREFULLY):
-        1. **PHONEME-LEVEL ALIGNMENT**: Listen for the exact start of the *first distinct sound* of a spoken phrase. That is your `start` time.
-        2. **GAP HANDLING**: If there is a silence >= 0.5s between phrases, CLOSE the previous subtitle entry before the silence begins. Do NOT blindly bridge gaps unless the speech is continuous.
-        3. **NO OVERLAP**: `start` of "Phrase B" must be >= `end` of "Phrase A".
-        4. **PRECISION**: Use the waveform data internally (if possible) to align to the millisecond.
+        LANGUAGE INSTRUCTION: {language_instruction}
         
-        SRT FORMATTING (STRICT):
-        - `HH:MM:SS,mmm` (e.g., `00:00:01,534`). 
-        - Comma separator is MANDATORY.
+        TIMING & FORMATTING:
+        1. **Precision**: Start time must match the exact first sound of the phrase. Use SRT format `HH:MM:SS,mmm`.
+        2. **Gaps**: If there is a silence >= 0.5s, close the previous segment. Do not bridge large gaps.
+        3. **No Overlap**: The start of a segment must be >= the end of the previous one.
         
         TEXT RULES:
-        1. **Word Count Constraints**:
-           - **Minimum Words**: {min_words} words per line.
-           - **Maximum Words**: {max_words} words per line. 
-           - **Exceptions**: If a natural pause/silence occurs, you CAN break the line even if it has fewer words.
-        2. **NO NON-VERBAL TAGS**: Do NOT include labels like [Music], [Applause], [Silence], or [Instrumental]. Output ONLY the spoken words (lyrics or speech). If there is no speech, return nothing.
-        3. **Split Logic**: Prioritize splitting at natural grammatical boundaries if possible, but STRICTLY adhere to the max word count.
+        1. **Length**: Between {min_words} and {max_words} words per segment. Break at natural pauses.
+        2. **Content**: Transcribe ONLY spoken words. NO non-verbal tags like [Music] or [Applause].
+        3. **Completeness**: Transcribe the audio from BEGINNING to END. Do not summarize or stop early.
         
-        CRITICAL:
-        - You MUST transcribe the audio FROM BEGINNING TO END.
-        - Do NOT summarize. Do NOT skip parts.
-        - Do NOT stop until the audio file ends. 
-        - If the audio is long, continue transcribing until the very last second.
-        
-        OUTPUT REQUIREMENT:
-        Return a strictly valid JSON array of objects.
+        OUTPUT FORMAT:
+        Return a strictly valid JSON array matching the schema:
+        [{{
+            "start": "HH:MM:SS,mmm", 
+            "end": "HH:MM:SS,mmm", 
+            "text": "string"
+        }}]
         """
-        
-        user_prompt = f"""
-        Transcribe the attached audio file.
-        {language_instruction}
-        """
-        
-        try:
-            # Define schema for structured output
-            subtitle_schema = types.Schema(
-                type=types.Type.ARRAY,
-                items=types.Schema(
-                    type=types.Type.OBJECT,
-                    properties={
-                        "start": types.Schema(
-                            type=types.Type.STRING,
-                            description="Start time in SRT format (HH:MM:SS,mmm)"
-                        ),
-                        "end": types.Schema(
-                            type=types.Type.STRING,
-                            description="End time in SRT format (HH:MM:SS,mmm)"
-                        ),
-                        "text": types.Schema(
-                            type=types.Type.STRING,
-                            description="Transcribed text"
-                        ),
-                    },
-                    required=["start", "end", "text"]
-                )
-            )
 
-            # Use Gemini 3.0 Flash for best transcription quality
+        try:
+            logger.info(f"Generating subtitles using model: {self.subtitle_model}")
+            
+            contents = [
+                types.Content(
+                    role="user",
+                    parts=[
+                        types.Part.from_uri(
+                            file_uri=file_ref.uri,
+                            mime_type=file_ref.mime_type
+                        ),
+                        types.Part.from_text(text="Transcribe the audio file using the provided system instructions."),
+                    ],
+                ),
+            ]
+
             generate_config = types.GenerateContentConfig(
                 response_mime_type="application/json",
-                response_schema=subtitle_schema,
+                response_schema=types.Schema(
+                    type=types.Type.ARRAY,
+                    items=types.Schema(
+                        type=types.Type.OBJECT,
+                        required=["text", "start", "end"],
+                        properties={
+                            "text": types.Schema(
+                                type=types.Type.STRING,
+                            ),
+                            "start": types.Schema(
+                                type=types.Type.STRING,
+                            ),
+                            "end": types.Schema(
+                                type=types.Type.STRING,
+                            ),
+                        },
+                    ),
+                ),
                 temperature=0.0,
                 max_output_tokens=8192,
-                system_instruction=system_instruction
+                system_instruction=[
+                    types.Part.from_text(text=system_instruction_text),
+                ],
             )
 
             response = self._client.models.generate_content(
                 model=self.subtitle_model,
-                contents=[user_prompt, file_ref],
+                contents=contents,
                 config=generate_config
             )
-            self._log_interaction("transcribe_audio_for_subtitles", "Audio transcription request", response)
+            
+            logger.info("Model raw response begin:")
+            try:
+                logger.info(response.text)
+            except Exception as e:
+                logger.error(f"Could not read response text: {e}")
+            logger.info("Model raw response end.")
+
+            self._log_interaction(
+                "transcribe_audio_for_subtitles", 
+                f"Audio transcription request using model: {self.subtitle_model}", 
+                response
+            )
             
             # With structured output, response.text should be valid JSON
             result = self._extract_json(response.text)
             
+            # 1. Direct List
             if isinstance(result, list):
                 return result
-            elif isinstance(result, dict) and "subtitles" in result:
-                return result["subtitles"]
-            elif isinstance(result, dict) and "entries" in result:
-                return result["entries"]
-            else:
-                logger.warning(f"Unexpected transcription result format: {type(result)}")
-                return []
+            
+            if isinstance(result, dict):
+                # 2. Known keys
+                for key in ["subtitles", "entries", "segments", "data", "results"]:
+                    if key in result and isinstance(result[key], list):
+                        return result[key]
+                
+                # 3. Single object fallback (if model returned just one segment as an object)
+                if "start" in result and "text" in result:
+                    return [result]
+
+                # 4. Deep search: Look for ANY list value that contains subtitle-like objects
+                for value in result.values():
+                    if isinstance(value, list) and len(value) > 0 and isinstance(value[0], dict):
+                        # Check if the first item has at least 'text' or 'start'
+                        if "text" in value[0] or "start" in value[0]:
+                            return value
+
+            logger.warning(f"Unexpected transcription result format: {type(result)} - {result}")
+            return []
                 
         except Exception as e:
             logger.error(f"Audio transcription failed: {e}")
