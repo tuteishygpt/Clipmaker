@@ -110,3 +110,67 @@ class FileStorage:
                 continue
                 
         return max_v
+
+    # ==================== Subtitle Storage Methods ====================
+    
+    def save_subtitles(self, project_id: str, content: str) -> Path:
+        """Save SRT content to file."""
+        subs_dir = self._project_path(project_id) / "subtitles"
+        subs_dir.mkdir(parents=True, exist_ok=True)
+        path = subs_dir / "subtitles.srt"
+        path.write_text(content, encoding="utf-8")
+        return path
+    
+    def get_subtitles_path(self, project_id: str) -> Path | None:
+        """Get path to SRT file."""
+        path = self._project_path(project_id) / "subtitles" / "subtitles.srt"
+        return path if path.exists() else None
+    
+    def save_subtitle_styling(self, project_id: str, styling: dict) -> Path:
+        """Save subtitle styling config as JSON."""
+        import json
+        subs_dir = self._project_path(project_id) / "subtitles"
+        subs_dir.mkdir(parents=True, exist_ok=True)
+        path = subs_dir / "styling.json"
+        path.write_text(json.dumps(styling, indent=2), encoding="utf-8")
+        return path
+    
+    def get_subtitle_styling(self, project_id: str) -> dict | None:
+        """Load subtitle styling config from JSON."""
+        import json
+        path = self._project_path(project_id) / "subtitles" / "styling.json"
+        if path.exists():
+            return json.loads(path.read_text(encoding="utf-8"))
+        return None
+    
+    def delete_subtitles(self, project_id: str) -> None:
+        """Delete all subtitle files for a project."""
+        subs_dir = self._project_path(project_id) / "subtitles"
+        if subs_dir.exists():
+            shutil.rmtree(subs_dir)
+    
+    # ==================== Standalone Video Storage ====================
+    
+    def save_video(self, project_id: str, file: BinaryIO, filename: str) -> Path:
+        """Save an uploaded video file for standalone subtitle mode."""
+        source_dir = self._project_path(project_id) / "source"
+        source_dir.mkdir(parents=True, exist_ok=True)
+        
+        extension = Path(filename).suffix or ".mp4"
+        target = source_dir / f"video{extension}"
+        
+        with target.open("wb") as buffer:
+            shutil.copyfileobj(file, buffer)
+        
+        return target
+    
+    def get_video_path(self, project_id: str) -> Path | None:
+        """Get the uploaded video file path for a project."""
+        source_dir = self._project_path(project_id) / "source"
+        if not source_dir.exists():
+            return None
+        
+        for file_path in source_dir.glob("video.*"):
+            return file_path
+        return None
+

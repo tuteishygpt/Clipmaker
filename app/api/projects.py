@@ -14,7 +14,16 @@ from ..repositories.file_storage import FileStorage
 from ..services.pipeline_service import PipelineService
 from ..services.image_service import ImageService
 from ..services.story_service import StoryboardService
+from ..services.subtitle_service import SubtitleService
 from ..services.billing_service import billing_service
+from ..schemas.subtitle import (
+    SubtitleEntry,
+    SubtitleStyling,
+    SubtitleUpdate,
+    SubtitleResponse,
+    SubtitleGenerateRequest,
+    get_available_fonts,
+)
 from ..core.logging import get_logger
 from ..core.config import settings
 from ..core.billing import (
@@ -49,6 +58,9 @@ def get_image_service() -> ImageService:
 
 def get_story_service() -> StoryboardService:
     return StoryboardService(project_repo=project_repo)
+
+def get_subtitle_service() -> SubtitleService:
+    return SubtitleService(project_repo=project_repo, file_storage=file_storage)
 
 
 @router.get("", response_model=list[ProjectResponse])
@@ -563,3 +575,257 @@ async def download_project_video(project_id: str) -> FileResponse:
         filename=video_path.name,
         headers={"Content-Type": "video/mp4"},
     )
+
+
+# ==================== Subtitle Endpoints ====================
+
+@router.post("/{project_id}/subtitles/generate", response_model=SubtitleResponse)
+async def generate_subtitles(
+    project_id: str,
+    request: SubtitleGenerateRequest = SubtitleGenerateRequest(),
+    subtitle_service: SubtitleService = Depends(get_subtitle_service)
+) -> SubtitleResponse:
+    """Generate subtitles from audio using Gemini 3.0 Flash."""
+    if not project_repo.exists(project_id):
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    audio_path = file_storage.get_audio_path(project_id)
+    if not audio_path:
+        raise HTTPException(status_code=400, detail="No audio file uploaded")
+    
+    from fastapi.concurrency import run_in_threadpool
+    
+    try:
+        entries = await run_in_threadpool(
+            subtitle_service.transcribe_audio,
+            project_id=project_id,
+            language=request.language,
+            min_words=request.min_words,
+            max_words=request.max_words,
+        )
+        
+        # Get styling (default or existing)
+        styling_dict = file_storage.get_subtitle_styling(project_id)
+        styling = SubtitleStyling(**(styling_dict or {}))
+        
+        return SubtitleResponse(
+            entries=entries,
+            styling=styling,
+            srt_content=subtitle_service.get_srt_content(project_id),
+        )
+    except Exception as e:
+        logger.error(f"Subtitle generation failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Subtitle generation failed: {str(e)}")
+
+
+@router.post("/{project_id}/subtitles/import", response_model=SubtitleResponse)
+async def import_subtitles(
+    project_id: str,
+    srt_file: UploadFile = File(...),
+    subtitle_service: SubtitleService = Depends(get_subtitle_service)
+) -> SubtitleResponse:
+    """Import SRT file."""
+    if not project_repo.exists(project_id):
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    if not srt_file.filename or not srt_file.filename.lower().endswith('.srt'):
+        raise HTTPException(status_code=400, detail="File must be a .srt file")
+    
+    try:
+        entries = subtitle_service.import_srt(
+            project_id=project_id,
+            file=srt_file.file,
+            filename=srt_file.filename,
+        )
+        
+        styling_dict = file_storage.get_subtitle_styling(project_id)
+        styling = SubtitleStyling(**(styling_dict or {}))
+        
+        return SubtitleResponse(
+            entries=entries,
+            styling=styling,
+            srt_content=subtitle_service.get_srt_content(project_id),
+        )
+    except Exception as e:
+        logger.error(f"SRT import failed: {e}")
+        raise HTTPException(status_code=400, detail=f"Failed to parse SRT file: {str(e)}")
+
+
+@router.get("/{project_id}/subtitles", response_model=SubtitleResponse)
+async def get_subtitles(
+    project_id: str,
+    subtitle_service: SubtitleService = Depends(get_subtitle_service)
+) -> SubtitleResponse:
+    """Get current subtitles."""
+    if not project_repo.exists(project_id):
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    result = subtitle_service.load_subtitles(project_id)
+    if not result:
+        # Return empty response if no subtitles exist
+        return SubtitleResponse(
+            entries=[],
+            styling=SubtitleStyling(),
+            srt_content=None,
+        )
+    
+    return result
+
+
+@router.put("/{project_id}/subtitles", response_model=SubtitleResponse)
+async def update_subtitles(
+    project_id: str,
+    payload: SubtitleUpdate,
+    subtitle_service: SubtitleService = Depends(get_subtitle_service)
+) -> SubtitleResponse:
+    """Update subtitle entries and/or styling."""
+    if not project_repo.exists(project_id):
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    if payload.entries is not None:
+        subtitle_service.update_entries(project_id, payload.entries)
+    
+    if payload.styling is not None:
+        subtitle_service.update_styling(project_id, payload.styling)
+    
+    # Return updated state
+    result = subtitle_service.load_subtitles(project_id)
+    if not result:
+        return SubtitleResponse(
+            entries=[],
+            styling=SubtitleStyling(),
+            srt_content=None,
+        )
+    
+    return result
+
+
+@router.get("/{project_id}/subtitles/download")
+async def download_srt(project_id: str) -> FileResponse:
+    """Download SRT file."""
+    if not project_repo.exists(project_id):
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    srt_path = file_storage.get_subtitles_path(project_id)
+    if not srt_path:
+        raise HTTPException(status_code=404, detail="Subtitles not found")
+    
+    return FileResponse(
+        path=srt_path,
+        media_type="application/x-subrip",
+        filename="subtitles.srt",
+        headers={"Content-Type": "text/plain; charset=utf-8"},
+    )
+
+
+@router.delete("/{project_id}/subtitles")
+async def delete_subtitles(
+    project_id: str,
+    subtitle_service: SubtitleService = Depends(get_subtitle_service)
+) -> dict[str, str]:
+    """Delete all subtitles for a project."""
+    if not project_repo.exists(project_id):
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    subtitle_service.delete_subtitles(project_id)
+    return {"status": "OK", "message": "Subtitles deleted"}
+
+
+@router.get("/meta/fonts")
+async def list_fonts() -> dict[str, Any]:
+    """Get list of available fonts for subtitles."""
+    fonts = get_available_fonts()
+    return {
+        "fonts": [f.model_dump() for f in fonts],
+        "total": len(fonts),
+    }
+
+
+# ==================== Standalone Video Endpoints ====================
+
+@router.post("/{project_id}/upload-video", response_model=RunResponse)
+async def upload_video_standalone(
+    project_id: str,
+    video: UploadFile = File(...)
+) -> RunResponse:
+    """Upload video for standalone subtitle mode."""
+    if not project_repo.exists(project_id):
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Validate video format
+    valid_types = ['video/mp4', 'video/quicktime', 'video/webm', 'video/avi', 'video/x-msvideo']
+    if video.content_type not in valid_types:
+        raise HTTPException(status_code=400, detail="Invalid video format")
+    
+    project_repo.ensure_dirs(project_id)
+    
+    # Save video to project
+    video_path = file_storage.save_video(project_id, video.file, video.filename or "video.mp4")
+    
+    # Also extract audio for transcription
+    try:
+        import subprocess
+        audio_path = video_path.parent / "track.wav"
+        subprocess.run([
+            "ffmpeg", "-y", "-i", str(video_path),
+            "-vn", "-acodec", "pcm_s16le", "-ar", "44100", "-ac", "2",
+            str(audio_path)
+        ], capture_output=True, check=True)
+        logger.info(f"Extracted audio to {audio_path}")
+    except Exception as e:
+        logger.warning(f"Could not extract audio from video: {e}")
+    
+    project_repo.update(project_id, {"status": "VIDEO_UPLOADED", "standalone_mode": True})
+    
+    return RunResponse(status="OK", message="Video uploaded")
+
+
+@router.post("/{project_id}/render-standalone", response_model=RunResponse)
+async def render_standalone(
+    project_id: str,
+    background: BackgroundTasks,
+    pipeline_service: PipelineService = Depends(get_pipeline_service)
+) -> RunResponse:
+    """Render video with subtitles only (standalone mode)."""
+    if not project_repo.exists(project_id):
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    video_path = file_storage.get_video_path(project_id)
+    if not video_path:
+        raise HTTPException(status_code=400, detail="No video uploaded")
+    
+    srt_path = file_storage.get_subtitles_path(project_id)
+    if not srt_path:
+        raise HTTPException(status_code=400, detail="No subtitles available")
+    
+    async def render_with_subtitles():
+        from ..services.render_service import RenderService
+        render_service = RenderService(project_repo, file_storage)
+        
+        project_repo.update_job(project_id, "render", {"status": "RUNNING", "progress": 0})
+        
+        try:
+            # Use standard render with video source instead of segments
+            output_path, duration = render_service.render_standalone_video(
+                project_id=project_id,
+                video_path=video_path,
+            )
+            
+            project_repo.update_job(project_id, "render", {
+                "status": "DONE",
+                "progress": 100,
+                "output_path": str(output_path),
+                "render_duration": duration
+            })
+            
+        except Exception as e:
+            logger.error(f"Standalone render failed: {e}")
+            project_repo.update_job(project_id, "render", {
+                "status": "ERROR",
+                "message": str(e)
+            })
+    
+    background.add_task(render_with_subtitles)
+    
+    return RunResponse(status="OK", message="Standalone render started")
+

@@ -19,6 +19,7 @@ class Settings:
     genai_api_key: str | None = None
     genai_text_model: str = "gemini-2.5-flash"
     genai_image_model: str = "gemini-2.5-flash-image"
+    genai_subtitle_model: str = "gemini-2.0-flash"
     genai_text_mode: str = "standard"
     genai_image_mode: str = "standard"
     
@@ -44,6 +45,7 @@ class Settings:
             genai_api_key=os.getenv("GENAI_API_KEY"),
             genai_text_model=os.getenv("GENAI_TEXT_MODEL", "gemini-2.5-flash"),
             genai_image_model=os.getenv("GENAI_IMAGE_MODEL", "gemini-2.5-flash-image"),
+            genai_subtitle_model=os.getenv("GENAI_SUBTITLE_MODEL", "gemini-2.0-flash"),
             genai_text_mode=os.getenv("GENAI_TEXT_MODE", "standard"),
             genai_image_mode=os.getenv("GENAI_IMAGE_MODE", "standard"),
             supabase_url=os.getenv("SUPABASE_URL"),

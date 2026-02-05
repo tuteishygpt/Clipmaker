@@ -24,10 +24,12 @@ class GenAIClient:
         api_key: str | None = None,
         text_model: str | None = None,
         image_model: str | None = None,
+        subtitle_model: str | None = None,
     ) -> None:
         self.api_key = api_key or settings.genai_api_key
         self.text_model = text_model or settings.genai_text_model
         self.image_model = image_model or settings.genai_image_model
+        self.subtitle_model = subtitle_model or settings.genai_subtitle_model
         
         self._client = genai.Client(api_key=self.api_key)
         
@@ -57,17 +59,57 @@ class GenAIClient:
     def _extract_json(self, text: str) -> Any:
         """Extract JSON from model response text."""
         try:
-            # Try to find JSON in code blocks
-            match = re.search(r"```json\s*(.*?)\s*```", text, re.DOTALL)
+            # 1. Try to find JSON in code blocks
+            match = re.search(r"```(?:json)?\s*(.*?)\s*```", text, re.DOTALL)
+            if match:
+                text = match.group(1)
+            
+            text = text.strip()
+            
+            # 2. Simple attempt
+            try:
+                return json.loads(text)
+            except json.JSONDecodeError:
+                pass
+            
+            # 3. Handle Truncated List: Starts with [ but doesn't end with ]
+            if text.startswith("[") and not text.endswith("]"):
+                # Try appending ]
+                try:
+                    return json.loads(text + "]")
+                except json.JSONDecodeError:
+                    pass
+                # Try removing trailing comma/junk and appending ]
+                # Find the last closing brace }
+                last_brace = text.rfind("}")
+                if last_brace != -1:
+                    truncated = text[:last_brace+1] + "]"
+                    try:
+                        return json.loads(truncated)
+                    except json.JSONDecodeError:
+                        pass
+
+            # 4. Regex fallback (be careful with {})
+            # Prefer full array match
+            match = re.search(r"(\[.*\])", text, re.DOTALL)
             if match:
                 return json.loads(match.group(1))
             
-            # Try to find anything that looks like JSON
-            match = re.search(r"({.*}|\[.*\])", text, re.DOTALL)
+            # 5. Regex for object
+            match = re.search(r"({.*})", text, re.DOTALL)
             if match:
                 return json.loads(match.group(1))
             
-            return json.loads(text)
+            # 6. If it looks like a list content "obj}, {obj", wrap it
+            if "},{" in text:
+                # Try to wrap in brackets
+                try:
+                    return json.loads(f"[{text}]")
+                except json.JSONDecodeError:
+                    pass
+            
+            raise ValueError("Could not extract valid JSON")
+            
         except Exception as e:
             logger.error(f"Failed to parse JSON from response: {e}")
             return {"error": "Failed to parse JSON", "raw": text}
@@ -94,6 +136,127 @@ class GenAIClient:
         except Exception as e:
             logger.error(f"Failed to upload file: {e}")
             return None
+    
+    def transcribe_audio_for_subtitles(
+        self,
+        audio_path: Path,
+        language: str = "auto",
+        min_words: int = 1,
+        max_words: int = 10,
+    ) -> list[dict[str, Any]]:
+        """Transcribe audio to timestamped subtitle segments.
+        
+        Args:
+            audio_path: Path to the audio file.
+            language: Language code or 'auto' for auto-detection.
+            min_words: Minimum words per subtitle segment.
+            max_words: Maximum words per subtitle segment.
+            
+        Returns:
+            List of dicts with 'start', 'end' (SRT format), and 'text' keys.
+        """
+        file_ref = self._upload_file(audio_path)
+        if not file_ref:
+            raise RuntimeError("Failed to upload audio file for transcription")
+        
+        language_instruction = ""
+        if language != "auto":
+            language_instruction = f"The audio is in {language}. Transcribe in that language."
+        else:
+            language_instruction = "Detect the language automatically and transcribe in the original language."
+        
+        system_instruction = f"""
+        You are an expert video subtitler and audio engineer. Your task is to create PIXEL-PERFECT SYNCHRONIZED subtitles for the provided audio.
+        
+        CRITICAL TIMING INSTRUCTIONS (READ CAREFULLY):
+        1. **PHONEME-LEVEL ALIGNMENT**: Listen for the exact start of the *first distinct sound* of a spoken phrase. That is your `start` time.
+        2. **GAP HANDLING**: If there is a silence >= 0.5s between phrases, CLOSE the previous subtitle entry before the silence begins. Do NOT blindly bridge gaps unless the speech is continuous.
+        3. **NO OVERLAP**: `start` of "Phrase B" must be >= `end` of "Phrase A".
+        4. **PRECISION**: Use the waveform data internally (if possible) to align to the millisecond.
+        
+        SRT FORMATTING (STRICT):
+        - `HH:MM:SS,mmm` (e.g., `00:00:01,534`). 
+        - Comma separator is MANDATORY.
+        
+        TEXT RULES:
+        1. **Word Count Constraints**:
+           - **Minimum Words**: {min_words} words per line.
+           - **Maximum Words**: {max_words} words per line. 
+           - **Exceptions**: If a natural pause/silence occurs, you CAN break the line even if it has fewer words.
+        2. **NO NON-VERBAL TAGS**: Do NOT include labels like [Music], [Applause], [Silence], or [Instrumental]. Output ONLY the spoken words (lyrics or speech). If there is no speech, return nothing.
+        3. **Split Logic**: Prioritize splitting at natural grammatical boundaries if possible, but STRICTLY adhere to the max word count.
+        
+        CRITICAL:
+        - You MUST transcribe the audio FROM BEGINNING TO END.
+        - Do NOT summarize. Do NOT skip parts.
+        - Do NOT stop until the audio file ends. 
+        - If the audio is long, continue transcribing until the very last second.
+        
+        OUTPUT REQUIREMENT:
+        Return a strictly valid JSON array of objects.
+        """
+        
+        user_prompt = f"""
+        Transcribe the attached audio file.
+        {language_instruction}
+        """
+        
+        try:
+            # Define schema for structured output
+            subtitle_schema = types.Schema(
+                type=types.Type.ARRAY,
+                items=types.Schema(
+                    type=types.Type.OBJECT,
+                    properties={
+                        "start": types.Schema(
+                            type=types.Type.STRING,
+                            description="Start time in SRT format (HH:MM:SS,mmm)"
+                        ),
+                        "end": types.Schema(
+                            type=types.Type.STRING,
+                            description="End time in SRT format (HH:MM:SS,mmm)"
+                        ),
+                        "text": types.Schema(
+                            type=types.Type.STRING,
+                            description="Transcribed text"
+                        ),
+                    },
+                    required=["start", "end", "text"]
+                )
+            )
+
+            # Use Gemini 3.0 Flash for best transcription quality
+            generate_config = types.GenerateContentConfig(
+                response_mime_type="application/json",
+                response_schema=subtitle_schema,
+                temperature=0.0,
+                max_output_tokens=8192,
+                system_instruction=system_instruction
+            )
+
+            response = self._client.models.generate_content(
+                model=self.subtitle_model,
+                contents=[user_prompt, file_ref],
+                config=generate_config
+            )
+            self._log_interaction("transcribe_audio_for_subtitles", "Audio transcription request", response)
+            
+            # With structured output, response.text should be valid JSON
+            result = self._extract_json(response.text)
+            
+            if isinstance(result, list):
+                return result
+            elif isinstance(result, dict) and "subtitles" in result:
+                return result["subtitles"]
+            elif isinstance(result, dict) and "entries" in result:
+                return result["entries"]
+            else:
+                logger.warning(f"Unexpected transcription result format: {type(result)}")
+                return []
+                
+        except Exception as e:
+            logger.error(f"Audio transcription failed: {e}")
+            raise
     
     def analyze_audio(
         self,

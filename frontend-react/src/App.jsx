@@ -20,6 +20,8 @@ import Lightbox from './components/Lightbox'
 import Toast from './components/common/Toast'
 import LandingPage from './components/landing/LandingPage'
 import LegalPage from './components/landing/LegalPage'
+import SubtitleStandalonePage from './components/SubtitleStandalonePage'
+import SubtitlePanel from './components/SubtitlePanel'
 
 // Cabinet (new module)
 import AuthPage from './components/auth/AuthPage'
@@ -52,6 +54,7 @@ function EditorView() {
     const { loadProjects, stopPolling, projectId, refreshJobs, videoOutput } = useProjectStore()
     const { user } = useAuthStore()
     const { canGenerate, generationBlockReason = null } = useBillingStore()
+    const [showSubtitles, setShowSubtitles] = useState(false)
 
     useEffect(() => {
         loadProjects()
@@ -103,22 +106,41 @@ function EditorView() {
 
                 {/* Center - Preview & Scenes (now full width) */}
                 <section className="content-area content-area-wide">
-                    {projectId && <WorkflowStepper />}
-                    <Preview />
+                    <div className="preview-workflow-container">
+                        <Preview showSubtitlePreview={showSubtitles} />
+                        {projectId && <WorkflowStepper />}
+                    </div>
                     {projectId && (
-                        <div className="preview-actions">
-                            <AnalysisModal />
-                            {videoOutput && (
-                                <a
-                                    href={getDownloadUrl(projectId)}
-                                    download
-                                    className="preview-btn"
+                        <>
+                            <div className="preview-actions">
+                                <AnalysisModal />
+                                <button
+                                    className={`preview-btn ${showSubtitles ? 'active' : ''}`}
+                                    onClick={() => setShowSubtitles(!showSubtitles)}
                                 >
-                                    <span className="btn-icon-emoji">⬇️</span>
-                                    Download
-                                </a>
+                                    <span className="btn-icon-emoji">📝</span>
+                                    Subtitles
+                                </button>
+                                {videoOutput && (
+                                    <a
+                                        href={getDownloadUrl(projectId)}
+                                        download
+                                        className="preview-btn"
+                                    >
+                                        <span className="btn-icon-emoji">⬇️</span>
+                                        Download
+                                    </a>
+                                )}
+                            </div>
+
+                            {showSubtitles && (
+                                <SubtitlePanel
+                                    projectId={projectId}
+                                    isExpanded={true}
+                                    onToggle={() => setShowSubtitles(false)}
+                                />
                             )}
-                        </div>
+                        </>
                     )}
                     <Scenes />
                 </section>
@@ -168,6 +190,9 @@ function App() {
 
                 {/* Main Editor - Works without auth */}
                 <Route path="/studio" element={<EditorView />} />
+
+                {/* Standalone Subtitles Tool */}
+                <Route path="/subtitles" element={<SubtitleStandalonePage />} />
 
                 {/* Auth page */}
                 <Route path="/auth" element={<AuthWrapper />} />

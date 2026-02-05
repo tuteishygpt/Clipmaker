@@ -1,140 +1,121 @@
-/* Horizontal Workflow Stepper - Minimalistic Design */
-.workflow-stepper-horizontal {
+/* Vertical Workflow Stepper - Sidebar Design */
+.workflow-stepper-vertical {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 0;
-    padding: 12px 20px;
+    padding: 16px 12px;
     background: rgba(255, 255, 255, 0.02);
-    border-radius: 50px;
+    border-radius: 24px;
     border: 1px solid rgba(255, 255, 255, 0.06);
+    flex-shrink: 0;
+    height: fit-content;
+    align-self: center;
 }
 
-.wf-step {
+.wf-vstep {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 0;
     position: relative;
     opacity: 0.35;
     transition: all 0.3s ease;
 }
 
-.wf-step.completed,
-.wf-step.active {
+.wf-vstep.completed,
+.wf-vstep.active {
     opacity: 1;
 }
 
-.wf-step.clickable {
+.wf-vstep.clickable {
     cursor: pointer;
 }
 
-.wf-step.clickable:hover .wf-indicator {
+.wf-vstep.clickable:hover .wf-vstep-indicator {
     transform: scale(1.15);
 }
 
-.wf-indicator {
-    width: 32px;
-    height: 32px;
+.wf-vstep-indicator {
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.05);
-    font-size: 1rem;
+    font-size: 1.1rem;
     transition: all 0.3s ease;
     flex-shrink: 0;
+    position: relative;
+    z-index: 2;
 }
 
-.wf-step.completed .wf-indicator {
+.wf-vstep.completed .wf-vstep-indicator {
     background: rgba(16, 185, 129, 0.15);
     color: #10b981;
-    font-weight: 600;
-    font-size: 0.9rem;
 }
 
-.wf-step.active .wf-indicator {
+.wf-vstep.active .wf-vstep-indicator {
     background: rgba(99, 102, 241, 0.2);
-    box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
-    font-size: 1.1rem;
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+    font-size: 1.2rem;
 }
 
-.wf-label {
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: var(--color-text-muted);
-    white-space: nowrap;
-    letter-spacing: 0.01em;
-}
-
-.wf-step.active .wf-label {
-    color: var(--color-text-primary);
-    font-weight: 600;
-}
-
-.wf-step.completed .wf-label {
-    color: #10b981;
-}
-
-.wf-line {
-    width: 24px;
-    height: 1px;
+.wf-vline {
+    width: 2px;
+    height: 16px;
     background: rgba(255, 255, 255, 0.1);
-    margin: 0 8px;
-    flex-shrink: 0;
     transition: background 0.3s ease;
 }
 
-.wf-line.completed {
+.wf-vline.completed {
     background: rgba(16, 185, 129, 0.5);
 }
 
-/* Responsive - hide labels on medium screens */
-@media (max-width: 1100px) {
-    .wf-label {
-        display: none;
+/* Responsive adjustments */
+@media (max-width: 900px) {
+    .workflow-stepper-vertical {
+        flex-direction: row;
+        padding: 10px 16px;
+        border-radius: 50px;
+        width: 100%;
+        justify-content: center;
     }
 
-    .wf-line {
+    .wf-vstep {
+        flex-direction: row;
+    }
+
+    .wf-vstep-indicator {
+        width: 32px;
+        height: 32px;
+        font-size: 0.95rem;
+    }
+
+    .wf-vstep.active .wf-vstep-indicator {
+        font-size: 1.05rem;
+    }
+
+    .wf-vline {
         width: 16px;
-        margin: 0 6px;
+        height: 2px;
     }
 }
 
-@media (max-width: 700px) {
-    .workflow-stepper-horizontal {
-        padding: 10px 16px;
-    }
-
-    .wf-indicator {
+@media (max-width: 600px) {
+    .wf-vstep-indicator {
         width: 28px;
         height: 28px;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
     }
 
-    .wf-step.active .wf-indicator {
-        font-size: 1rem;
+    .wf-vstep.active .wf-vstep-indicator {
+        font-size: 0.95rem;
     }
 
-    .wf-line {
+    .wf-vline {
         width: 10px;
-        margin: 0 4px;
-    }
-}
-
-@media (max-width: 500px) {
-    .workflow-stepper-horizontal {
-        padding: 8px 12px;
-        gap: 4px;
-    }
-
-    .wf-indicator {
-        width: 24px;
-        height: 24px;
-        font-size: 0.8rem;
-    }
-
-    .wf-line {
-        width: 6px;
-        margin: 0 2px;
     }
 }

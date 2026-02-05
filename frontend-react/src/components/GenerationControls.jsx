@@ -5,6 +5,7 @@ import { isSupabaseConfigured } from '../lib/supabase'
 import ProgressBar from './common/ProgressBar'
 
 function GenerationControls() {
+
     const {
         projectId,
         jobs,
@@ -166,8 +167,10 @@ function GenerationControls() {
                     </button>
                 )}
             </div>
+
         </div>
     )
 }
 
 export default GenerationControls
+

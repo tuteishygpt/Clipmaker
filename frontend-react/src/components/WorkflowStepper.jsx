@@ -22,7 +22,7 @@ function WorkflowStepper() {
     }
 
     return (
-        <div className="workflow-stepper-horizontal">
+        <div className="workflow-stepper-vertical">
             {STEPS.map((step, index) => {
                 const isActive = step.id === currentStep
                 const isCompleted = index < currentIndex
@@ -31,16 +31,15 @@ function WorkflowStepper() {
                 return (
                     <div
                         key={step.id}
-                        className={`wf-step ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''} ${isClickable ? 'clickable' : ''}`}
+                        className={`wf-vstep ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''} ${isClickable ? 'clickable' : ''}`}
                         onClick={() => handleStepClick(step, index)}
                         title={step.label}
                     >
-                        <div className="wf-indicator">
+                        <div className="wf-vstep-indicator">
                             {step.icon}
                         </div>
-                        <span className="wf-label">{step.label}</span>
                         {index < STEPS.length - 1 && (
-                            <div className={`wf-line ${isCompleted ? 'completed' : ''}`} />
+                            <div className={`wf-vline ${isCompleted ? 'completed' : ''}`} />
                         )}
                     </div>
                 )
