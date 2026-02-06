@@ -54,7 +54,7 @@ class Settings:
             supabase_jwt_public_key=(os.getenv("SUPABASE_JWT_PUBLIC_KEY") or "").replace("\\n", "\n").strip().strip('"').strip("'"),
             base_dir=base_dir,
             data_dir=base_dir / "data" / "projects",
-            frontend_dir=base_dir / "frontend",
+            frontend_dir=base_dir / "frontend-react" / "dist",
         )
     
     @property
