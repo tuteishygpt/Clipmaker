@@ -660,6 +660,16 @@ async def generate_subtitles(
     if not audio_path:
         raise HTTPException(status_code=400, detail="No audio file uploaded")
     
+    # Auto-adjust settings for vertical videos
+    project = project_repo.get(project_id)
+    if project and project.get("format") == "9:16":
+        # For vertical videos, we limit max words to 5 for better readability
+        # unless the user specifically requested a very small number (which is unlikely to be < 5 anyway)
+        # But here we enforce the max limit of 5 as requested.
+        if request.max_words > 5:
+            logger.info(f"Auto-adjusting max_words from {request.max_words} to 5 for vertical video (9:16)")
+            request.max_words = 5
+    
     from fastapi.concurrency import run_in_threadpool
     
     try:

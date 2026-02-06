@@ -139,6 +139,7 @@ class RenderService:
                 logger=logger_obj,
                 threads=0,
                 preset=render_preset,
+                audio_bitrate="320k",
                 ffmpeg_params=["-crf", "23"],
             )
             
@@ -183,6 +184,7 @@ class RenderService:
                 audio_codec="aac",
                 threads=0,
                 preset="fast",
+                audio_bitrate="320k",
                 ffmpeg_params=["-crf", "23"],
             )
             
