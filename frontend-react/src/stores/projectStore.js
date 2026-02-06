@@ -378,13 +378,53 @@ export const useProjectStore = create((set, get) => ({
     },
 
     updateSegment: async (segmentId, payload) => {
-        const { projectId } = get()
+        const { projectId, segments } = get()
         if (!projectId) return null
+
+        const neighborUpdates = []
+        const currentIndex = segments.findIndex(s => s.id === segmentId)
+
+        if (currentIndex !== -1) {
+            const currentSegment = segments[currentIndex]
+
+            // Check if Start Time changed -> Update Prev Segment End Time
+            // Use loose equality to handle string/number differences
+            if (payload.start_time !== undefined && payload.start_time != currentSegment.start_time) {
+                const prevSegment = segments[currentIndex - 1]
+                if (prevSegment) {
+                    neighborUpdates.push({
+                        id: prevSegment.id,
+                        payload: { end_time: payload.start_time }
+                    })
+                }
+            }
+
+            // Check if End Time changed -> Update Next Segment Start Time
+            if (payload.end_time !== undefined && payload.end_time != currentSegment.end_time) {
+                const nextSegment = segments[currentIndex + 1]
+                if (nextSegment) {
+                    neighborUpdates.push({
+                        id: nextSegment.id,
+                        payload: { start_time: payload.end_time }
+                    })
+                }
+            }
+        }
 
         try {
             const result = await api.updateSegment(projectId, segmentId, payload)
+
+            // Update neighbors if needed
+            if (neighborUpdates.length > 0) {
+                await Promise.all(neighborUpdates.map(u =>
+                    api.updateSegment(projectId, u.id, u.payload)
+                ))
+                get().addToast('Scene and neighbors synced!', 'success')
+            } else {
+                get().addToast('Scene saved!', 'success')
+            }
+
             await get().loadSegments()
-            get().addToast('Scene saved!', 'success')
             return result
         } catch (error) {
             set({ error: error.message })

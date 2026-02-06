@@ -36,18 +36,15 @@ function Timeline({ videoRef }) {
         if (!videoRef?.current) return;
 
         let seconds = parseTimeToSeconds(startStr);
-        console.log('Timeline click - Raw:', startStr, 'Parsed:', seconds);
 
         if (seconds === undefined || seconds === null || isNaN(seconds)) {
             seconds = 0;
         }
 
         try {
-            if (Number.isFinite(seconds) && videoRef.current.fastSeek) {
-                videoRef.current.fastSeek(seconds);
-            } else {
-                videoRef.current.currentTime = seconds;
-            }
+            // Always use currentTime for precise frame alignment
+            videoRef.current.currentTime = seconds;
+
             if (videoRef.current.paused) {
                 videoRef.current.play().catch(e => console.log('Playback prevented:', e));
             }

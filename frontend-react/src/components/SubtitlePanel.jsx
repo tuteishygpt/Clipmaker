@@ -186,6 +186,17 @@ export default function SubtitlePanel({ projectId, isExpanded, onToggle, inSideb
         setExpandedGroup(expandedGroup === group ? null : group)
     }
 
+    // Auto-save effect
+    useEffect(() => {
+        if (!hasChanges) return
+
+        const timer = setTimeout(() => {
+            saveSubtitles()
+        }, 1000)
+
+        return () => clearTimeout(timer)
+    }, [entries, styling, hasChanges])
+
     return (
         <div className={`subtitle-panel ${inSidebar ? 'sidebar-mode' : ''}`}>
             <div className="subtitle-panel-header">
@@ -223,11 +234,13 @@ export default function SubtitlePanel({ projectId, isExpanded, onToggle, inSideb
                             <button className="btn-icon btn-danger" onClick={deleteSubtitles} title="Delete all">🗑️</button>
                         </>
                     )}
-                    {hasChanges && (
-                        <button className="btn-save" onClick={saveSubtitles} disabled={saving}>
-                            {saving ? <span className="spinner" /> : '💾'} Save
-                        </button>
-                    )}
+                    {saving ? (
+                        <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <span className="spinner" style={{ width: '10px', height: '10px', borderWidth: '1px' }} /> Saving...
+                        </span>
+                    ) : hasChanges ? (
+                        <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)' }}>Wait...</span>
+                    ) : null}
                     <button className="btn-close" onClick={onToggle}>✕</button>
                 </div>
             </div>

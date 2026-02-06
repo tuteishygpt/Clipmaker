@@ -2,16 +2,37 @@
  * Parse time string (e.g. "1:30" or "1:30:00") to seconds
  */
 export function parseTimeToSeconds(t) {
-    if (typeof t === 'number') return t
+    if (typeof t === 'number') {
+        return isNaN(t) ? 0 : t
+    }
     if (!t) return 0
 
-    const parts = t.split(':').map(parseFloat)
+    try {
+        // Handle comma as decimal separator
+        const normalized = String(t).trim().replace(',', '.')
 
-    if (parts.length === 1) return parts[0]
-    if (parts.length === 2) return parts[0] * 60 + parts[1]
-    if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2]
+        // Handle HH:MM:SS or MM:SS or SS
+        if (normalized.includes(':')) {
+            const parts = normalized.split(':').map(p => {
+                const val = parseFloat(p)
+                return isNaN(val) ? 0 : val
+            })
 
-    return 0
+            let seconds = 0
+            if (parts.length === 1) seconds = parts[0]
+            else if (parts.length === 2) seconds = parts[0] * 60 + parts[1]
+            else if (parts.length === 3) seconds = parts[0] * 3600 + parts[1] * 60 + parts[2]
+
+            return seconds
+        }
+
+        // Direct number string
+        const val = parseFloat(normalized)
+        return isNaN(val) ? 0 : val
+    } catch (e) {
+        console.error('Time parsing error:', e)
+        return 0
+    }
 }
 
 /**

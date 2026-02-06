@@ -3,8 +3,8 @@ from __future__ import annotations
 
 from typing import Any, Optional
 
-from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, UploadFile
-from fastapi.responses import FileResponse
+from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, Request, UploadFile
+from fastapi.responses import FileResponse, StreamingResponse
 
 from ..schemas.project import ProjectCreate, ProjectResponse
 from ..schemas.segment import SegmentUpdate
@@ -554,12 +554,79 @@ async def get_image(project_id: str, image_name: str) -> FileResponse:
 
 
 @router.get("/{project_id}/renders/{render_name}")
-async def get_render(project_id: str, render_name: str) -> FileResponse:
-    """Get a rendered video."""
+async def get_render(project_id: str, render_name: str, request: Request):
+    """Stream a rendered video with Range request support for seeking."""
+    import os
+    
     render_path = file_storage.get_render_path(project_id, render_name)
     if not render_path:
         raise HTTPException(status_code=404, detail="Render not found")
-    return FileResponse(render_path, media_type="video/mp4")
+    
+    file_size = os.path.getsize(render_path)
+    
+    # Parse Range header
+    range_header = request.headers.get("range")
+    
+    if range_header:
+        # Parse "bytes=start-end" format
+        range_match = range_header.replace("bytes=", "").split("-")
+        start = int(range_match[0]) if range_match[0] else 0
+        end = int(range_match[1]) if range_match[1] else file_size - 1
+        
+        # Clamp to valid range
+        start = max(0, start)
+        end = min(end, file_size - 1)
+        content_length = end - start + 1
+        
+        def iter_file():
+            with open(render_path, "rb") as f:
+                f.seek(start)
+                remaining = content_length
+                chunk_size = 1024 * 1024  # 1MB chunks
+                while remaining > 0:
+                    to_read = min(chunk_size, remaining)
+                    data = f.read(to_read)
+                    if not data:
+                        break
+                    remaining -= len(data)
+                    yield data
+        
+        headers = {
+            "Content-Range": f"bytes {start}-{end}/{file_size}",
+            "Accept-Ranges": "bytes",
+            "Content-Length": str(content_length),
+            "Content-Type": "video/mp4",
+        }
+        
+        return StreamingResponse(
+            iter_file(),
+            status_code=206,
+            headers=headers,
+            media_type="video/mp4"
+        )
+    else:
+        # No Range header - return full file with Accept-Ranges
+        def iter_full_file():
+            with open(render_path, "rb") as f:
+                chunk_size = 1024 * 1024  # 1MB chunks
+                while True:
+                    data = f.read(chunk_size)
+                    if not data:
+                        break
+                    yield data
+        
+        headers = {
+            "Accept-Ranges": "bytes",
+            "Content-Length": str(file_size),
+            "Content-Type": "video/mp4",
+        }
+        
+        return StreamingResponse(
+            iter_full_file(),
+            status_code=200,
+            headers=headers,
+            media_type="video/mp4"
+        )
 
 
 @router.get("/{project_id}/download")
