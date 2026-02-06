@@ -281,3 +281,75 @@
         font-size: 1.1rem;
     }
 }
+
+/* ===== Sidebar Mode ===== */
+.am-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.am-sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.am-sidebar-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--color-text-primary);
+}
+
+.am-sidebar-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.am-sidebar .am-section {
+    margin-bottom: var(--spacing-sm);
+}
+
+.am-sidebar .am-section h3 {
+    font-size: 0.75rem;
+    margin-bottom: 8px;
+}
+
+.am-sidebar .am-stats-grid {
+    gap: 8px;
+}
+
+.am-sidebar .am-stat {
+    padding: 8px 12px;
+    flex: 1;
+    min-width: 70px;
+}
+
+.am-sidebar .am-stat-value {
+    font-size: 1rem;
+}
+
+.am-sidebar .am-stat-label {
+    font-size: 0.6rem;
+}
+
+.am-sidebar .am-text {
+    font-size: 0.8rem;
+    padding: 10px;
+}
+
+.am-sidebar .am-table {
+    font-size: 0.7rem;
+}
+
+.am-sidebar .am-table th,
+.am-sidebar .am-table td {
+    padding: 6px 8px;
+}
+
+.am-sidebar .am-text-cell {
+    max-width: 120px;
+}

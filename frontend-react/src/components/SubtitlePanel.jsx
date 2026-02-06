@@ -46,7 +46,7 @@ const STYLE_PRESETS = [
     { name: 'Bold', icon: '💪', styling: { font_family: 'Bebas Neue', font_color: '#FFFF00', stroke_color: '#000000', stroke_width: 3, background_enabled: false, uppercase: true } },
 ]
 
-export default function SubtitlePanel({ projectId, isExpanded, onToggle }) {
+export default function SubtitlePanel({ projectId, isExpanded, onToggle, inSidebar = false }) {
     const [entries, setEntries] = useState([])
     const [styling, setStyling] = useState(DEFAULT_STYLING)
     const [loading, setLoading] = useState(false)
@@ -187,7 +187,7 @@ export default function SubtitlePanel({ projectId, isExpanded, onToggle }) {
     }
 
     return (
-        <div className="subtitle-panel">
+        <div className={`subtitle-panel ${inSidebar ? 'sidebar-mode' : ''}`}>
             <div className="subtitle-panel-header">
                 <div className="subtitle-panel-tabs">
                     <button

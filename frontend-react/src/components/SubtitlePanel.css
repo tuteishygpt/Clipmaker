@@ -797,6 +797,7 @@
     /* overridden by inline style */
 }
 
+
 .subtitle-preview-overlay.middle {
     top: 50%;
     transform: translateY(-50%);
@@ -868,4 +869,167 @@
     color: rgba(255, 255, 255, 0.5);
     font-size: 12px;
     min-width: 40px;
+}
+
+/* ===== Sidebar Mode ===== */
+/* =========================
+   Sidebar Mode Overrides
+   ========================= */
+
+.subtitle-panel.sidebar-mode {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    margin-top: 0;
+    background: transparent;
+    min-height: 0;
+    animation: none;
+}
+
+.subtitle-panel.sidebar-mode .subtitle-panel-header {
+    padding: 10px 4px;
+    background: transparent;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+}
+
+.subtitle-panel.sidebar-mode .subtitle-panel-tabs {
+    width: 100%;
+    justify-content: center;
+}
+
+.subtitle-panel.sidebar-mode .subtitle-panel-tabs button {
+    flex: 1;
+    justify-content: center;
+}
+
+.subtitle-panel.sidebar-mode .subtitle-panel-actions {
+    justify-content: space-between;
+    width: 100%;
+}
+
+.subtitle-panel.sidebar-mode .btn-close {
+    display: none;
+}
+
+.subtitle-panel.sidebar-mode .subtitle-panel-content {
+    padding: 12px 0;
+    overflow: visible;
+}
+
+/* Sidebar Entry Row Layout */
+.subtitle-panel.sidebar-mode .entry-row {
+    flex-flow: row wrap;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 10px;
+    align-items: center;
+}
+
+.subtitle-panel.sidebar-mode .entry-num {
+    min-width: 24px;
+    padding: 4px;
+    font-size: 10px;
+    order: 1;
+}
+
+.subtitle-panel.sidebar-mode .entry-time {
+    /* Make time inputs fit on one line with ID and Delete */
+    flex: 1;
+    width: auto;
+    font-size: 10px;
+    padding: 4px;
+    text-align: center;
+    letter-spacing: -0.5px;
+    order: 2;
+    min-width: 60px;
+}
+
+.subtitle-panel.sidebar-mode .entry-arrow {
+    font-size: 10px;
+    padding: 0 2px;
+    order: 3;
+}
+
+/* Target the second input type=text (end time) safely */
+.subtitle-panel.sidebar-mode .entry-row input.entry-time:nth-of-type(2) {
+    order: 4;
+}
+
+.subtitle-panel.sidebar-mode .entry-text {
+    /* Force new line */
+    flex: 0 0 100%;
+    order: 6;
+    margin-top: 6px;
+    width: 100% !important;
+    /* Ensure override */
+    font-size: 12px;
+}
+
+.subtitle-panel.sidebar-mode .entry-delete {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    order: 5;
+}
+
+/* Sidebar Styling Controls */
+.subtitle-panel.sidebar-mode .control-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.subtitle-panel.sidebar-mode .control-row>label {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 2px;
+}
+
+/* Stack colors vertically for sidebar to avoid cutoff */
+.subtitle-panel.sidebar-mode .control-row.colors {
+    flex-direction: column;
+    gap: 10px;
+}
+
+.subtitle-panel.sidebar-mode .color-control {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.subtitle-panel.sidebar-mode .color-control label {
+    margin-bottom: 0;
+}
+
+.subtitle-panel.sidebar-mode .color-picker-wrapper {
+    flex: 1;
+    justify-content: flex-end;
+    max-width: 120px;
+    padding: 4px 8px;
+}
+
+.subtitle-panel.sidebar-mode .slider-with-value {
+    width: 100%;
+}
+
+.subtitle-panel.sidebar-mode .group-header {
+    padding: 10px 4px;
+}
+
+.subtitle-panel.sidebar-mode .style-presets {
+    gap: 8px;
+}
+
+.subtitle-panel.sidebar-mode .preset-btn {
+    min-width: 60px;
+    padding: 6px;
+}
+
+.subtitle-panel.sidebar-mode .toggle-label {
+    padding: 8px;
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom'
 import { useAuthStore } from './stores/authStore'
 import { useBillingStore } from './stores/billingStore'
 import { isSupabaseConfigured } from './lib/supabase'
@@ -7,7 +7,6 @@ import { isSupabaseConfigured } from './lib/supabase'
 // Editor (existing app)
 import { useProjectStore } from './stores/projectStore'
 import { getDownloadUrl } from './api'
-import Header from './components/Header'
 import WorkflowStepper from './components/WorkflowStepper'
 import ProjectSelector from './components/ProjectSelector'
 import ProjectForm from './components/ProjectForm'
@@ -53,8 +52,9 @@ function ProtectedRoute({ children }) {
 function EditorView() {
     const { loadProjects, stopPolling, projectId, refreshJobs, videoOutput } = useProjectStore()
     const { user } = useAuthStore()
-    const { canGenerate, generationBlockReason = null } = useBillingStore()
+    const { canGenerate, generationBlockReason = null, credits } = useBillingStore()
     const [showSubtitles, setShowSubtitles] = useState(false)
+    const [showAnalysis, setShowAnalysis] = useState(false)
 
     useEffect(() => {
         loadProjects()
@@ -66,7 +66,7 @@ function EditorView() {
 
     return (
         <div className="app">
-            <Header user={user} />
+            {/* Header moved to sidebar */}
 
             {/* Generation Warning Banner */}
             {user && !canGenerate && generationBlockReason && (
@@ -80,6 +80,36 @@ function EditorView() {
             <main className="main-layout">
                 {/* Left Panel - Project Management & Inputs */}
                 <aside className="control-panel">
+                    {/* Header Section in Sidebar */}
+                    <div className="sidebar-header-section">
+                        <Link to="/" className="sidebar-app-logo">
+                            <span className="logo-icon">🎬</span>
+                            <span className="logo-text">Studio</span>
+                        </Link>
+                        <p className="sidebar-tagline">AI-powered music video generator</p>
+
+                        {/* User Auth */}
+                        {isSupabaseConfigured() && (
+                            <div className="sidebar-auth-section">
+                                {user ? (
+                                    <Link to="/cabinet" className="sidebar-user-card">
+                                        <div className="user-avatar">
+                                            {user.email?.charAt(0).toUpperCase() || '?'}
+                                        </div>
+                                        <div className="user-info-col">
+                                            <span className="user-label">My Account</span>
+                                            <span className="credits-badge">💎 {credits}</span>
+                                        </div>
+                                    </Link>
+                                ) : (
+                                    <Link to="/auth" className="sidebar-signin-btn">
+                                        Sign In
+                                    </Link>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
                     <ProjectSelector />
 
                     {!projectId && (
@@ -96,6 +126,61 @@ function EditorView() {
                                 <AudioUpload />
                             </div>
 
+                            {/* Tools Section - Analysis, Subtitles, Download */}
+                            <div className="left-section">
+                                <div className="divider"><span>TOOLS</span></div>
+                                <div className="sidebar-tools-buttons">
+                                    <button
+                                        className={`sidebar-tool-btn ${showAnalysis ? 'active' : ''}`}
+                                        onClick={() => {
+                                            setShowAnalysis(!showAnalysis)
+                                            if (!showAnalysis) setShowSubtitles(false)
+                                        }}
+                                    >
+                                        <span className="btn-icon-emoji">📊</span>
+                                        Analysis
+                                    </button>
+                                    <button
+                                        className={`sidebar-tool-btn ${showSubtitles ? 'active' : ''}`}
+                                        onClick={() => {
+                                            setShowSubtitles(!showSubtitles)
+                                            if (!showSubtitles) setShowAnalysis(false)
+                                        }}
+                                    >
+                                        <span className="btn-icon-emoji">📝</span>
+                                        Subtitles
+                                    </button>
+                                    {videoOutput && (
+                                        <a
+                                            href={getDownloadUrl(projectId)}
+                                            download
+                                            className="sidebar-tool-btn"
+                                        >
+                                            <span className="btn-icon-emoji">⬇️</span>
+                                            Download
+                                        </a>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Inline Tool Panels in Sidebar */}
+                            {showAnalysis && (
+                                <div className="left-section sidebar-tool-panel">
+                                    <AnalysisModal inSidebar={true} onClose={() => setShowAnalysis(false)} />
+                                </div>
+                            )}
+
+                            {showSubtitles && (
+                                <div className="left-section sidebar-tool-panel">
+                                    <SubtitlePanel
+                                        projectId={projectId}
+                                        isExpanded={true}
+                                        onToggle={() => setShowSubtitles(false)}
+                                        inSidebar={true}
+                                    />
+                                </div>
+                            )}
+
                             <div className="left-section">
                                 <div className="divider"><span>ACTIONS</span></div>
                                 <GenerationControls />
@@ -104,44 +189,12 @@ function EditorView() {
                     )}
                 </aside>
 
-                {/* Center - Preview & Scenes (now full width) */}
-                <section className="content-area content-area-wide">
-                    <div className="preview-workflow-container">
+                {/* Center - Preview & Scenes (maximized video) */}
+                <section className="content-area content-area-wide content-area-maximized">
+                    <div className="preview-workflow-container preview-maximized">
                         <Preview showSubtitlePreview={showSubtitles} />
                         {projectId && <WorkflowStepper />}
                     </div>
-                    {projectId && (
-                        <>
-                            <div className="preview-actions">
-                                <AnalysisModal />
-                                <button
-                                    className={`preview-btn ${showSubtitles ? 'active' : ''}`}
-                                    onClick={() => setShowSubtitles(!showSubtitles)}
-                                >
-                                    <span className="btn-icon-emoji">📝</span>
-                                    Subtitles
-                                </button>
-                                {videoOutput && (
-                                    <a
-                                        href={getDownloadUrl(projectId)}
-                                        download
-                                        className="preview-btn"
-                                    >
-                                        <span className="btn-icon-emoji">⬇️</span>
-                                        Download
-                                    </a>
-                                )}
-                            </div>
-
-                            {showSubtitles && (
-                                <SubtitlePanel
-                                    projectId={projectId}
-                                    isExpanded={true}
-                                    onToggle={() => setShowSubtitles(false)}
-                                />
-                            )}
-                        </>
-                    )}
                     <Scenes />
                 </section>
             </main>

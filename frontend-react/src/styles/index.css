@@ -1588,6 +1588,83 @@ body.landing-body {
     color: var(--color-text-primary);
 }
 
+/* ===== Sidebar Tool Buttons ===== */
+.sidebar-tools-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.sidebar-tool-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-decoration: none;
+    width: 100%;
+    text-align: left;
+}
+
+.sidebar-tool-btn:hover {
+    background: rgba(99, 102, 241, 0.1);
+    border-color: rgba(99, 102, 241, 0.4);
+    color: var(--color-text-primary);
+    transform: translateX(4px);
+}
+
+.sidebar-tool-btn:active {
+    transform: translateX(2px);
+}
+
+.sidebar-tool-btn.active {
+    background: rgba(99, 102, 241, 0.2);
+    border-color: rgba(99, 102, 241, 0.5);
+    color: var(--color-text-primary);
+    box-shadow: 0 0 12px rgba(99, 102, 241, 0.2);
+}
+
+.sidebar-tool-btn .btn-icon-emoji {
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+/* Sidebar Tool Panel Container */
+.sidebar-tool-panel {
+    background: var(--color-bg-card);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    padding: var(--spacing-sm);
+    /* removed max-height and overflow to let it expand */
+}
+
+/* Maximized content area for larger video */
+.content-area-maximized {
+    padding: var(--spacing-md);
+    max-width: 100%;
+    width: 100%;
+}
+
+.content-area-maximized .preview-workflow-container {
+    flex: 1;
+}
+
+.preview-maximized {
+    min-height: 0;
+}
+
+.preview-maximized .cinema-panel {
+    flex: 1;
+    min-height: 0;
+}
+
 /* ===== Header ===== */
 .app-header {
     height: var(--header-height);
@@ -1724,9 +1801,9 @@ body.landing-body {
 
 .preview-box {
     width: 100%;
-    /* Increased height since stepper is now on the side */
-    max-height: 65vh;
-    min-height: 400px;
+    /* Maximized height for larger video display */
+    max-height: 85vh;
+    min-height: 500px;
     background: #000;
     position: relative;
     display: flex;
@@ -1745,7 +1822,7 @@ body.landing-body {
     height: 100%;
     /* Ensure content is fully visible inside the box */
     object-fit: contain;
-    max-height: 65vh;
+    max-height: 85vh;
 }
 
 .preview-placeholder {
@@ -3952,4 +4029,160 @@ body.landing-body {
     color: var(--color-text-muted);
     margin-top: 4px;
     text-align: right;
+}
+
+/* ===== Sidebar Tools Mobile Optimization ===== */
+@media (max-width: 768px) {
+    .sidebar-tools-buttons {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .sidebar-tool-btn {
+        flex: 1;
+        justify-content: center;
+        padding: 10px;
+        font-size: 0.8rem;
+        min-width: 80px;
+    }
+
+    .sidebar-tool-panel {
+        margin-top: 10px;
+        border-radius: 8px;
+    }
+}
+
+/* ===== Layout Overlap Fixes ===== */
+.content-area {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow-y: auto;
+    position: relative;
+    padding-bottom: 40px;
+    /* Add bottom padding for scroll space */
+}
+
+.content-area-maximized .preview-workflow-container {
+    flex: 0 0 auto !important;
+    /* Force container to not shrink/grow */
+    height: auto !important;
+}
+
+.preview-workflow-container {
+    position: relative;
+    z-index: 10;
+    flex-shrink: 0;
+    background: var(--color-bg-primary);
+    /* Ensure opaque background */
+    margin-bottom: 20px;
+    /* Space between video and scenes */
+}
+
+.scenes-section {
+    position: relative;
+    z-index: 5;
+    margin-top: 20px;
+    /* Push scenes down */
+    background: var(--color-bg-primary);
+    /* Ensure opaque background */
+    flex-shrink: 0;
+    /* Scenes shouldn't shrink */
+}
+
+/* ===== Sidebar Header Integration ===== */
+.sidebar-header-section {
+    margin-bottom: var(--spacing-lg);
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: var(--spacing-md);
+}
+
+.sidebar-app-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--color-text-primary);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.sidebar-app-logo .logo-icon {
+    font-size: 1.8rem;
+}
+
+.sidebar-tagline {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    margin-bottom: 16px;
+    line-height: 1.3;
+}
+
+.sidebar-auth-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sidebar-user-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.sidebar-user-card:hover {
+    background: rgba(99, 102, 241, 0.1);
+}
+
+.sidebar-user-card .user-avatar {
+    width: 36px;
+    height: 36px;
+    background: var(--color-primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+}
+
+.user-info-col {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-info-col .user-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.credits-badge {
+    font-size: 0.75rem;
+    color: var(--color-accent);
+    font-weight: 500;
+}
+
+.sidebar-signin-btn {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background: var(--color-primary);
+    color: white;
+    text-align: center;
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.sidebar-signin-btn:hover {
+    background: var(--color-primary-hover);
 }
