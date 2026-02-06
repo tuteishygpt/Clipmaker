@@ -15,6 +15,7 @@ export default function SubtitleStandalonePage() {
     const [outputUrl, setOutputUrl] = useState(null)
     const [showEditor, setShowEditor] = useState(false)
     const [subtitleUrl, setSubtitleUrl] = useState(null)
+    const [format, setFormat] = useState('9:16')
     const fileInputRef = useRef(null)
 
     // Load subtitles for preview
@@ -80,6 +81,18 @@ export default function SubtitleStandalonePage() {
         e.currentTarget.classList.remove('drag-over')
     }
 
+    const getVideoDimensions = (file) => {
+        return new Promise((resolve) => {
+            const video = document.createElement('video');
+            video.preload = 'metadata';
+            video.onloadedmetadata = () => {
+                resolve({ width: video.videoWidth, height: video.videoHeight });
+            };
+            video.onerror = () => resolve({ width: 0, height: 0 }); // Fallback
+            video.src = URL.createObjectURL(file);
+        });
+    };
+
     const uploadVideo = async () => {
         if (!videoFile) return
 
@@ -88,13 +101,19 @@ export default function SubtitleStandalonePage() {
         setProgress(0)
 
         try {
+            // Detect format
+            const dim = await getVideoDimensions(videoFile)
+            const isHorizontal = dim.width > dim.height
+            const detectedFormat = isHorizontal ? '16:9' : '9:16'
+            setFormat(detectedFormat)
+
             // Create a standalone project for subtitles
             const createRes = await fetch(`${API_BASE}/projects`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     title: 'Standalone Subtitles',
-                    format: '9:16',
+                    format: detectedFormat,
                     style: 'default'
                 })
             })
@@ -201,7 +220,7 @@ export default function SubtitleStandalonePage() {
                                 <video
                                     src={videoUrl}
                                     controls
-                                    className="preview-video"
+                                    className="standalone-video-player"
                                 >
                                     {subtitleUrl && (
                                         <track
@@ -340,6 +359,7 @@ export default function SubtitleStandalonePage() {
                     />
                     <SubtitleEditor
                         projectId={projectId}
+                        format={format}
                         onClose={() => setShowEditor(false)}
                     />
                 </>

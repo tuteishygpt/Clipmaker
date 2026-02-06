@@ -48,7 +48,7 @@ const DEFAULT_STYLING = {
     animation: 'none'
 }
 
-export default function SubtitleEditor({ projectId, onClose }) {
+export default function SubtitleEditor({ projectId, onClose, format = '9:16' }) {
     const [entries, setEntries] = useState([])
     const [styling, setStyling] = useState(DEFAULT_STYLING)
     const [loading, setLoading] = useState(false)
@@ -571,8 +571,8 @@ export default function SubtitleEditor({ projectId, onClose }) {
                         </div>
                     </div>
                 ) : (
-                    <div className="preview-panel">
-                        <SubtitlePreview entries={entries} styling={styling} />
+                    <div className="se-preview-panel">
+                        <SubtitlePreview entries={entries} styling={styling} format={format} />
                     </div>
                 )}
             </div>
@@ -581,7 +581,7 @@ export default function SubtitleEditor({ projectId, onClose }) {
 }
 
 // Preview component showing styled subtitle example
-function SubtitlePreview({ entries, styling }) {
+function SubtitlePreview({ entries, styling, format = '9:16' }) {
     const [currentIndex, setCurrentIndex] = useState(0)
 
     const sampleText = entries.length > 0
@@ -618,16 +618,25 @@ function SubtitlePreview({ entries, styling }) {
         padding: `${styling.margin_y * 0.3}px ${styling.margin_x * 0.3}px`,
     }
 
+    const isHorizontal = format === '16:9'
+
     return (
-        <div className="preview-container">
-            <div className="preview-video" style={containerStyle}>
-                <div className="preview-text" style={textStyle}>
+        <div className="se-preview-container">
+            <div
+                className="se-preview-box"
+                style={{
+                    ...containerStyle,
+                    aspectRatio: isHorizontal ? '16/9' : '9/16',
+                    maxWidth: isHorizontal ? '600px' : '400px'
+                }}
+            >
+                <div className="se-preview-text" style={textStyle}>
                     {displayText}
                 </div>
             </div>
 
             {entries.length > 1 && (
-                <div className="preview-controls">
+                <div className="se-preview-controls">
                     <button
                         disabled={currentIndex === 0}
                         onClick={() => setCurrentIndex(i => i - 1)}
@@ -644,7 +653,7 @@ function SubtitlePreview({ entries, styling }) {
                 </div>
             )}
 
-            <p className="preview-note">
+            <p className="se-preview-note">
                 This is a preview. Final render may vary slightly.
             </p>
         </div>
