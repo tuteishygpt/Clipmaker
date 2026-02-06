@@ -137,6 +137,7 @@ function Preview({ showSubtitlePreview = false }) {
     const [imgError, setImgError] = useState(false)
     const [subtitleData, setSubtitleData] = useState(null)
     const [previewDimensions, setPreviewDimensions] = useState({ width: 0, height: 0 })
+    const [videoDimensions, setVideoDimensions] = useState({ width: 0, height: 0, nativeWidth: 0, nativeHeight: 0 })
 
     // Check if pipeline is running
     const pipeJob = jobs.pipeline
@@ -154,9 +155,38 @@ function Preview({ showSubtitlePreview = false }) {
             if (box) {
                 const video = videoRef.current
                 if (video && video.videoWidth > 0) {
+                    // Get native video dimensions
+                    const nativeWidth = video.videoWidth
+                    const nativeHeight = video.videoHeight
+
+                    // Get container dimensions (the space video can occupy)
+                    const containerWidth = video.clientWidth
+                    const containerHeight = video.clientHeight
+
+                    // Calculate actual displayed video dimensions (object-fit: contain)
+                    const videoAspect = nativeWidth / nativeHeight
+                    const containerAspect = containerWidth / containerHeight
+
+                    let displayWidth, displayHeight
+                    if (videoAspect > containerAspect) {
+                        // Video is wider - letterbox top/bottom
+                        displayWidth = containerWidth
+                        displayHeight = containerWidth / videoAspect
+                    } else {
+                        // Video is taller - letterbox left/right
+                        displayHeight = containerHeight
+                        displayWidth = containerHeight * videoAspect
+                    }
+
                     setPreviewDimensions({
-                        width: video.clientWidth,
-                        height: video.clientHeight
+                        width: displayWidth,
+                        height: displayHeight
+                    })
+                    setVideoDimensions({
+                        width: displayWidth,
+                        height: displayHeight,
+                        nativeWidth,
+                        nativeHeight
                     })
                 } else {
                     // Fallback to box dimensions
@@ -415,17 +445,49 @@ function Preview({ showSubtitlePreview = false }) {
                 )}
 
                 {!isPipelineRunning && hasVideo && (
-                    <video
-                        key={videoOutput}
-                        ref={videoRef}
-                        src={videoOutput}
-                        controls
-                        className="preview-video"
-                    />
+                    <>
+                        <video
+                            key={videoOutput}
+                            ref={videoRef}
+                            src={videoOutput}
+                            controls
+                            className="preview-video"
+                        />
+
+                        {/* Subtitle Preview Overlay - constrained to video dimensions */}
+                        {showSubtitlePreview && subtitleData && displayText && videoDimensions.width > 0 && (
+                            <div
+                                className={`subtitle-preview-overlay ${subtitleData.styling.position}`}
+                                style={{
+                                    // Constrain to video area dimensions
+                                    width: `${videoDimensions.width}px`,
+                                    left: '50%',
+                                    transform: subtitleData.styling.position === 'middle'
+                                        ? 'translateX(-50%) translateY(-50%)'
+                                        : 'translateX(-50%)',
+                                    ...(subtitleData.styling.position === 'top' && {
+                                        top: `calc(50% - ${videoDimensions.height / 2}px + ${Math.round(subtitleData.styling.margin_y * scaleFactor)}px)`,
+                                    }),
+                                    ...(subtitleData.styling.position === 'bottom' && {
+                                        bottom: `calc(50% - ${videoDimensions.height / 2}px + ${Math.round(subtitleData.styling.margin_y * scaleFactor)}px)`,
+                                    }),
+                                    ...(subtitleData.styling.position === 'middle' && {
+                                        top: '50%',
+                                    }),
+                                    maxWidth: `${(subtitleData.styling.max_width_percent / 100) * videoDimensions.width}px`,
+                                    overflow: 'hidden',
+                                }}
+                            >
+                                <div className="subtitle-preview-text" style={getSubtitleStyle()}>
+                                    {renderSubtitleWithHighlights(displayText, subtitleData.styling, scaleFactor, displayProgress)}
+                                </div>
+                            </div>
+                        )}
+                    </>
                 )}
 
-                {/* Subtitle Preview Overlay - pixel-accurate to backend render */}
-                {showSubtitlePreview && subtitleData && displayText && (
+                {/* Subtitle Preview Overlay for image/placeholder mode (no video) */}
+                {showSubtitlePreview && subtitleData && displayText && !hasVideo && (
                     <div
                         className={`subtitle-preview-overlay ${subtitleData.styling.position}`}
                         style={{

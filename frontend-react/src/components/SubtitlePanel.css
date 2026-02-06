@@ -782,36 +782,22 @@
 
 .subtitle-preview-overlay {
     position: absolute;
-    left: 0;
-    right: 0;
+    /* left, right, top, bottom, width controlled by inline styles for accurate video-size matching */
     display: flex;
     justify-content: center;
-    padding: 0 20px;
+    padding: 0 10px;
     pointer-events: none;
     z-index: 10;
+    box-sizing: border-box;
 }
 
-/* Position classes - values set via inline styles for accuracy */
-.subtitle-preview-overlay.top {
-    top: 0;
-    /* overridden by inline style */
-}
-
-
-.subtitle-preview-overlay.middle {
-    top: 50%;
-    transform: translateY(-50%);
-}
-
-.subtitle-preview-overlay.bottom {
-    bottom: 0;
-    /* overridden by inline style */
-}
+/* Position classes removed - all positioning controlled by inline styles for accurate video-size matching */
 
 .subtitle-preview-text {
     text-align: center;
     max-width: 100%;
     word-wrap: break-word;
+    overflow-wrap: break-word;
     margin: 0;
     display: inline-block;
 }
