@@ -1,6 +1,7 @@
 /**
  * Cabinet Sidebar Navigation
  */
+import { Link } from 'react-router-dom'
 import { useBillingStore, SUBSCRIPTION_PLANS } from '../../stores/billingStore'
 
 export default function CabinetSidebar({
@@ -84,10 +85,10 @@ export default function CabinetSidebar({
 
             {/* Quick Actions */}
             <div className="sidebar-actions">
-                <a href="/" className="btn-back-to-app">
+                <Link to="/studio" className="btn-back-to-app">
                     <span className="nav-icon">🎥</span>
                     <span>Open Editor</span>
-                </a>
+                </Link>
             </div>
 
             {/* Sign Out */}

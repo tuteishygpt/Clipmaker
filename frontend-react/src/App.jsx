@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, Link, useSearchParams } from 'react-router-dom'
 import { useAuthStore } from './stores/authStore'
 import { useBillingStore } from './stores/billingStore'
 import { isSupabaseConfigured } from './lib/supabase'
@@ -50,7 +50,8 @@ function ProtectedRoute({ children }) {
 
 // Editor view (existing functionality)
 function EditorView() {
-    const { loadProjects, stopPolling, projectId, refreshJobs, videoOutput } = useProjectStore()
+    const [searchParams] = useSearchParams()
+    const { loadProjects, stopPolling, projectId, refreshJobs, videoOutput, openProject, resetProject } = useProjectStore()
     const { user } = useAuthStore()
     const { canGenerate, generationBlockReason = null, credits } = useBillingStore()
     const [showSubtitles, setShowSubtitles] = useState(false)
@@ -58,11 +59,21 @@ function EditorView() {
 
     useEffect(() => {
         loadProjects()
-        if (projectId) {
+
+        // Handle URL parameter for project opening or creating new
+        const projectIdFromUrl = searchParams.get('project')
+        const isNewProject = searchParams.get('new')
+
+        if (isNewProject) {
+            resetProject()
+        } else if (projectIdFromUrl && projectIdFromUrl !== projectId) {
+            openProject(projectIdFromUrl)
+        } else if (projectId) {
             refreshJobs()
         }
+
         return () => stopPolling()
-    }, [loadProjects, stopPolling, projectId, refreshJobs])
+    }, [loadProjects, stopPolling, projectId, refreshJobs, searchParams, openProject, resetProject])
 
     return (
         <div className="app">

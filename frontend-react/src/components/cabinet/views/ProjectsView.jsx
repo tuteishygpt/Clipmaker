@@ -3,6 +3,7 @@
  * List and manage user's projects with generation history
  */
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { useAuthStore } from '../../../stores/authStore'
 import { isSupabaseConfigured } from '../../../lib/supabase'
 import * as api from '../../../api/index.js'
@@ -76,9 +77,9 @@ export default function ProjectsView() {
                     <h1>Projects</h1>
                     <p className="view-subtitle">Manage your video generation projects</p>
                 </div>
-                <a href="/" className="btn-primary">
+                <Link to="/studio?new=true" className="btn-primary">
                     <span>+ New Project</span>
-                </a>
+                </Link>
             </div>
 
             {/* Filters */}
@@ -143,14 +144,14 @@ export default function ProjectsView() {
                                     </div>
                                 </div>
                                 <div className="project-actions">
-                                    <a
-                                        href={`/?project=${project.project_id}`}
+                                    <Link
+                                        to={`/studio?project=${project.project_id}`}
                                         className="btn-icon"
                                         title="Open in Editor"
                                         onClick={(e) => e.stopPropagation()}
                                     >
                                         🎥
-                                    </a>
+                                    </Link>
                                     <button
                                         className="btn-icon danger"
                                         title="Delete"
@@ -175,7 +176,7 @@ export default function ProjectsView() {
                                 }
                             </p>
                             {!searchQuery && (
-                                <a href="/" className="btn-primary">Create Project</a>
+                                <Link to="/studio?new=true" className="btn-primary">Create Project</Link>
                             )}
                         </div>
                     )}
@@ -243,12 +244,12 @@ export default function ProjectsView() {
                         </div>
 
                         <div className="panel-footer">
-                            <a
-                                href={`/?project=${selectedProject.project_id}`}
+                            <Link
+                                to={`/studio?project=${selectedProject.project_id}`}
                                 className="btn-primary full-width"
                             >
                                 Open in Editor
-                            </a>
+                            </Link>
                         </div>
                     </div>
                 )}

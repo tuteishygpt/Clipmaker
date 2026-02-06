@@ -2,6 +2,7 @@
  * Dashboard View
  * Overview of user's account status and quick actions
  */
+import { Link } from 'react-router-dom'
 import { useAuthStore } from '../../../stores/authStore'
 import { useBillingStore } from '../../../stores/billingStore'
 
@@ -46,9 +47,9 @@ export default function DashboardView({ onNavigate }) {
                         <strong>Ready to Generate</strong>
                         <p>You have {credits} credits available. Start creating!</p>
                     </div>
-                    <a href="/" className="btn-banner-action primary">
+                    <Link to="/studio" className="btn-banner-action primary">
                         Open Editor
-                    </a>
+                    </Link>
                 </div>
             )}
 
@@ -116,10 +117,10 @@ export default function DashboardView({ onNavigate }) {
                         <span className="action-icon">⭐</span>
                         <span className="action-label">Upgrade Plan</span>
                     </button>
-                    <a href="/" className="action-card">
+                    <Link to="/studio?new=true" className="action-card">
                         <span className="action-icon">🎥</span>
                         <span className="action-label">Create New</span>
-                    </a>
+                    </Link>
                 </div>
             </section>
 
