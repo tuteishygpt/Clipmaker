@@ -347,8 +347,8 @@ class RenderService:
                 if t >= duration:
                     return 1.0
                 p = get_p(t)
-                # Start from 0.1 to avoid strict 0 issues, go to 1.0
-                return 0.1 + 0.9 * p
+                # Start from 0.6 to avoid "tiny" image look, go to 1.0
+                return 0.6 + 0.4 * p
                 
             # CompositeVideoClip usually centers the clip if sized
             # But set_position("center") is safest
@@ -446,7 +446,16 @@ class RenderService:
             y2 = min(h, y1 + int(final_h))
             
             if x2 <= x1 or y2 <= y1:
-                aux = Image.fromarray(img_arr).resize((tw, th), Image.BICUBIC)
+                # Fallback: Center crop instead of squeeze
+                cx_fb, cy_fb = w / 2, h / 2
+                cw_fb, ch_fb = max_crop_w, max_crop_h
+                fx1 = max(0, int(cx_fb - cw_fb / 2))
+                fy1 = max(0, int(cy_fb - ch_fb / 2))
+                fx2 = min(w, fx1 + int(cw_fb))
+                fy2 = min(h, fy1 + int(ch_fb))
+                part = img_arr[fy1:fy2, fx1:fx2]
+                part_img = Image.fromarray(part)
+                aux = part_img.resize((tw, th), Image.BICUBIC)
                 return np.array(aux)
             
             part = img_arr[y1:y2, x1:x2]
@@ -1249,12 +1258,12 @@ class RenderService:
                 slot_w = t['total_width']
                 
                 # t['x'] is where the TEXT starts
-                t['x'] = x + padding
-                t['y'] = y
+                t['x'] = int(x + padding)
+                t['y'] = int(y)
                 # Box covers the slot (minus standard spacing?)
                 # Box logic: from x to x + slot_w. 
                 # y from y - padding to y + text_height + padding
-                t['box'] = (x, y - padding, x + slot_w, y + text_height + padding)
+                t['box'] = (int(x), int(y - padding), int(x + slot_w), int(y + text_height + padding))
                 
                 positioned_line.append(t)
                 x += slot_w + space_w
@@ -1264,9 +1273,9 @@ class RenderService:
             
         return {
             'lines': final_lines,
-            'w': total_w,
-            'h': total_h,
-            'text_height': text_height
+            'w': int(total_w),
+            'h': int(total_h),
+            'text_height': int(text_height)
         }
 
     def _render_layout(
@@ -1291,8 +1300,9 @@ class RenderService:
                 # Draw highlight if active OR if tagged with <h>
                 if is_active or t.get('hl'):
                     # Draw highlight
+                    box = [int(c) for c in t['box']]
                     draw.rounded_rectangle(
-                        t['box'],
+                        box,
                         radius=hl_radius,
                         fill=hl_bg_color
                     )
