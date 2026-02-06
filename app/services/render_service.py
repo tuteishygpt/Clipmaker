@@ -459,7 +459,7 @@ class RenderService:
         return mp.VideoClip(make_frame, duration=duration)
     
     def _add_subtitles(self, video, project_id: str, mp):
-        """Overlay subtitles on video using moviepy TextClip."""
+        """Overlay subtitles on video using moviepy TextClip with stable layout."""
         srt_path = self.file_storage.get_subtitles_path(project_id)
         if not srt_path:
             logger.info(f"No subtitles found for project {project_id}")
@@ -474,7 +474,6 @@ class RenderService:
         stroke_color = styling_dict.get("stroke_color", "#000000")
         stroke_width = styling_dict.get("stroke_width", 3)
         position = styling_dict.get("position", "bottom")
-        margin_x = styling_dict.get("margin_x", 50)
         margin_y = styling_dict.get("margin_y", 60)
         text_align = styling_dict.get("text_align", "center")
         max_width_pct = styling_dict.get("max_width_percent", 90)
@@ -483,8 +482,7 @@ class RenderService:
         bg_color = styling_dict.get("background_color", "#000000")
         bg_opacity = styling_dict.get("background_opacity", 0.7)
         bg_padding = styling_dict.get("background_padding", 10)
-        bg_radius = styling_dict.get("background_radius", 8)
-        animation = styling_dict.get("animation", "none")  # none, fade, pop, typewriter
+        animation = styling_dict.get("animation", "none")
         
         # Parse highlight styling
         hl_font_color = styling_dict.get("highlight_font_color", "#FFFFFF")
@@ -504,20 +502,9 @@ class RenderService:
         
         subtitle_clips = []
         
-        logger.info(f"Processing {len(entries)} subtitle entries for video ({video_w}x{video_h})")
+        logger.info(f"Processing {len(entries)} subtitle entries for video ({video_w}x{video_h}), karaoke_mode={hl_active_word}")
         
-        # -- Helpers for colors and font -- 
-        # Parse colors
-        def hex_to_rgba(hex_code, alpha=255):
-            h = hex_code.lstrip('#')
-            return tuple(int(h[i:i+2], 16) for i in (0, 2, 4)) + (alpha,)
-        
-        text_color = hex_to_rgba(font_color)
-        outline_color = hex_to_rgba(stroke_color) if stroke_width > 0 else None
-        hl_text_color_rgba = hex_to_rgba(hl_font_color)
-        hl_bg_color_rgba = hex_to_rgba(hl_bg_color)
-        
-        # Load Font once
+        # -- Font Loading (Reuse logic) --
         from PIL import ImageFont
         font = None
         font_weight = styling_dict.get("font_weight", "bold")
@@ -542,9 +529,7 @@ class RenderService:
             str(windows_fonts / "arial.ttf"),
             str(windows_fonts / "arialbd.ttf") if is_bold else str(windows_fonts / "arial.ttf"),
             str(windows_fonts / "segoeui.ttf"),
-            str(windows_fonts / "segoeuib.ttf") if is_bold else str(windows_fonts / "segoeui.ttf"),
             str(windows_fonts / "calibri.ttf"),
-            str(windows_fonts / "calibrib.ttf") if is_bold else str(windows_fonts / "calibri.ttf"),
         ]
         
         loaded = False
@@ -558,7 +543,6 @@ class RenderService:
                 continue
         
         if not loaded:
-            logger.warning(f"Font {font_family} not found, trying fallback")
             for path in windows_fallbacks:
                 try:
                     font = ImageFont.truetype(path, font_size)
@@ -570,6 +554,16 @@ class RenderService:
         if not loaded:
              font = ImageFont.load_default()
 
+        # Parse colors helper
+        def hex_to_rgba(hex_code, alpha=255):
+            h = hex_code.lstrip('#')
+            return tuple(int(h[i:i+2], 16) for i in (0, 2, 4)) + (alpha,)
+        
+        text_color = hex_to_rgba(font_color)
+        outline_color = hex_to_rgba(stroke_color) if stroke_width > 0 else None
+        hl_text_color_rgba = hex_to_rgba(hl_font_color)
+        hl_bg_color_rgba = hex_to_rgba(hl_bg_color)
+        
         # Iterate entries
         for idx, entry in enumerate(entries):
             text = entry["text"]
@@ -583,54 +577,111 @@ class RenderService:
             if duration <= 0:
                 continue
             
-            # Helper logic to create clip
-            def create_clip(txt, dur):
-                try:
-                     return self._render_subtitle_image(
-                        txt, font, font_size, text_color, outline_color, stroke_width,
-                        hl_text_color_rgba, hl_bg_color_rgba, hl_bg_radius, hl_bg_padding,
-                        max_text_width, text_align, mp
-                     ).set_duration(dur)
-                except Exception as e:
-                     logger.warning(f"Render text error: {e}")
-                     return mp.TextClip(txt=txt, fontsize=font_size, color=font_color, size=(max_text_width, None)).set_duration(dur)
-
-            # Active Word Logic
+            # 1. Compute Layout ONCE
+            # Always pass padding, but control application via pad_all flag
+            layout = self._layout_text(
+                text, font, max_text_width, 
+                text_align, hl_bg_padding, pad_all=hl_active_word
+            )
+            
+            # 2. Render Clips
             if hl_active_word:
-                words = text.split()
-                if not words: continue
+                # Karaoke logic
+                # Count total distinct words in layout
+                word_tokens = [t for line in layout['lines'] for t in line if not t['is_space']]
+                word_count = len(word_tokens)
                 
-                word_count = len(words)
+                if word_count == 0:
+                    continue
+                
+                # -- Handle Background Separately for Karaoke (prevents flickering) --
+                if bg_enabled:
+                     clip_w = int(layout['w'])
+                     clip_h = int(layout['h'])
+                     
+                     # Replicate position logic
+                     if position == "top": y_pos = margin_y
+                     elif position == "middle": y_pos = (video_h - clip_h) // 2
+                     else: y_pos = video_h - clip_h - margin_y
+                     y_pos = max(0, min(y_pos, video_h - clip_h))
+                     x_pos = (video_w - clip_w) // 2
+                     
+                     bg_full_w = clip_w + bg_padding * 2
+                     bg_full_h = clip_h + bg_padding * 2
+                     
+                     # Create BG Clip
+                     from moviepy.video.VideoClip import ColorClip
+                     bg_rgb = tuple(int(bg_color.lstrip('#')[i:i+2], 16) for i in (0, 2, 4))
+                     bg_clip = ColorClip(
+                         size=(bg_full_w, bg_full_h), 
+                         color=bg_rgb
+                     ).set_opacity(bg_opacity)
+                     
+                     bg_clip = bg_clip.set_start(start_time).set_duration(duration)
+                     bg_clip = bg_clip.set_position((x_pos - bg_padding, y_pos - bg_padding))
+                     
+                     # Apply Animation to BG
+                     if animation in ("fade", "fade_in_out", "fade_in"):
+                         f_dur = min(0.3, duration/2)
+                         bg_clip = bg_clip.crossfadein(f_dur)
+                     if animation in ("fade", "fade_in_out", "fade_out"):
+                         f_dur = min(0.3, duration/2)
+                         bg_clip = bg_clip.crossfadeout(f_dur)
+                     if animation == "pop":
+                         bg_clip = bg_clip.resize(lambda t: max(0.1, min(1, t * 5)))
+                     
+                     subtitle_clips.append(bg_clip)
+
                 word_duration = duration / word_count
                 current_start = start_time
                 
                 for i in range(word_count):
-                    # Construct text with active word highlighted
-                    chunk_words = []
-                    for j, w in enumerate(words):
-                        if i == j:
-                            chunk_words.append(f"<h>{w}</h>")
-                        else:
-                            chunk_words.append(w)
+                    # Determine animation for this segment (Text Only)
+                    seg_anim = "none"
+                    is_first = (i == 0)
+                    is_last = (i == word_count - 1)
                     
-                    chunk_text = " ".join(chunk_words)
+                    # For karaoke, we usually only animate entrance/exit of the hole block
+                    if animation == "fade":
+                         if is_first and is_last: seg_anim = "fade_in_out"
+                         elif is_first: seg_anim = "fade_in"
+                         elif is_last: seg_anim = "fade_out"
+                    elif animation == "pop":
+                         if is_first: seg_anim = "pop"
                     
-                    clip = create_clip(chunk_text, word_duration)
+                    # Render image with specific word highlighted
+                    clip = self._render_layout(
+                        layout, font, font_size,
+                        text_color, outline_color, stroke_width,
+                        hl_text_color_rgba, hl_bg_color_rgba, hl_bg_radius, hl_bg_padding,
+                        active_word_index=i,
+                        mp=mp
+                    ).set_duration(word_duration)
+                    
+                    # Add to video (DISABLE BG here as we did it globally)
                     self._position_and_add_clip(
-                        clip, subtitle_clips, video_w, video_h, 
-                        current_start, word_duration, 
-                        position, margin_y, animation, 
-                        bg_enabled, bg_color, bg_opacity, bg_padding,
-                        mp
+                        clip, subtitle_clips, video_w, video_h,
+                        current_start, word_duration,
+                        position, margin_y, seg_anim,
+                        bg_enabled=False, # Important!
+                        bg_color=bg_color, bg_opacity=bg_opacity, bg_padding=bg_padding,
+                        mp=mp
                     )
                     current_start += word_duration
             else:
-                # Standard
-                clip = create_clip(text, duration)
+                # Standard render (no active word)
+                clip = self._render_layout(
+                    layout, font, font_size,
+                    text_color, outline_color, stroke_width,
+                    hl_text_color_rgba, hl_bg_color_rgba, hl_bg_radius, hl_bg_padding,
+                    active_word_index=None,
+                    mp=mp
+                ).set_duration(duration)
+                
                 self._position_and_add_clip(
-                    clip, subtitle_clips, video_w, video_h, 
-                    start_time, duration, 
-                    position, margin_y, animation, 
+                    clip, subtitle_clips, video_w, video_h,
+                    start_time, duration,
+                    position, margin_y, animation,
                     bg_enabled, bg_color, bg_opacity, bg_padding,
                     mp
                 )
@@ -1090,141 +1141,179 @@ class RenderService:
         return 0.0
     
     
-    def _render_subtitle_image(
-        self, text, font, font_size, text_color, outline_color, stroke_width,
-        hl_text_color_rgba, hl_bg_color_rgba, hl_bg_radius, hl_bg_padding,
-        max_text_width, text_align, mp
-    ):
-        """Render text to an ImageClip using PIL."""
+    def _layout_text(self, text, font, max_width, align, hl_padding, pad_all=False):
+        """Compute stable text layout with support for <h> highlighting."""
         from PIL import Image, ImageDraw
-        import numpy as np
-        
-        # Tokenize text
-        tokens = []
-        parts = re.split(r'(<h>.*?</h>)', text)
-        for part in parts:
-            if part.startswith('<h>') and part.endswith('</h>'):
-                content = part[3:-4]
-                subwords = content.split()
-                for w in subwords:
-                    tokens.append({'text': w, 'hl': True})
-            else:
-                subwords = part.split()
-                for w in subwords:
-                    tokens.append({'text': w, 'hl': False})
-
-        # Measure
         dummy_draw = ImageDraw.Draw(Image.new('RGBA', (1, 1)))
-        
+
         def get_width(t_str):
             bb = dummy_draw.textbbox((0, 0), t_str, font=font)
             return bb[2] - bb[0]
         
         space_w = get_width(" ")
-        if space_w == 0:
-            space_w = int(font_size * 0.25)
-
+        # Tokenize preserving structure
         lines = []
-        current_line = []
-        current_w = 0
-
-        for token in tokens:
-            w = get_width(token['text'])
-            # If highlight, add padding width
-            t_w = w + (hl_bg_padding * 2 if token['hl'] else 0)
+        
+        # Split explicit lines first
+        explicit_lines = text.split('\n')
+        
+        for line_str in explicit_lines:
+            # Parse <h> tags
+            tokens = []
+            parts = re.split(r'(<h>.*?</h>)', line_str)
             
-            needed = t_w + (space_w if current_line else 0)
+            for part in parts:
+                is_hl = False
+                content = part
+                if part.startswith('<h>') and part.endswith('</h>'):
+                    is_hl = True
+                    content = part[3:-4]
+                
+                raw_token_strs = [w for w in content.split(' ') if w]
+                
+                for w in raw_token_strs:
+                    raw_w = get_width(w)
+                    # Determine padding for this token
+                    # If pad_all is True (Karaoke mode), everything gets padding to prevent jitter
+                    # If is_hl is True, it gets padding for the box
+                    padding = hl_padding if (is_hl or pad_all) else 0
+                    
+                    tokens.append({
+                        'text': w, 
+                        'width': raw_w, 
+                        'is_space': False,
+                        'hl': is_hl,
+                        'padding': padding,
+                        'total_width': raw_w + padding * 2
+                    })
             
-            if current_w + needed <= max_text_width:
-                current_line.append(token)
-                current_w += needed
-            else:
-                if current_line:
-                    lines.append(current_line)
-                    current_line = [token]
-                    current_w = t_w
+            # Line wrapping
+            current_line = []
+            current_w = 0
+            
+            for t in tokens:
+                t_w = t['total_width']
+                
+                if current_w + t_w <= max_width:
+                    current_line.append(t)
+                    current_w += t_w + space_w
                 else:
-                    lines.append([token])
-                    current_w = 0
-        if current_line:
-            lines.append(current_line)
-
+                    if current_line:
+                        lines.append(current_line)
+                        current_line = [t]
+                        current_w = t_w + space_w
+                    else:
+                        lines.append([t])
+                        current_w = 0 # reset
+            
+            if current_line:
+                lines.append(current_line)
+                
         # Calculate heights
-        # Use 'Ag' as representative for heigth
         bbox_h = dummy_draw.textbbox((0, 0), "Ag", font=font)
         text_height = bbox_h[3] - bbox_h[1]
-        
-        line_height = text_height + stroke_width * 2 + 10 # Base height
-        # If using highlights, ensure enough vertical space
-        step_y = max(line_height, text_height + hl_bg_padding * 2) + 5
+        line_height = text_height + 20 # Spacing
+        # Ensure step covers highlight padding
+        step_y = max(line_height, text_height + hl_padding * 2 + 10)
         
         total_h = len(lines) * step_y + 20
+        # total_w is max_width mainly
+        total_w = max_width
         
-        # Create Image
-        img = Image.new('RGBA', (max_text_width + 20, int(total_h)), (0, 0, 0, 0))
-        draw = ImageDraw.Draw(img)
-        
-        y = stroke_width + 10 + hl_bg_padding # Initial offset
+        # Assign final positions
+        final_lines = []
+        y = 10 + hl_padding
         
         for line in lines:
-            # Measure line width for alignment
+            # Measure line width
             lw = 0
             for i, t in enumerate(line):
-                wd = get_width(t['text'])
-                if t['hl']:
-                    lw += wd + hl_bg_padding * 2
-                else:
-                    lw += wd
+                lw += t['total_width']
                 if i < len(line) - 1:
                     lw += space_w
             
-            # Align
-            if text_align == 'center':
-                x = (max_text_width - lw) / 2
-            elif text_align == 'right':
-                x = max_text_width - lw
-            else:
-                x = stroke_width
+            # Alignment X
+            # Effective width for alignment
+            eff_w = lw
             
-            # Draw tokens
-            for i, t in enumerate(line):
-                wd = get_width(t['text'])
+            if align == 'center':
+                x = (total_w - eff_w) / 2
+            elif align == 'right':
+                x = total_w - eff_w - 10
+            else: 
+                x = 10
+            
+            positioned_line = []
+            for t in line:
+                padding = t['padding']
+                slot_w = t['total_width']
                 
-                if t['hl']:
-                    # Draw BG
-                    rx = x
-                    ry = y - hl_bg_padding
-                    rw = wd + hl_bg_padding * 2
-                    rh = text_height + hl_bg_padding * 2 + 5 # slight adjust
-                    
-                    draw.rounded_rectangle(
-                        (rx, ry, rx + rw, ry + rh),
-                        radius=hl_bg_radius,
-                        fill=hl_bg_color_rgba
-                    )
-                    
-                    # Draw text
-                    draw.text((x + hl_bg_padding, y), t['text'], font=font, fill=hl_text_color_rgba)
-                    x += rw
-                else:
-                    # Stroke
-                    if stroke_width > 0:
-                        for dx in range(-stroke_width, stroke_width + 1):
-                            for dy in range(-stroke_width, stroke_width + 1):
-                                if dx*dx + dy*dy <= stroke_width*stroke_width:
-                                    draw.text((x + dx, y + dy), t['text'], font=font, fill=outline_color)
-                    
-                    draw.text((x, y), t['text'], font=font, fill=text_color)
-                    x += wd
+                # t['x'] is where the TEXT starts
+                t['x'] = x + padding
+                t['y'] = y
+                # Box covers the slot (minus standard spacing?)
+                # Box logic: from x to x + slot_w. 
+                # y from y - padding to y + text_height + padding
+                t['box'] = (x, y - padding, x + slot_w, y + text_height + padding)
                 
-                if i < len(line) - 1:
-                    x += space_w
-                    
+                positioned_line.append(t)
+                x += slot_w + space_w
+            
+            final_lines.append(positioned_line)
             y += step_y
+            
+        return {
+            'lines': final_lines,
+            'w': total_w,
+            'h': total_h,
+            'text_height': text_height
+        }
+
+    def _render_layout(
+        self, layout, font, font_size, 
+        text_color, outline_color, stroke_width,
+        hl_text_color, hl_bg_color, hl_radius, hl_padding,
+        active_word_index=None, mp=None
+    ):
+        from PIL import Image, ImageDraw
+        import numpy as np
+
+        img = Image.new('RGBA', (int(layout['w']), int(layout['h'])), (0, 0, 0, 0))
+        draw = ImageDraw.Draw(img)
         
-        # Convert to numpy
-        img_np = np.array(img)
-        return mp.ImageClip(img_np)
+        # Flatten lines to find active word
+        word_counter = 0
+        
+        for line in layout['lines']:
+            for t in line:
+                is_active = (active_word_index is not None and word_counter == active_word_index)
+                
+                # Draw highlight if active OR if tagged with <h>
+                if is_active or t.get('hl'):
+                    # Draw highlight
+                    draw.rounded_rectangle(
+                        t['box'],
+                        radius=hl_radius,
+                        fill=hl_bg_color
+                    )
+                    fill = hl_text_color
+                else:
+                    fill = text_color
+                
+                # Draw text
+                # Stroke
+                x, y = t['x'], t['y']
+                if stroke_width > 0 and not is_active:
+                     for dx in range(-stroke_width, stroke_width + 1):
+                        for dy in range(-stroke_width, stroke_width + 1):
+                            if dx*dx + dy*dy <= stroke_width*stroke_width:
+                                draw.text((x + dx, y + dy), t['text'], font=font, fill=outline_color)
+                
+                draw.text((x, y), t['text'], font=font, fill=fill)
+                
+                word_counter += 1
+        
+        return mp.ImageClip(np.array(img))
 
     def _position_and_add_clip(
         self, txt_clip, subtitle_clips, video_w, video_h, 
@@ -1247,15 +1336,8 @@ class RenderService:
         else:  # bottom
             y_pos = video_h - clip_h - margin_y
         
-        # Vertical safety clamp
-        safe_y_min = 0
-        safe_y_max = video_h - clip_h
-        
-        if y_pos < safe_y_min:
-            y_pos = safe_y_min
-        elif y_pos > safe_y_max:
-            y_pos = safe_y_max
-        
+        # Safe clamp
+        y_pos = max(0, min(y_pos, video_h - clip_h))
         x_pos = (video_w - clip_w) // 2
         
         # Set timing and position
@@ -1263,11 +1345,18 @@ class RenderService:
         txt_clip = txt_clip.set_position((x_pos, y_pos))
         
         # Apply animations
-        if animation == "fade":
-            fade_duration = min(0.3, duration / 4)
+        if animation == "fade" or animation == "fade_in_out":
+            fade_duration = min(0.3, duration / 2)
             txt_clip = txt_clip.crossfadein(fade_duration).crossfadeout(fade_duration)
+        elif animation == "fade_in":
+            fade_duration = min(0.3, duration)
+            txt_clip = txt_clip.crossfadein(fade_duration)
+        elif animation == "fade_out":
+            fade_duration = min(0.3, duration)
+            txt_clip = txt_clip.crossfadeout(fade_duration)
         elif animation == "pop":
-            txt_clip = txt_clip.resize(lambda t: 1 + 0.1 * (1 - abs(t - duration/2)/(duration/2)) if t < duration else 1)
+            # Pop entrance
+            txt_clip = txt_clip.resize(lambda t: max(0.1, min(1, t * 5))) # fast pop 0.2s
         
         # Add background if enabled
         if bg_enabled:
@@ -1275,7 +1364,6 @@ class RenderService:
             bg_width = clip_w + bg_padding * 2
             bg_height = clip_h + bg_padding * 2
             
-            # Parse hex color
             bg_rgb = tuple(int(bg_color.lstrip('#')[i:i+2], 16) for i in (0, 2, 4))
             
             bg_clip = ColorClip(
@@ -1288,8 +1376,15 @@ class RenderService:
             bg_y = y_pos - bg_padding
             bg_clip = bg_clip.set_position((bg_x, bg_y))
             
-            if animation == "fade":
+            # Apply same animation to background
+            if animation == "fade" or animation == "fade_in_out":
                 bg_clip = bg_clip.crossfadein(fade_duration).crossfadeout(fade_duration)
+            elif animation == "fade_in":
+                bg_clip = bg_clip.crossfadein(fade_duration)
+            elif animation == "fade_out":
+                bg_clip = bg_clip.crossfadeout(fade_duration)
+            elif animation == "pop":
+                 bg_clip = bg_clip.resize(lambda t: max(0.1, min(1, t * 5)))
             
             subtitle_clips.append(bg_clip)
         

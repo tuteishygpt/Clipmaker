@@ -33,7 +33,7 @@ const DEFAULT_STYLING = {
     highlight_bg_color: '#6e00ff',
     highlight_bg_radius: 8,
     highlight_bg_padding: 8,
-    highlight_active_word: true
+    highlight_active_word: false
 }
 
 // Preset styles for quick selection

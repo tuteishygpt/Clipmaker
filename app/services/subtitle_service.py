@@ -56,9 +56,34 @@ class SubtitleService:
         # Convert to SubtitleEntry objects
         entries = []
         for i, entry in enumerate(raw_entries, start=1):
+            start_sec = self.srt_time_to_seconds(entry["start"])
+            end_sec = self.srt_time_to_seconds(entry["end"])
+
+            # Heuristic fix: If duration is unreasonably long OR end < start (likely model output MM:SS:mm parsed as HH:MM:SS)
+            if end_sec - start_sec > 20.0 or end_sec < start_sec:
+                try:
+                    s_str = str(entry["start"]).replace(',', '.')
+                    e_str = str(entry["end"]).replace(',', '.')
+                    
+                    s_parts = s_str.split(':')
+                    e_parts = e_str.split(':')
+                    
+                    if len(s_parts) == 3 and len(e_parts) == 3:
+                        # Try interpreting as Min:Sec:Milliseconds
+                        # Original: HH:MM:SS.frac -> now treating as MM:SS:mmm
+                        s_alt = float(s_parts[0]) * 60 + float(s_parts[1]) + float(s_parts[2]) / 1000.0
+                        e_alt = float(e_parts[0]) * 60 + float(e_parts[1]) + float(e_parts[2]) / 1000.0
+                        
+                        if 0 < e_alt - s_alt < 20.0:
+                            logger.warning(f"Fixing malformed attributes: {entry['start']}->{s_alt:.2f}s, {entry['end']}->{e_alt:.2f}s")
+                            start_sec = s_alt
+                            end_sec = e_alt
+                except (ValueError, IndexError):
+                    pass
+
             # Normalize timestamps to allow loose AI output to be saved correctly
-            start_norm = self.seconds_to_srt_time(self.srt_time_to_seconds(entry["start"]))
-            end_norm = self.seconds_to_srt_time(self.srt_time_to_seconds(entry["end"]))
+            start_norm = self.seconds_to_srt_time(start_sec)
+            end_norm = self.seconds_to_srt_time(end_sec)
             
             # Clean text: remove double newlines which might break SRT format
             clean_text = entry["text"].replace("\r\n", "\n").replace("\n\n", "\n").strip()

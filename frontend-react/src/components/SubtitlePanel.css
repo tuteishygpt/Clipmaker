@@ -10,6 +10,10 @@
         0 0 0 1px rgba(255, 255, 255, 0.03) inset;
     animation: slideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     backdrop-filter: blur(20px);
+    /* Ensure panel grows to fit content and doesn't shrink */
+    height: auto;
+    max-height: none;
+    flex-shrink: 0;
 }
 
 @keyframes slideDown {
@@ -220,8 +224,7 @@
 /* Content */
 .subtitle-panel-content {
     padding: 18px;
-    max-height: 380px;
-    overflow-y: auto;
+    /* Allow full height so all elements are visible */
 }
 
 /* Custom scrollbar */

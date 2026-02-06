@@ -93,6 +93,12 @@ class SubtitleStyling(BaseModel):
     max_width_percent: int = Field(default=90, ge=50, le=100, description="Max text width as % of video width")
     uppercase: bool = Field(default=False, description="Convert text to uppercase")
     animation: str = Field(default="none", description="Animation: none, fade, pop, typewriter")
+    # Highlight/Karaoke styling
+    highlight_font_color: str = Field(default="#FFFFFF", description="Highlighted text color")
+    highlight_bg_color: str = Field(default="#6e00ff", description="Highlight background color")
+    highlight_bg_radius: int = Field(default=8, ge=0, le=30, description="Highlight background border radius")
+    highlight_bg_padding: int = Field(default=8, ge=0, le=30, description="Highlight background padding")
+    highlight_active_word: bool = Field(default=False, description="Enable karaoke mode (highlight active word)")
 
 
 class SubtitleUpdate(BaseModel):
