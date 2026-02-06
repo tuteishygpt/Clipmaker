@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import './SubtitleEditor.css'
 
-const API_BASE = 'http://localhost:8000'
+import { BASE_URL as API_BASE } from '../api'
 
 // Font categories with their fonts
 const FONT_CATEGORIES = {

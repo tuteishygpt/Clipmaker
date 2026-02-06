@@ -3,7 +3,7 @@ import Header from './Header'
 import SubtitleEditor from './SubtitleEditor'
 import './SubtitleStandalonePage.css'
 
-const API_BASE = 'http://localhost:8000'
+import { BASE_URL as API_BASE } from '../api'
 
 export default function SubtitleStandalonePage() {
     const [videoFile, setVideoFile] = useState(null)
