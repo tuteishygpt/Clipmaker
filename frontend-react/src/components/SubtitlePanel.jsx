@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import './SubtitlePanel.css'
 
-const API_BASE = 'http://localhost:8000'
+import { BASE_URL as API_BASE } from '../api'
 
 // Font categories
 const FONT_CATEGORIES = {
