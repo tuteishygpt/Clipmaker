@@ -107,11 +107,15 @@ async def update_profile(
         resp = supabase.table("profiles") \
             .update(update_data) \
             .eq("id", user.id) \
-            .select() \
-            .single() \
             .execute()
         
-        return UserProfile(**resp.data)
+        if not resp.data:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Profile not found"
+            )
+            
+        return UserProfile(**resp.data[0])
     except Exception as e:
         logger.error(f"Failed to update profile for {user.id}: {e}")
         raise HTTPException(

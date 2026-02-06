@@ -242,8 +242,9 @@
 .cabinet-layout {
     display: grid;
     grid-template-columns: 280px 1fr;
-    min-height: 100vh;
+    height: 100vh;
     background: var(--color-bg-primary);
+    overflow: hidden;
 }
 
 /* ===== Cabinet Sidebar ===== */
@@ -480,10 +481,12 @@
 
 /* ===== Cabinet Main Content ===== */
 .cabinet-main {
-    padding: 32px 40px;
+    padding: 32px 40px 100px 40px;
     overflow-y: auto;
-    min-height: 100vh;
+    height: 100vh;
     background: radial-gradient(circle at top right, #1a1a2e 0%, var(--color-bg-primary) 60%);
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
 }
 
 .cabinet-content {
