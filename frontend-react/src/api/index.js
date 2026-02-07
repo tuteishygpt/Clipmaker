@@ -1,6 +1,21 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 
-export const BASE_URL = import.meta.env.VITE_API_BASE ?? ''
+export const BASE_URL = (() => {
+    const url = import.meta.env.VITE_API_BASE ?? ''
+
+    // Safety check: If we are in production (not localhost) but the API_BASE is pointing to localhost,
+    // it implies a misconfiguration (e.g. build environment variables).
+    // In this case, fallback to relative path '/api' to avoid CORS errors.
+    if (typeof window !== 'undefined' &&
+        window.location.hostname !== 'localhost' &&
+        window.location.hostname !== '127.0.0.1' &&
+        (url.includes('localhost') || url.includes('127.0.0.1'))) {
+        console.warn('Detected localhost API_BASE in production, falling back to /api')
+        return '/api'
+    }
+
+    return url
+})()
 
 /**
  * Get the current authentication token from Supabase session.
