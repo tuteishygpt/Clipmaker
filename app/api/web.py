@@ -40,6 +40,15 @@ async def get_showcase_videos() -> List[ShowcaseItem]:
     showcase_items = []
     projects_dir = settings.data_dir
     
+    showcase_file = settings.data_dir.parent / "showcase.json"
+    if showcase_file.exists():
+        try:
+            with open(showcase_file, "r", encoding="utf-8") as f:
+                items = json.load(f)
+                return [ShowcaseItem(**item) for item in items]
+        except Exception:
+            pass  # Fallback to auto discovery if file is invalid
+    
     if not projects_dir.exists():
         return []
     

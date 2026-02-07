@@ -65,12 +65,11 @@ def get_subtitle_service() -> SubtitleService:
 
 @router.get("", response_model=list[ProjectResponse])
 async def list_projects(
+    search: Optional[str] = None,
     user: Optional[AuthenticatedUser] = Depends(get_optional_user)
 ) -> list[dict[str, Any]]:
-    """List projects (optionally filtered by user)."""
-    # For now, we still list all local projects for simplicity, 
-    # but we could filter by user.id if records exist in Supabase.
-    return project_repo.list_all()
+    """List projects (optionally filtered by user or search query)."""
+    return project_repo.list_all(search=search)
 
 
 @router.post("", response_model=ProjectResponse)

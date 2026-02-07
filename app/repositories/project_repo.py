@@ -79,19 +79,30 @@ class ProjectRepository:
         """Check if a project exists."""
         return self._get_repo(project_id).exists("project.json")
     
-    def list_all(self) -> list[dict[str, Any]]:
-        """List all projects, sorted by updated_at descending."""
+    def list_all(self, search: str | None = None) -> list[dict[str, Any]]:
+        """List all projects, sorted by updated_at descending, optionally filtered by search."""
         projects = []
         if not self.data_dir.exists():
             return projects
+        
+        search_lower = search.lower() if search else None
         
         for project_dir in self.data_dir.iterdir():
             if project_dir.is_dir():
                 repo = JsonRepository(project_dir)
                 if repo.exists("project.json"):
                     project = repo.load("project.json", {})
-                    if project:
-                        projects.append(project)
+                    if not project:
+                        continue
+                    
+                    # Search filtering
+                    if search_lower:
+                        project_id = str(project.get("id", "")).lower()
+                        description = str(project.get("user_description", "")).lower()
+                        if search_lower not in project_id and search_lower not in description:
+                            continue
+                            
+                    projects.append(project)
         
         projects.sort(key=lambda x: x.get("updated_at", ""), reverse=True)
         return projects

@@ -13,11 +13,11 @@ function ProjectSelector() {
     return (
         <div className="project-selector">
             <div className="selector-header">
-                <h3>Open Existing</h3>
+                <h3>Projects</h3>
                 <button
-                    className="btn-refresh"
-                    onClick={loadProjects}
-                    title="Refresh projects"
+                    className="btn-refresh-icon"
+                    onClick={() => loadProjects()}
+                    title="Refresh list"
                 >
                     ↻
                 </button>
@@ -28,31 +28,41 @@ function ProjectSelector() {
                 onChange={handleSelect}
                 className="project-dropdown"
             >
-                <option value="">Select a project...</option>
-                {projects.map(p => (
-                    <option key={p.id} value={p.id}>
-                        {new Date(p.created_at).toLocaleDateString()} · {p.status}
-                    </option>
-                ))}
+                <option value="">Open existing...</option>
+                {projects.map(p => {
+                    const date = new Date(p.created_at).toLocaleDateString()
+                    const desc = p.user_description
+                        ? (p.user_description.length > 25 ? p.user_description.slice(0, 25) + '...' : p.user_description)
+                        : (p.id.slice(0, 8))
+
+                    // Status icons
+                    const statusEmoji =
+                        p.status === 'DONE' ? '✅' :
+                            p.status === 'RUNNING' ? '⏳' :
+                                p.status === 'FAILED' ? '❌' : '✨';
+
+                    return (
+                        <option key={p.id} value={p.id}>
+                            {statusEmoji} {date} · {desc}
+                        </option>
+                    )
+                })}
             </select>
 
             {projectId && (
-                <div className="selected-project-card">
-                    <div className="project-meta">
-                        <span className="label">Current Project</span>
-                        <code className="id">{projectId.slice(0, 8)}...</code>
-                        {project?.status && (
-                            <span className={`status-tag ${project.status}`}>{project.status}</span>
-                        )}
+                <div className="selected-project-compact">
+                    <div className="project-info">
+                        <span className={`status-dot ${project?.status}`}></span>
+                        <code className="id">{projectId.slice(0, 8)}</code>
                     </div>
-                    <button className="btn-reset" onClick={resetProject} title="Start New Project">
-                        NEW
+                    <button className="btn-new-minimal" onClick={resetProject}>
+                        + NEW
                     </button>
                 </div>
             )}
 
             {!projectId && projects.length === 0 && (
-                <p className="empty-hint">No projects yet. Create one below ↓</p>
+                <p className="empty-hint">No projects found.</p>
             )}
         </div>
     )

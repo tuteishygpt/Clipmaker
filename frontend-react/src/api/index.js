@@ -101,8 +101,9 @@ async function fetchJSON(url, options = {}) {
 }
 
 // Projects
-export async function getProjects() {
-    return fetchJSON('/projects')
+export async function getProjects(search = '') {
+    const query = search ? `?search=${encodeURIComponent(search)}` : ''
+    return fetchJSON(`/projects${query}`)
 }
 
 export async function getProject(projectId) {

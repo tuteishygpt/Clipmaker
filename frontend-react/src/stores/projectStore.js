@@ -80,9 +80,9 @@ export const useProjectStore = create((set, get) => ({
     },
 
     // Project Actions
-    loadProjects: async () => {
+    loadProjects: async (search = '') => {
         try {
-            const projects = await api.getProjects()
+            const projects = await api.getProjects(search)
             set({ projects })
         } catch (error) {
             console.error('Failed to load projects:', error)
