@@ -36,6 +36,11 @@ app.add_middleware(
 # We mount /assets to point to dist/assets
 app.mount("/assets", StaticFiles(directory=settings.frontend_dir / "assets"), name="assets")
 
+# Mount project files (videos, images, etc.)
+# This allows serving generated videos and images from /projects/{project_id}/...
+if settings.data_dir.exists():
+    app.mount("/projects", StaticFiles(directory=settings.data_dir), name="projects")
+
 # Include routers
 app.include_router(web_router)
 app.include_router(projects_router)
