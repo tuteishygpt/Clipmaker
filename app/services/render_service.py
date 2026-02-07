@@ -509,14 +509,41 @@ class RenderService:
             return video
         
         video_w, video_h = video.size
+        
+        # Calculate scale factor based on actual video resolution vs base resolution
+        # Base resolution is 720x1280 for 9:16 and 1280x720 for 16:9
+        # Frontend preview shows scaled-down version; render needs to match proportionally
+        is_vertical = video_h > video_w
+        if is_vertical:
+            base_width, base_height = 720, 1280
+        else:
+            base_width, base_height = 1280, 720
+        
+        # Scale factor: how much bigger/smaller is the actual video compared to base
+        scale_factor = min(video_w / base_width, video_h / base_height)
+        
+        # Apply scale factor to all size-dependent parameters
+        font_size = int(font_size * scale_factor)
+        stroke_width = int(stroke_width * scale_factor)
+        margin_y = int(margin_y * scale_factor)
+        bg_padding = int(bg_padding * scale_factor)
+        hl_bg_padding = int(hl_bg_padding * scale_factor)
+        hl_bg_radius = int(hl_bg_radius * scale_factor)
+        
+        # Ensure minimum sizes
+        font_size = max(8, font_size)
+        stroke_width = max(0, stroke_width)
+        
         max_text_width = int(video_w * max_width_pct / 100)
         
         subtitle_clips = []
         
-        logger.info(f"Processing {len(entries)} subtitle entries for video ({video_w}x{video_h}), karaoke_mode={hl_active_word}")
+        logger.info(f"Processing {len(entries)} subtitle entries for video ({video_w}x{video_h}), scale_factor={scale_factor:.2f}, scaled_font_size={font_size}, karaoke_mode={hl_active_word}")
         
         # -- Font Loading (Reuse logic) --
         from PIL import ImageFont
+        import platform
+        
         font = None
         font_weight = styling_dict.get("font_weight", "bold")
         is_bold = font_weight in ("bold", "700", "black", "900")
@@ -524,24 +551,62 @@ class RenderService:
         
         base_dir = Path(__file__).resolve().parent.parent.parent
         font_dir = base_dir / "app" / "static" / "fonts"
+        
+        # Platform-specific font directories
+        is_windows = platform.system() == "Windows"
         windows_fonts = Path("C:/Windows/Fonts")
+        linux_fonts = [
+            Path("/usr/share/fonts/truetype"),
+            Path("/usr/share/fonts/TTF"),
+            Path("/usr/local/share/fonts"),
+            Path.home() / ".local/share/fonts",
+            Path.home() / ".fonts",
+        ]
         
         search_paths = [
             str(font_dir / f"{clean_family}.ttf"),
             str(font_dir / f"{clean_family}.otf"),
             str(font_dir / f"{clean_family}-Bold.ttf") if is_bold else str(font_dir / f"{clean_family}-Regular.ttf"),
             str(font_dir / f"{font_family}.ttf"),
-            str(windows_fonts / f"{clean_family.lower()}.ttf"),
-            str(windows_fonts / f"{clean_family.lower()}b.ttf") if is_bold else str(windows_fonts / f"{clean_family.lower()}.ttf"),
-            str(windows_fonts / f"{font_family.lower().replace(' ', '')}.ttf"),
         ]
         
-        windows_fallbacks = [
-            str(windows_fonts / "arial.ttf"),
-            str(windows_fonts / "arialbd.ttf") if is_bold else str(windows_fonts / "arial.ttf"),
-            str(windows_fonts / "segoeui.ttf"),
-            str(windows_fonts / "calibri.ttf"),
-        ]
+        # Add platform-specific paths
+        if is_windows:
+            search_paths.extend([
+                str(windows_fonts / f"{clean_family.lower()}.ttf"),
+                str(windows_fonts / f"{clean_family.lower()}b.ttf") if is_bold else str(windows_fonts / f"{clean_family.lower()}.ttf"),
+                str(windows_fonts / f"{font_family.lower().replace(' ', '')}.ttf"),
+            ])
+        else:
+            # Linux/Mac font paths
+            for linux_dir in linux_fonts:
+                if linux_dir.exists():
+                    search_paths.extend([
+                        str(linux_dir / f"{clean_family}.ttf"),
+                        str(linux_dir / f"{clean_family.lower()}.ttf"),
+                        str(linux_dir / "dejavu" / "DejaVuSans.ttf"),
+                        str(linux_dir / "liberation" / "LiberationSans-Regular.ttf"),
+                        str(linux_dir / "freefont" / "FreeSans.ttf"),
+                    ])
+        
+        # Fallback fonts
+        if is_windows:
+            fallback_fonts = [
+                str(windows_fonts / "arial.ttf"),
+                str(windows_fonts / "arialbd.ttf") if is_bold else str(windows_fonts / "arial.ttf"),
+                str(windows_fonts / "segoeui.ttf"),
+                str(windows_fonts / "calibri.ttf"),
+            ]
+        else:
+            # Linux fallback fonts
+            fallback_fonts = [
+                "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+                "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf" if is_bold else "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+                "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+                "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf" if is_bold else "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+                "/usr/share/fonts/truetype/freefont/FreeSans.ttf",
+                "/usr/share/fonts/TTF/DejaVuSans.ttf",
+            ]
         
         loaded = False
         for path in search_paths:
@@ -554,7 +619,7 @@ class RenderService:
                 continue
         
         if not loaded:
-            for path in windows_fallbacks:
+            for path in fallback_fonts:
                 try:
                     font = ImageFont.truetype(path, font_size)
                     loaded = True

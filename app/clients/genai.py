@@ -171,27 +171,53 @@ class GenAIClient:
             language_instruction = "Detect the language automatically and transcribe in the original language."
         
         system_instruction_text = f"""
-        You are an expert audio subtitler. Your task is to generate precise, synchronized subtitles for the provided audio.
-        
+        You are an expert lyrics synchronizer and audio transcriber suitable for karaoke creation. Your task is to generate precise, synchronized subtitles for the provided SONG audio.
+
         LANGUAGE INSTRUCTION: {language_instruction}
-        
-        TIMING & FORMATTING:
-        1. **Precision**: Start time must match the exact first sound of the phrase. Use SRT format `HH:MM:SS,mmm` (e.g. `00:00:15,500`). ALWAYS include hours, minutes, seconds, and milliseconds.
-        2. **Gaps**: If there is a silence >= 0.5s, close the previous segment. Do not bridge large gaps.
-        3. **No Overlap**: The start of a segment must be >= the end of the previous one.
-        
-        TEXT RULES:
-        1. **Length**: Between {min_words} and {max_words} words per segment. Break at natural pauses.
-        2. **Content**: Transcribe ONLY spoken words. NO non-verbal tags like [Music] or [Applause].
-        3. **Completeness**: Transcribe the audio from BEGINNING to END. Do not summarize or stop early.
-        
-        OUTPUT FORMAT:
-        Return a strictly valid JSON array matching the schema:
-        [{{
-            "start": "HH:MM:SS,mmm", 
-            "end": "HH:MM:SS,mmm", 
-            "text": "string"
-        }}]
+
+        TIMING & FORMATTING (CRITICAL FOR MUSIC):
+        1. Precision (Vocal Attack): The "start" time must correspond exactly to the millisecond the vocal cords engage (the attack of the first syllable). Do not include the instrumental intro breath before the word.
+        2. End Times: The "end" time must mark exactly where the vocal stops. Do not extend the segment into the instrumental tail or reverb.
+        3. Instrumental Sections: If there are instrumental solos, breaks, or intros/outros with NO vocals, do NOT generate any segments. Leave gaps in the timeline.
+        4. Format: Use standard SRT time format HH:MM:SS,mmm. ALWAYS include milliseconds and use a COMMA (,) as the separator.
+
+        TEXT & SEGMENTATION RULES:
+        1. Lyrical Phrasing: Segment the text based on MUSICAL PHRASING and lyrical lines, not just sentence structure.
+           - It is acceptable to have short segments (e.g., 1-2 words) if they act as a distinct call-out or ad-lib.
+           - Do NOT break a continuous sung phrase in the middle just to satisfy word counts unless it is extremely long (>10 seconds).
+        2. Constraints:
+           - Target roughly {min_words} to {max_words} words per segment, BUT prioritize the natural rhythm of the song.
+        3. Content: Transcribe ONLY spoken/sung words. 
+           - NO non-verbal tags like [Music], [Guitar Solo], [Applause].
+           - Include ad-libs (e.g., "Yeah", "Ooh") and background vocals if they are prominent.
+        4. Acoustic Truth: Transcribe exactly what is heard in THIS audio file. Do not correct grammar or insert lyrics from the original studio version if the singer skips them or changes them in this recording.
+
+        ### ONE-SHOT EXAMPLE (Strictly follow this JSON format and logic):
+
+        Input: [Audio of a song with a pause between lines]
+        Output:
+        [
+          {{
+            "start": "00:00:12,450",
+            "end": "00:00:14,200",
+            "text": "Is this the real life?"
+          }},
+          {{
+            "start": "00:00:14,300",
+            "end": "00:00:16,100",
+            "text": "Is this just fantasy?"
+          }},
+          {{
+            "start": "00:00:19,500",
+            "end": "00:00:22,000",
+            "text": "Caught in a landslide"
+          }}
+        ]
+        (Note: Notice the gap between 16,100 and 19,500 where instrumental music plays – no segment is generated there).
+
+        OUTPUT FORMAT: 
+        Return a strictly valid JSON array matching the schema above.
+        Do not wrap the JSON in markdown blocks (no ```json). Return raw JSON string only.
         """
 
         try:
