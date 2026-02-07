@@ -27,6 +27,8 @@ function SceneCard({ segment }) {
     const [imagePrompt, setImagePrompt] = useState(segment.prompt?.image_prompt || '')
     const [cameraAngle, setCameraAngle] = useState(segment.camera_angle || '')
     const [emotion, setEmotion] = useState(segment.emotion || '')
+    const [effect, setEffect] = useState(segment.effect || 'random')
+    const [transition, setTransition] = useState(segment.transition || 'random')
 
     // Sync form state when segment changes (safety measure)
     useEffect(() => {
@@ -37,7 +39,9 @@ function SceneCard({ segment }) {
         setImagePrompt(segment.prompt?.image_prompt || '')
         setCameraAngle(segment.camera_angle || '')
         setEmotion(segment.emotion || '')
-    }, [segment.id, segment.start_time, segment.end_time, segment.lyric_text, segment.text, segment.visual_intent, segment.visual_description, segment.prompt?.image_prompt, segment.camera_angle, segment.emotion])
+        setEffect(segment.effect || 'random')
+        setTransition(segment.transition || 'random')
+    }, [segment.id, segment.start_time, segment.end_time, segment.lyric_text, segment.text, segment.visual_intent, segment.visual_description, segment.prompt?.image_prompt, segment.camera_angle, segment.emotion, segment.effect, segment.transition])
 
     // Update imagePrompt when segment updates (e.g. external regen)
     // Only update if we are not editing/focused... actually simple way:
@@ -56,7 +60,9 @@ function SceneCard({ segment }) {
                 visual_intent: visualIntent,
                 image_prompt: imagePrompt,
                 camera_angle: cameraAngle,
-                emotion: emotion
+                emotion: emotion,
+                effect: effect,
+                transition: transition
             })
         } finally {
             setSaving(false)
@@ -331,6 +337,44 @@ function SceneCard({ segment }) {
                                     onChange={(e) => setEmotion(e.target.value)}
                                     rows={1}
                                 />
+                            </div>
+                        </div>
+
+                        <div style={{ marginTop: '12px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                            <div>
+                                <label className="scene-label">Camera Motion (Effect)</label>
+                                <select
+                                    className="scene-text-input"
+                                    value={effect}
+                                    onChange={(e) => setEffect(e.target.value)}
+                                    style={{ height: '36px', padding: '0 8px', width: '100%' }}
+                                >
+                                    <option value="random">Random</option>
+                                    <option value="zoom_in">Zoom In</option>
+                                    <option value="zoom_out">Zoom Out</option>
+                                    <option value="pan_left">Pan Left</option>
+                                    <option value="pan_right">Pan Right</option>
+                                    <option value="pan_up">Pan Up</option>
+                                    <option value="pan_down">Pan Down</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="scene-label">Transition (In)</label>
+                                <select
+                                    className="scene-text-input"
+                                    value={transition}
+                                    onChange={(e) => setTransition(e.target.value)}
+                                    style={{ height: '36px', padding: '0 8px', width: '100%' }}
+                                >
+                                    <option value="random">Random</option>
+                                    <option value="crossfade">Crossfade (Blend)</option>
+                                    <option value="slide_left">Slide Left</option>
+                                    <option value="slide_right">Slide Right</option>
+                                    <option value="slide_up">Slide Up</option>
+                                    <option value="slide_down">Slide Down</option>
+                                    <option value="zoom_in">Zoom In (Pop)</option>
+                                    <option value="zoom_out">Zoom Out</option>
+                                </select>
                             </div>
                         </div>
 

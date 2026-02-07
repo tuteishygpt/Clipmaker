@@ -107,11 +107,9 @@ class RenderService:
                 project_id, segments, prompts, project, mp
             )
             
-            # clips variable is no longer a list, but we keep the name for cleanup if needed? 
-            # cleanup expects clips list. Let's adjust cleanup or just pass empty list if we can't track individual clips easily anymore.
-            # actually _create_clips closes local clips? No.
-            # We can't easily track intermediate clips for cleanup if _create_clips swallows them.
-            # But moviepy objects are usually fine if we close the main video.
+            # Save segments after potentially updating random effects/transitions
+            self.project_repo.save_segments(project_id, segments)
+            
             clips = [] 
             
             # video = mp.concatenate_videoclips(clips, method="compose", padding=-0.5) 
@@ -262,6 +260,8 @@ class RenderService:
                     "zoom_in", "zoom_out", "pan_left",
                     "pan_right", "pan_up", "pan_down"
                 ])
+                # Save the used effect back to the segment
+                seg["effect"] = effect
             
             clip = self._apply_effect(img_path, duration, effect, size, mp)
             
@@ -274,6 +274,8 @@ class RenderService:
                         transition = random.choice(["slide_left", "slide_right", "slide_up", "slide_down", "zoom_in"])
                     else:
                         transition = "crossfade"
+                    # Save the used transition back to the segment
+                    seg["transition"] = transition
                 
                 clip = self._apply_transition(clip, transition, transition_duration, size)
             
@@ -341,31 +343,87 @@ class RenderService:
             return clip.set_position(pos)
         
         elif transition_type == "zoom_in":
-            # Scale up from 0 to 1 (Centered)
-            # Note: resize is computationally heavy per frame, but ok for 0.4s
-            final_clip = clip
+            # Zoom in transition - simulate zoom by cropping from larger to smaller area
+            # This keeps the frame ALWAYS full (no black borders)
             
-            def resize_func(t):
-                if t >= duration:
-                    return 1.0
+            # Pre-scale the clip to be larger so we can crop-zoom
+            max_scale = 1.5
+            start_scale = 0.7  # Relative crop area at start (smaller = more zoomed in)
+            
+            base_clip = clip.resize(max_scale)
+            clip_w, clip_h = int(w * max_scale), int(h * max_scale)
+            
+            # fl() calls the function as fun(get_frame, t)
+            def zoom_in_filter(get_frame, t):
+                frame = get_frame(t)
                 p = get_p(t)
-                # Start from 0.6 to avoid "tiny" image look, go to 1.0
-                return 0.6 + 0.4 * p
                 
-            # CompositeVideoClip usually centers the clip if sized
-            # But set_position("center") is safest
-            return clip.resize(resize_func).set_position("center")
+                # Interpolate from start_scale to 1.0 (full crop)
+                current_scale = start_scale + (1.0 - start_scale) * p
+                
+                # Calculate crop dimensions
+                crop_w = int(clip_w * current_scale)
+                crop_h = int(clip_h * current_scale)
+                
+                # Ensure we don't crop more than we have
+                crop_w = min(crop_w, clip_w)
+                crop_h = min(crop_h, clip_h)
+                
+                # Center crop
+                x1 = (clip_w - crop_w) // 2
+                y1 = (clip_h - crop_h) // 2
+                x2 = x1 + crop_w
+                y2 = y1 + crop_h
+                
+                cropped = frame[y1:y2, x1:x2]
+                
+                # Resize back to target size
+                from PIL import Image
+                import numpy as np
+                pil_img = Image.fromarray(cropped)
+                resized = pil_img.resize((w, h), Image.BICUBIC)
+                return np.array(resized)
+            
+            return base_clip.fl(zoom_in_filter)
         
         elif transition_type == "zoom_out":
-             # Start large (2x), shrink to 1x
-            def resize_func(t):
-                if t >= duration:
-                    return 1.0
-                p = get_p(t)
-                # Start 2.0, end 1.0
-                return 2.0 - 1.0 * p
+            # Zoom out transition - start zoomed in (small crop), zoom out to full view
+            # This keeps the frame ALWAYS full (no black borders)
             
-            return clip.resize(resize_func).set_position("center")
+            max_scale = 1.5
+            start_scale = 0.5  # Start more zoomed in
+            
+            base_clip = clip.resize(max_scale)
+            clip_w, clip_h = int(w * max_scale), int(h * max_scale)
+            
+            # fl() calls the function as fun(get_frame, t)
+            def zoom_out_filter(get_frame, t):
+                frame = get_frame(t)
+                p = get_p(t)
+                
+                # Interpolate from start_scale to 1.0
+                current_scale = start_scale + (1.0 - start_scale) * p
+                
+                crop_w = int(clip_w * current_scale)
+                crop_h = int(clip_h * current_scale)
+                
+                crop_w = min(crop_w, clip_w)
+                crop_h = min(crop_h, clip_h)
+                
+                x1 = (clip_w - crop_w) // 2
+                y1 = (clip_h - crop_h) // 2
+                x2 = x1 + crop_w
+                y2 = y1 + crop_h
+                
+                cropped = frame[y1:y2, x1:x2]
+                
+                from PIL import Image
+                import numpy as np
+                pil_img = Image.fromarray(cropped)
+                resized = pil_img.resize((w, h), Image.BICUBIC)
+                return np.array(resized)
+            
+            return base_clip.fl(zoom_out_filter)
 
         return clip.crossfadein(duration)
     

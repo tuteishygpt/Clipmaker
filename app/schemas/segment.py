@@ -37,6 +37,7 @@ class SegmentUpdate(BaseModel):
     negative_prompt: Optional[str] = None
     style_hints: Optional[str] = None
     effect: Optional[str] = None
+    transition: Optional[str] = None
     version: Optional[int] = None
 
 
