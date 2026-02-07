@@ -53,7 +53,7 @@ class Settings:
             supabase_jwt_secret=(os.getenv("SUPABASE_JWT_SECRET") or "").strip().strip('"').strip("'"),
             supabase_jwt_public_key=(os.getenv("SUPABASE_JWT_PUBLIC_KEY") or "").replace("\\n", "\n").strip().strip('"').strip("'"),
             base_dir=base_dir,
-            data_dir=base_dir / "data" / "projects",
+            data_dir=Path(os.getenv("PROJECTS_DATA_DIR")) if os.getenv("PROJECTS_DATA_DIR") else base_dir / "data" / "projects",
             frontend_dir=base_dir / "frontend-react" / "dist",
         )
     

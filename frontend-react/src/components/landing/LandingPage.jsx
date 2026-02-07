@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import LandingFooter from './LandingFooter'
 import LandingNav from './LandingNav'
+import { BASE_URL } from '../../api'
 
 const socialProof = [
     'Independent artists',
@@ -185,7 +186,7 @@ function VideoShowcaseCard({ item, isPlaying, onPlay, onPause }) {
                     <>
                         <video
                             ref={videoRef}
-                            src={item.video_url}
+                            src={item.video_url.startsWith('http') ? item.video_url : `${BASE_URL}${item.video_url}`}
                             muted
                             loop
                             playsInline
@@ -203,8 +204,14 @@ function VideoShowcaseCard({ item, isPlaying, onPlay, onPause }) {
                         )}
                     </>
                 ) : (
-                    <div className="showcase-placeholder" style={{ backgroundImage: item.gradient || 'linear-gradient(135deg, rgba(99,102,241,0.9), rgba(139,92,246,0.7))' }}>
-                        <span className="showcase-icon">▶</span>
+                    <div className="showcase-placeholder" style={{
+                        backgroundImage: item.thumbnail_url
+                            ? `url(${item.thumbnail_url.startsWith('http') ? item.thumbnail_url : `${BASE_URL}${item.thumbnail_url}`})`
+                            : (item.gradient || 'linear-gradient(135deg, rgba(99,102,241,0.9), rgba(139,92,246,0.7))'),
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center'
+                    }}>
+                        {!item.thumbnail_url && <span className="showcase-icon">▶</span>}
                     </div>
                 )}
                 <div className="showcase-overlay">
@@ -320,7 +327,7 @@ function LandingPage() {
                                     {showcaseItems.length > 0 && showcaseItems[0].video_url ? (
                                         <video
                                             ref={heroVideoRef}
-                                            src={showcaseItems[0].video_url}
+                                            src={showcaseItems[0].video_url.startsWith('http') ? showcaseItems[0].video_url : `${BASE_URL}${showcaseItems[0].video_url}`}
                                             autoPlay
                                             muted
                                             loop
