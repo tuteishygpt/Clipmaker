@@ -377,37 +377,70 @@ class RenderService:
         target_size: tuple[int, int],
         mp,
     ):
-        """Apply Ken Burns effect to an image."""
+        """Apply Ken Burns effect to an image. Always fills entire frame without black borders."""
         try:
             from PIL import Image
             import numpy as np
         except ImportError:
-            return mp.ImageClip(str(img_path)).resize(target_size).set_duration(duration)
+            # Fallback: use cover mode to avoid black borders
+            clip = mp.ImageClip(str(img_path))
+            # Calculate cover resize (fill entire frame, crop excess)
+            tw, th = target_size
+            cw, ch = clip.size
+            scale = max(tw / cw, th / ch)
+            new_w, new_h = int(cw * scale), int(ch * scale)
+            clip = clip.resize((new_w, new_h))
+            # Center crop
+            x_off = (new_w - tw) // 2
+            y_off = (new_h - th) // 2
+            clip = clip.crop(x1=x_off, y1=y_off, x2=x_off + tw, y2=y_off + th)
+            return clip.set_duration(duration)
         
         pil_img = Image.open(img_path).convert("RGB")
-        w, h = pil_img.size
-        img_arr = np.array(pil_img)
+        orig_w, orig_h = pil_img.size
         
         tw, th = target_size
         
-        # Calculate maximum possible crop that matches target AR
+        # IMPORTANT: First ensure image is large enough for all effects
+        # Scale up the image if it's smaller than needed for the maximum zoom/pan
+        # We need at least 1.5x the target size for good Ken Burns effects
+        min_required_w = tw * 1.5
+        min_required_h = th * 1.5
+        
+        # Calculate scale factor to ensure image is big enough
+        scale_factor = max(min_required_w / orig_w, min_required_h / orig_h, 1.0)
+        
+        if scale_factor > 1.0:
+            # Scale up the image first
+            new_w = int(orig_w * scale_factor)
+            new_h = int(orig_h * scale_factor)
+            pil_img = pil_img.resize((new_w, new_h), Image.BICUBIC)
+        
+        w, h = pil_img.size
+        img_arr = np.array(pil_img)
+        
+        # Calculate maximum possible crop that matches target AR (cover mode)
+        # This ensures the crop ALWAYS fills the target without black borders
         if (w / h) > (tw / th):
+            # Image is wider - fit by height
             max_crop_h = h
             max_crop_w = h * (tw / th)
         else:
+            # Image is taller - fit by width
             max_crop_w = w
             max_crop_h = w * (th / tw)
         
         # Randomize zoom intensity for more dynamic feel
         zoom_level = random.uniform(0.75, 0.88)
         
+        # Check if we have room for panning
         has_pan_room_x = w > (max_crop_w * 1.05)
         has_pan_room_y = h > (max_crop_h * 1.05)
         
         def make_frame(t):
             # Ease-in-out interpolation
             # p goes from 0 to 1
-            linear_p = t / duration
+            linear_p = t / duration if duration > 0 else 0
             # Sinusoidal easing: 0.5 * (1 - cos(pi * p))
             p = 0.5 * (1.0 - np.cos(linear_p * np.pi))
             
@@ -424,46 +457,80 @@ class RenderService:
                 min_cx = cw / 2
                 max_cx = w - cw / 2
                 
-                if effect == "pan_left":
-                    cx = max_cx - (max_cx - min_cx) * p
-                else:
-                    cx = min_cx + (max_cx - min_cx) * p
+                if min_cx < max_cx:  # Safety check
+                    if effect == "pan_left":
+                        cx = max_cx - (max_cx - min_cx) * p
+                    else:
+                        cx = min_cx + (max_cx - min_cx) * p
             elif effect in ["pan_up", "pan_down"]:
                 scale = 1.0 if has_pan_room_y else zoom_level
                 ch = max_crop_h * scale
                 min_cy = ch / 2
                 max_cy = h - ch / 2
                 
-                if effect == "pan_up":
-                    cy = max_cy - (max_cy - min_cy) * p
-                else:
-                    cy = min_cy + (max_cy - min_cy) * p
+                if min_cy < max_cy:  # Safety check
+                    if effect == "pan_up":
+                        cy = max_cy - (max_cy - min_cy) * p
+                    else:
+                        cy = min_cy + (max_cy - min_cy) * p
             
             final_w = max_crop_w * scale
             final_h = max_crop_h * scale
             
-            x1 = max(0, int(cx - final_w / 2))
-            y1 = max(0, int(cy - final_h / 2))
-            x2 = min(w, x1 + int(final_w))
-            y2 = min(h, y1 + int(final_h))
+            # Ensure minimum crop size to prevent issues
+            final_w = max(final_w, tw * 0.5)
+            final_h = max(final_h, th * 0.5)
             
+            # Calculate crop coordinates
+            x1 = int(cx - final_w / 2)
+            y1 = int(cy - final_h / 2)
+            x2 = int(x1 + final_w)
+            y2 = int(y1 + final_h)
+            
+            # Clamp to image bounds (shift if needed, don't shrink)
+            if x1 < 0:
+                x2 -= x1
+                x1 = 0
+            if y1 < 0:
+                y2 -= y1
+                y1 = 0
+            if x2 > w:
+                x1 -= (x2 - w)
+                x2 = w
+            if y2 > h:
+                y1 -= (y2 - h)
+                y2 = h
+            
+            # Final safety clamp
+            x1 = max(0, x1)
+            y1 = max(0, y1)
+            x2 = min(w, x2)
+            y2 = min(h, y2)
+            
+            # Ensure we have valid crop dimensions
             if x2 <= x1 or y2 <= y1:
-                # Fallback: Center crop instead of squeeze
-                cx_fb, cy_fb = w / 2, h / 2
-                cw_fb, ch_fb = max_crop_w, max_crop_h
-                fx1 = max(0, int(cx_fb - cw_fb / 2))
-                fy1 = max(0, int(cy_fb - ch_fb / 2))
-                fx2 = min(w, fx1 + int(cw_fb))
-                fy2 = min(h, fy1 + int(ch_fb))
-                part = img_arr[fy1:fy2, fx1:fx2]
-                part_img = Image.fromarray(part)
-                aux = part_img.resize((tw, th), Image.BICUBIC)
-                return np.array(aux)
+                # Ultimate fallback: center crop at max size
+                cw_fb = min(w, max_crop_w)
+                ch_fb = min(h, max_crop_h)
+                x1 = int((w - cw_fb) / 2)
+                y1 = int((h - ch_fb) / 2)
+                x2 = int(x1 + cw_fb)
+                y2 = int(y1 + ch_fb)
             
             part = img_arr[y1:y2, x1:x2]
+            
+            # Safety check for empty array
+            if part.size == 0:
+                # Return a simple center crop as fallback
+                cw_fb = min(w, int(max_crop_w))
+                ch_fb = min(h, int(max_crop_h))
+                fx1 = (w - cw_fb) // 2
+                fy1 = (h - ch_fb) // 2
+                part = img_arr[fy1:fy1+ch_fb, fx1:fx1+cw_fb]
+            
             part_img = Image.fromarray(part)
             
-            # High quality resize
+            # High quality resize to EXACTLY fill target size
             resized = part_img.resize((tw, th), Image.BICUBIC)
             return np.array(resized)
         
