@@ -1,15 +1,42 @@
-"""Google GenAI client for text and image generation."""
+"""Google GenAI client for text and image generation via Vertex AI."""
 from __future__ import annotations
 
 import json
+import os
 import re
+import sys
 import time
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
+
+# Ensure root backend directory is in sys.path for modules imported from CaptionsBE
+_backend_dir = str(Path(__file__).resolve().parent.parent.parent)
+if _backend_dir not in sys.path:
+    sys.path.insert(0, _backend_dir)
 
 from google import genai
 from google.genai import types
 
+from gemini_auth import (
+    GeminiTranscriptionError,
+    _load_service_account_json_from_env,
+    _configure_adc_from_service_account_json,
+    _call_with_retry,
+    _is_retryable_error,
+    is_transcribe_model,
+)
+from gemini_integration import (
+    GeminiTranscriptionAdapter,
+    transcribe_with_gemini,
+    transcribe_words_with_gemini,
+    get_last_transcribed_words,
+)
+from subtitle_generation import (
+    transcribe_audio_to_segments,
+    group_words_into_subtitles,
+    _sec_to_ts,
+)
+from gemini_prompts import _guess_audio_mime
 from ..core.config import settings
 from ..core.logging import get_logger
 
@@ -17,7 +44,7 @@ logger = get_logger(__name__)
 
 
 class GenAIClient:
-    """Client for Google Generative AI (Gemini)."""
+    """Client for Google Generative AI (Gemini) using Vertex AI."""
     
     def __init__(
         self,
@@ -25,18 +52,70 @@ class GenAIClient:
         text_model: str | None = None,
         image_model: str | None = None,
         subtitle_model: str | None = None,
+        client: Any | None = None,
     ) -> None:
         self.api_key = api_key or settings.genai_api_key
         self.text_model = text_model or settings.genai_text_model
         self.image_model = image_model or settings.genai_image_model
         self.subtitle_model = subtitle_model or settings.genai_subtitle_model
         
-        self._client = genai.Client(api_key=self.api_key)
-        
-        if self.api_key:
-            logger.info("GenAI client initialized (API key length: %d)", len(self.api_key))
+        # Vertex AI configuration
+        self.service_account_json = _load_service_account_json_from_env()
+        self.project = (
+            settings.google_cloud_project
+            or os.environ.get("GOOGLE_CLOUD_PROJECT")
+            or os.environ.get("GOOGLE_PROJECT")
+            or ""
+        ).strip()
+        self.location = (
+            settings.google_cloud_location
+            or os.environ.get("GOOGLE_CLOUD_LOCATION")
+            or os.environ.get("GOOGLE_VERTEX_LOCATION")
+            or "global"
+        ).strip()
+
+        if self.service_account_json:
+            self.project = _configure_adc_from_service_account_json(
+                self.service_account_json,
+                self.project,
+            )
+
+        if client is not None:
+            self._client = client
+            self.is_vertex = getattr(client, "vertexai", True) is True
         else:
-            logger.warning("GenAI client initialized without API key!")
+            # Per user requirement: All Gemini models must use Vertex AI
+            self._client = genai.Client(
+                vertexai=True,
+                project=self.project or None,
+                location=self.location,
+                api_key=self.api_key or None,
+            )
+            self.is_vertex = True
+        
+        logger.info(
+            "GenAI client initialized via Vertex AI (project=%s, location=%s, subtitle_model=%s)",
+            self.project or "<default>",
+            self.location,
+            self.subtitle_model,
+        )
+
+    def _normalize_model_name(self, model_name: str) -> str:
+        """Normalize model name for Vertex AI (e.g. appending -preview for transcribe models)."""
+        name = (model_name or "").strip()
+        if name.startswith("models/"):
+            name = name[len("models/"):]
+        if self.is_vertex and name in ("gemini-3.5-transcribe", "publishers/google/models/gemini-3.5-transcribe"):
+            return name + "-preview"
+        return name
+
+    def _call_with_retry(
+        self,
+        fn: Callable[[], Any],
+        operation_label: str = "Gemini request",
+    ) -> Any:
+        """Execute callable with exponential backoff on retryable errors."""
+        return _call_with_retry(fn, operation_label=operation_label)
     
     def _log_interaction(self, method: str, request: Any, response: Any) -> None:
         """Log request and response from Gemini."""
@@ -120,7 +199,10 @@ class GenAIClient:
             return {"error": "Failed to parse JSON", "raw": text}
     
     def _upload_file(self, path: Path) -> Any:
-        """Upload a file to GenAI and wait for processing."""
+        """Upload a file to GenAI and wait for processing (used for Developer API fallback)."""
+        if self.is_vertex:
+            raise RuntimeError("Vertex AI does not use Files API. Pass audio bytes via types.Part.from_bytes.")
+
         if not self.api_key or not str(self.api_key).strip():
             raise RuntimeError(
                 "Gemini API key is missing. Please set GENAI_API_KEY in Clipmaker/.env"
@@ -128,7 +210,6 @@ class GenAIClient:
 
         try:
             logger.info(f"Uploading file: {path}")
-            # Fix: The SDK expects 'file' instead of 'path'
             file_ref = self._client.files.upload(file=str(path))
             
             # Wait for processing
@@ -162,21 +243,79 @@ class GenAIClient:
         language: str = "auto",
         min_words: int = 1,
         max_words: int = 10,
-    ) -> list[dict[str, Any]]:
-        """Transcribe audio to timestamped subtitle segments.
+        return_words: bool = False,
+    ) -> list[dict[str, Any]] | tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+        """Transcribe audio to timestamped subtitle segments via Vertex AI.
         
         Args:
             audio_path: Path to the audio file.
             language: Language code or 'auto' for auto-detection.
             min_words: Minimum words per subtitle segment.
             max_words: Maximum words per subtitle segment.
+            return_words: If True, returns a tuple of (entries, words).
             
         Returns:
-            List of dicts with 'start', 'end' (SRT format), and 'text' keys.
+            List of dicts with 'start', 'end' (SRT format), and 'text' keys,
+            or tuple of (entries, words) if return_words=True.
         """
-        file_ref = self._upload_file(audio_path)
-        if not file_ref:
-            raise RuntimeError("Failed to upload audio file for transcription")
+        model_name = self._normalize_model_name(self.subtitle_model)
+        logger.info(f"Transcribing subtitles with model={model_name} (Vertex AI: {self.is_vertex})")
+
+        # 1. Dedicated Gemini 3.5 Transcribe model (gemini-3.5-transcribe / gemini-3.5-transcribe-preview)
+        if is_transcribe_model(model_name):
+            adapter = GeminiTranscriptionAdapter(
+                api_key=self.api_key,
+                model=model_name,
+                client_factory=lambda _key: self._client,
+            )
+            words = adapter.transcribe_words(str(audio_path), language=language)
+            try:
+                import gemini_integration
+                gemini_integration._last_transcribed_words = words
+            except Exception:
+                pass
+
+            if max_words <= 3:
+                length_mode = "short"
+            elif max_words >= 10:
+                length_mode = "long"
+            else:
+                length_mode = "medium"
+
+            max_chars = 24 if max_words <= 3 else (40 if max_words <= 6 else 75)
+
+            segments = group_words_into_subtitles(
+                words=words,
+                length_mode=length_mode,
+                max_chars=max_chars,
+            )
+
+            result_entries = []
+            for seg in segments:
+                result_entries.append({
+                    "start": _sec_to_ts(seg["start"]),
+                    "end": _sec_to_ts(seg["end"]),
+                    "text": str(seg["text"]).strip(),
+                })
+            if return_words:
+                return result_entries, words
+            return result_entries
+
+        # 2. General LLM fallback for non-transcribe models
+        mime = _guess_audio_mime(str(audio_path))
+        if self.is_vertex:
+            audio_part = types.Part.from_bytes(
+                data=Path(audio_path).read_bytes(),
+                mime_type=mime,
+            )
+        else:
+            file_ref = self._upload_file(audio_path)
+            if not file_ref:
+                raise RuntimeError("Failed to upload audio file for transcription")
+            audio_part = types.Part.from_uri(
+                file_uri=file_ref.uri,
+                mime_type=file_ref.mime_type,
+            )
         
         language_instruction = ""
         if language != "auto":
@@ -235,16 +374,13 @@ class GenAIClient:
         """
 
         try:
-            logger.info(f"Generating subtitles using model: {self.subtitle_model}")
+            logger.info(f"Generating subtitles using model: {model_name}")
             
             contents = [
                 types.Content(
                     role="user",
                     parts=[
-                        types.Part.from_uri(
-                            file_uri=file_ref.uri,
-                            mime_type=file_ref.mime_type
-                        ),
+                        audio_part,
                         types.Part.from_text(text="Transcribe the audio file using the provided system instructions."),
                     ],
                 ),
@@ -277,10 +413,13 @@ class GenAIClient:
                 ],
             )
 
-            response = self._client.models.generate_content(
-                model=self.subtitle_model,
-                contents=contents,
-                config=generate_config
+            response = self._call_with_retry(
+                lambda: self._client.models.generate_content(
+                    model=model_name,
+                    contents=contents,
+                    config=generate_config,
+                ),
+                operation_label="transcribe_audio_for_subtitles",
             )
             
             logger.info("Model raw response begin:")
@@ -292,36 +431,43 @@ class GenAIClient:
 
             self._log_interaction(
                 "transcribe_audio_for_subtitles", 
-                f"Audio transcription request using model: {self.subtitle_model}", 
+                f"Audio transcription request using model: {model_name}", 
                 response
             )
             
             # With structured output, response.text should be valid JSON
             result = self._extract_json(response.text)
             
+            final_entries: list[dict[str, Any]] = []
             # 1. Direct List
             if isinstance(result, list):
-                return result
-            
-            if isinstance(result, dict):
+                final_entries = result
+            elif isinstance(result, dict):
                 # 2. Known keys
                 for key in ["subtitles", "entries", "segments", "data", "results"]:
                     if key in result and isinstance(result[key], list):
-                        return result[key]
+                        final_entries = result[key]
+                        break
                 
                 # 3. Single object fallback (if model returned just one segment as an object)
-                if "start" in result and "text" in result:
-                    return [result]
+                if not final_entries and "start" in result and "text" in result:
+                    final_entries = [result]
 
                 # 4. Deep search: Look for ANY list value that contains subtitle-like objects
-                for value in result.values():
-                    if isinstance(value, list) and len(value) > 0 and isinstance(value[0], dict):
-                        # Check if the first item has at least 'text' or 'start'
-                        if "text" in value[0] or "start" in value[0]:
-                            return value
+                if not final_entries:
+                    for value in result.values():
+                        if isinstance(value, list) and len(value) > 0 and isinstance(value[0], dict):
+                            # Check if the first item has at least 'text' or 'start'
+                            if "text" in value[0] or "start" in value[0]:
+                                final_entries = value
+                                break
 
-            logger.warning(f"Unexpected transcription result format: {type(result)} - {result}")
-            return []
+            if not final_entries:
+                logger.warning(f"Unexpected transcription result format: {type(result)} - {result}")
+
+            if return_words:
+                return final_entries, []
+            return final_entries
                 
         except Exception as e:
             logger.error(f"Audio transcription failed: {e}")
@@ -338,12 +484,19 @@ class GenAIClient:
         use_batch: bool = False,
     ) -> dict[str, Any] | str:
         """Analyze audio track for video clip creation."""
-        file_ref = None
-        if audio_path and audio_path.exists():
+        audio_part = None
+        if audio_path and Path(audio_path).exists():
             try:
-                file_ref = self._upload_file(audio_path)
+                if self.is_vertex:
+                    mime = _guess_audio_mime(str(audio_path))
+                    audio_part = types.Part.from_bytes(
+                        data=Path(audio_path).read_bytes(),
+                        mime_type=mime,
+                    )
+                else:
+                    audio_part = self._upload_file(Path(audio_path))
             except Exception as e:
-                logger.warning(f"Audio upload failed for clip analysis, continuing without audio: {e}")
+                logger.warning(f"Audio attachment failed for clip analysis, continuing without audio: {e}")
         
         tech_context = ""
         if technical_analysis:
@@ -414,31 +567,26 @@ class GenAIClient:
         """
         
         contents = [prompt]
-        if file_ref:
-            # For Batch API, we need the resource name in a specific format if we construct manually.
-            # But here we are building for direct generate_content first.
-            contents.append(file_ref)
+        if audio_part:
+            contents.append(audio_part)
         
         if use_batch:
             # Construct a request body suitable for Batch API
-            # Batch API requires a list of parts in 'contents'
             batch_parts = [{"text": prompt}]
-            if file_ref:
-                batch_parts.append({
-                    "file_data": {
-                        "file_uri": file_ref.uri,
-                        "mime_type": file_ref.mime_type
-                    }
-                })
+            if audio_part:
+                batch_parts.append(audio_part)
             
             return {
                 "contents": [{"role": "user", "parts": batch_parts}]
             }
 
         logger.info("Sending audio analysis request to Gemini...")
-        response = self._client.models.generate_content(
-            model=self.text_model,
-            contents=contents
+        response = self._call_with_retry(
+            lambda: self._client.models.generate_content(
+                model=self._normalize_model_name(self.text_model),
+                contents=contents,
+            ),
+            operation_label="analyze_audio",
         )
         self._log_interaction("analyze_audio", contents, response)
         return self._extract_json(response.text)
@@ -494,9 +642,12 @@ class GenAIClient:
                 "contents": [{"role": "user", "parts": [{"text": prompt}]}]
             }
 
-        response = self._client.models.generate_content(
-            model=self.text_model,
-            contents=[prompt]
+        response = self._call_with_retry(
+            lambda: self._client.models.generate_content(
+                model=self._normalize_model_name(self.text_model),
+                contents=[prompt],
+            ),
+            operation_label="build_storyboard",
         )
         self._log_interaction("build_storyboard", [prompt], response)
         data = self._extract_json(response.text)
@@ -547,9 +698,12 @@ class GenAIClient:
                 "contents": [{"role": "user", "parts": [{"text": prompt}]}]
             }
 
-        response = self._client.models.generate_content(
-            model=self.text_model,
-            contents=[prompt]
+        response = self._call_with_retry(
+            lambda: self._client.models.generate_content(
+                model=self._normalize_model_name(self.text_model),
+                contents=[prompt],
+            ),
+            operation_label="build_prompts",
         )
         self._log_interaction("build_prompts", [prompt], response)
         data = self._extract_json(response.text)
@@ -561,15 +715,19 @@ class GenAIClient:
         return {}
     
     def generate_image(self, prompt_payload: dict[str, Any]) -> bytes:
-        """Generate an image from a prompt."""
+        """Generate an image from a prompt via Vertex AI."""
         prompt = prompt_payload.get("image_prompt", "Cinematic scene")
         
         try:
+            image_mod = self._normalize_model_name(self.image_model)
             # Check if we are using an Imagen model
-            if "imagen" in self.image_model.lower():
-                response = self._client.models.generate_images(
-                    model=self.image_model,
-                    prompt=prompt
+            if "imagen" in image_mod.lower():
+                response = self._call_with_retry(
+                    lambda: self._client.models.generate_images(
+                        model=image_mod,
+                        prompt=prompt,
+                    ),
+                    operation_label="generate_image (Imagen)",
                 )
                 self._log_interaction("generate_image (Imagen)", prompt, "<Image response generated>")
                 if response.generated_images:
@@ -591,11 +749,15 @@ class GenAIClient:
             )
             
             total_bytes = b""
-            for chunk in self._client.models.generate_content_stream(
-                model=self.image_model,
-                contents=contents,
-                config=generate_content_config,
-            ):
+            stream = self._call_with_retry(
+                lambda: self._client.models.generate_content_stream(
+                    model=image_mod,
+                    contents=contents,
+                    config=generate_content_config,
+                ),
+                operation_label="generate_image (Multimodal Stream)",
+            )
+            for chunk in stream:
                 if (
                     chunk.candidates is None
                     or not chunk.candidates
@@ -612,9 +774,6 @@ class GenAIClient:
             self._log_interaction("generate_image (Multimodal Stream)", prompt, f"<Generated {len(total_bytes)} bytes>")
             return total_bytes
             
-            self._log_interaction("generate_image (Multimodal Stream)", prompt, f"<Generated {len(total_bytes)} bytes>")
-            return total_bytes
-            
         except Exception as e:
             logger.error(f"Image generation failed: {e}")
             return b""
@@ -622,64 +781,84 @@ class GenAIClient:
     def create_batch_job(
         self,
         dataset_name: str,
-        source_file_path: Path,
+        source: str | Path,
+        dest: str | None = None,
         model_name: str | None = None,
     ) -> Any | None:
-        """
-        Create a batch job using a local JSONL file.
+        """Create a batch prediction job exclusively via Vertex AI.
         
         Args:
-            dataset_name: A display name for the batch job.
-            source_file_path: Path to the local .jsonl file containing requests.
-            model_name: Target model (e.g. "gemini-1.5-flash-002"). Defaults to self.text_model.
+            dataset_name: Display name for the batch job.
+            source: GCS URI ('gs://path/to/data.jsonl'), BigQuery URI ('bq://...'),
+                    or local .jsonl path (auto-uploaded if GCS bucket configured).
+            dest: Destination GCS URI ('gs://path/to/output') for batch results.
+            model_name: Target model (e.g. "gemini-2.5-flash"). Defaults to self.text_model.
             
         Returns:
-            The created batch job object or None if failed.
+            The created batch job object.
         """
-        try:
-            model = model_name or self.text_model
-            logger.info(f"Creating batch job '{dataset_name}' for model {model} from {source_file_path}")
-            
-            # 1. Upload the file
-            # Batch API requires a specific file upload or referencing a file.
-            # Usually we use client.files.upload and then reference it.
-            # Or client.batches.create might accept a local path depending on SDK version.
-            # Assuming standard Google GenAI SDK flow:
-            
-            # Fix: Use 'file' param and explicit mime_type for JSONL files
-            # Reverting to application/json as it's standard, and using 'dataset' param in create
-            file_ref = self._client.files.upload(
-                file=str(source_file_path),
-                config={"mime_type": "application/json"}
-            )
-            logger.info(f"Uploaded batch file: {file_ref.name}")
-            
-            # Wait for file to be processed (ACTIVE state)
-            while file_ref.state.name == "PROCESSING":
-                time.sleep(1)
-                file_ref = self._client.files.get(name=file_ref.name)
+        if not self.is_vertex:
+            raise RuntimeError("create_batch_job is supported exclusively via Vertex AI.")
 
-            if file_ref.state.name == "FAILED":
-                raise RuntimeError(f"Batch file processing failed: {file_ref.error.message if hasattr(file_ref, 'error') else 'Unknown error'}")
+        model = self._normalize_model_name(model_name or self.text_model)
+        source_str = str(source).strip()
 
-            logger.info(f"Batch file ready: {file_ref.name} (State: {file_ref.state.name})")
-
-            # 2. Create the batch job
-            # The 'src' parameter implies GCS. For File API, we should use 'dataset'.
-            batch_job = self._client.batches.create(
-                model=model,
-                dataset=file_ref.name,
-                config=types.CreateBatchJobConfig(
-                    display_name=dataset_name
+        # Vertex AI requires GCS URI or BigQuery URI
+        if not (source_str.startswith("gs://") or source_str.startswith("bq://")):
+            gcs_bucket = (
+                os.getenv("GOOGLE_CLOUD_STORAGE_BUCKET")
+                or os.getenv("GCS_BUCKET")
+                or ""
+            ).strip()
+            source_path = Path(source_str)
+            if gcs_bucket and source_path.is_file():
+                try:
+                    from google.cloud import storage
+                    storage_client = storage.Client(project=self.project or None)
+                    bucket_clean = gcs_bucket.replace("gs://", "").strip("/")
+                    bucket = storage_client.bucket(bucket_clean)
+                    blob_name = f"batch_inputs/{dataset_name}_{source_path.name}"
+                    blob = bucket.blob(blob_name)
+                    blob.upload_from_filename(str(source_path))
+                    source_str = f"gs://{bucket.name}/{blob_name}"
+                    logger.info(f"Uploaded batch input file to GCS: {source_str}")
+                except Exception as gcs_err:
+                    logger.error(f"Failed to auto-upload {source_str} to GCS bucket {gcs_bucket}: {gcs_err}")
+                    raise ValueError(
+                        f"Vertex AI Batch API requires a GCS URI ('gs://...'). "
+                        f"Auto-upload of local file failed: {gcs_err}"
+                    ) from gcs_err
+            else:
+                raise ValueError(
+                    f"Vertex AI Batch API requires a Google Cloud Storage URI ('gs://bucket/data.jsonl') "
+                    f"or BigQuery URI ('bq://...'). Files API is not supported on Vertex AI. Provided: '{source_str}'"
                 )
+
+        config_kwargs: dict[str, Any] = {"display_name": dataset_name}
+        if dest:
+            config_kwargs["dest"] = dest
+
+        config = (
+            types.CreateBatchJobConfig(**config_kwargs)
+            if types is not None and hasattr(types, "CreateBatchJobConfig")
+            else None
+        )
+
+        logger.info(f"Creating Vertex AI batch job '{dataset_name}' for model {model} from {source_str}")
+        try:
+            batch_job = self._call_with_retry(
+                lambda: self._client.batches.create(
+                    model=model,
+                    src=source_str,
+                    config=config,
+                ),
+                operation_label=f"Vertex AI batches.create ({dataset_name})",
             )
-            
-            logger.info(f"Batch job created: {batch_job.name} (State: {batch_job.state})")
+            logger.info(f"Vertex AI batch job created: {getattr(batch_job, 'name', batch_job)}")
             return batch_job
-            
         except Exception as e:
-            logger.error(f"Failed to create batch job: {e}")
-            return None
+            logger.error(f"Failed to create Vertex AI batch job: {e}")
+            raise
 
     def get_batch_job(self, job_name: str) -> Any | None:
         """Get the status of a batch job."""

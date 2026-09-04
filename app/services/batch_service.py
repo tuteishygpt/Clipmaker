@@ -147,47 +147,39 @@ class BatchService:
         
         # Re-implementing the "REST CREATE" logic from User's code here to fix our broken submit.
         
-        import requests as http_requests
-        
         # 1. Prepare JSONL using our existing method (it works fine for content)
-        # Re-use create_jsonl_file but ensure we match the User's finding on uploading
         file_path = self.create_jsonl_file(requests, job_base_id, generation_config)
+        
+        if self.client.is_vertex:
+            # Route exclusively via Vertex AI Batch API
+            logger.info(f"Submitting batch job via Vertex AI for {display_name}...")
+            job = self.client.create_batch_job(
+                dataset_name=display_name,
+                source=file_path,
+                model_name=model_name,
+            )
+            job_name = getattr(job, "name", str(job))
+            return {
+                "job_id": job_name,
+                "state": getattr(job, "state", "ACTIVE"),
+                "model": model_name,
+                "local_file": str(file_path),
+                "dataset_name": display_name,
+            }
+
+        import requests as http_requests
         
         # 2. Upload file using GenAI SDK (User code: uploads with mime_type="text/plain" or guessed)
         # User code: _client.files.upload(file=path, config={"mime_type": "text/plain"})
-        # Let's do that.
-        
         logger.info(f"Uploading batch file: {file_path}")
         file_ref = self.client._client.files.upload(
             file=str(file_path),
-            config={"mime_type": "text/plain"} # User's code suggests this might be safer/better
+            config={"mime_type": "text/plain"}
         )
-        
-        # 3. Wait for file to be active? User code DOES NOT wait in the loop, but debug showed we might need to.
-        # However, User code logic:
-        # uploaded = client.files.upload(...)
-        # ... prepare jsonl ...
-        # uploaded_jsonl = client.files.upload(jsonl_path, ...)    <-- THIS IS THE BATCH FILE
-        # batch_name = create_batch_job_rest(...)
-        
-        # The key difference: User code uploads THE JSONL via `files.upload` too!
-        # And creates batch job via REST.
-        
-        # In my previous attempts, I was doing `client.batches.create(src=local_file)`.
-        # The correct way (User's way) is:
-        # 1. Upload JSONL to File API -> get URI/Name
-        # 2. Call batches.create (REST or SDK) referencing that File Name.
-        
-        # Let's do exactly that.
         
         logger.info(f"Uploaded batch file {file_ref.name}. Creating job via REST...")
         
-        # 4. Create Job via REST (User's "Magic" Fix)
-        # Using the helper from User's code to get the correct URL format
-        
-        # Extract clean model name
         clean_model = model_name.replace("models/", "")
-        
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{clean_model}:batchGenerateContent"
         headers = {
             "x-goog-api-key": self.client.api_key,
@@ -196,19 +188,16 @@ class BatchService:
         payload = {
             "batch": {
                 "display_name": display_name,
-                "input_config": {"file_name": file_ref.name}, # Reference the uploaded file!
+                "input_config": {"file_name": file_ref.name},
             }
         }
         
         resp = http_requests.post(url, headers=headers, json=payload, timeout=60)
-        
         if not resp.ok:
             logger.error(f"REST batch create failed: {resp.status_code} {resp.text}")
             raise RuntimeError(f"Failed to create batch job: {resp.text}")
             
         data = resp.json()
-        
-        # Extract job name
         created_name = data.get("name")
         if not created_name and "batch" in data:
             created_name = data["batch"].get("name")
@@ -217,11 +206,9 @@ class BatchService:
              raise RuntimeError(f"Created batch job but got no name. Response: {data}")
              
         logger.info(f"Batch job submitted successfully via REST: {created_name}")
-        
-        # Return dict compatible with our pipeline
         return {
             "job_id": created_name,
-            "state": "ACTIVE", # Assume active if created
+            "state": "ACTIVE",
             "model": model_name,
             "local_file": str(file_path),
             "dataset_name": display_name
@@ -232,6 +219,22 @@ class BatchService:
         Wait for a batch job to complete (Async).
         """
         logger.info(f"Waiting for batch job {job_name} (async)...")
+        if self.client.is_vertex:
+            import asyncio
+            try:
+                while True:
+                    job = self.client.get_batch_job(job_name)
+                    state = str(getattr(job, "state", "") or "").upper()
+                    logger.debug(f"Vertex AI job {job_name} state: {state}")
+                    if any(s in state for s in ["SUCCEEDED", "DONE"]):
+                        return "SUCCEEDED"
+                    elif any(s in state for s in ["FAILED", "CANCELLED", "EXPIRED"]):
+                        return "FAILED"
+                    await asyncio.sleep(poll_interval)
+            except Exception as e:
+                logger.error(f"Error polling Vertex AI batch job: {e}")
+                return "UNKNOWN"
+
         from app.services.gemini_batch_runner import GeminiBatchRunner
         import asyncio
         
@@ -262,6 +265,21 @@ class BatchService:
         Wait for a batch job to complete (Sync/Blocking).
         """
         logger.info(f"Waiting for batch job {job_name}...")
+        if self.client.is_vertex:
+            try:
+                while True:
+                    job = self.client.get_batch_job(job_name)
+                    state = str(getattr(job, "state", "") or "").upper()
+                    logger.debug(f"Vertex AI job {job_name} state: {state}")
+                    if any(s in state for s in ["SUCCEEDED", "DONE"]):
+                        return "SUCCEEDED"
+                    elif any(s in state for s in ["FAILED", "CANCELLED", "EXPIRED"]):
+                        return "FAILED"
+                    time.sleep(poll_interval)
+            except Exception as e:
+                logger.error(f"Error polling Vertex AI batch job: {e}")
+                return "UNKNOWN"
+
         from app.services.gemini_batch_runner import GeminiBatchRunner
         
         runner = GeminiBatchRunner(api_key=self.client.api_key, model="gemini-1.5-flash")

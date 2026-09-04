@@ -46,12 +46,17 @@ class SubtitleService:
             raise FileNotFoundError(f"Audio file not found for project {project_id}")
         
         # Call GenAI to transcribe
-        raw_entries = self.genai_client.transcribe_audio_for_subtitles(
+        transcribe_result = self.genai_client.transcribe_audio_for_subtitles(
             audio_path=audio_path,
             language=language,
             min_words=min_words,
             max_words=max_words,
+            return_words=True,
         )
+        if isinstance(transcribe_result, tuple):
+            raw_entries, words = transcribe_result
+        else:
+            raw_entries, words = transcribe_result, []
         
         # Convert to SubtitleEntry objects
         entries = []
@@ -59,27 +64,9 @@ class SubtitleService:
             start_sec = self.srt_time_to_seconds(entry["start"])
             end_sec = self.srt_time_to_seconds(entry["end"])
 
-            # Heuristic fix: If duration is unreasonably long OR end < start (likely model output MM:SS:mm parsed as HH:MM:SS)
-            if end_sec - start_sec > 20.0 or end_sec < start_sec:
-                try:
-                    s_str = str(entry["start"]).replace(',', '.')
-                    e_str = str(entry["end"]).replace(',', '.')
-                    
-                    s_parts = s_str.split(':')
-                    e_parts = e_str.split(':')
-                    
-                    if len(s_parts) == 3 and len(e_parts) == 3:
-                        # Try interpreting as Min:Sec:Milliseconds
-                        # Original: HH:MM:SS.frac -> now treating as MM:SS:mmm
-                        s_alt = float(s_parts[0]) * 60 + float(s_parts[1]) + float(s_parts[2]) / 1000.0
-                        e_alt = float(e_parts[0]) * 60 + float(e_parts[1]) + float(e_parts[2]) / 1000.0
-                        
-                        if 0 < e_alt - s_alt < 20.0:
-                            logger.warning(f"Fixing malformed attributes: {entry['start']}->{s_alt:.2f}s, {entry['end']}->{e_alt:.2f}s")
-                            start_sec = s_alt
-                            end_sec = e_alt
-                except (ValueError, IndexError):
-                    pass
+            # Ensure start <= end
+            if end_sec < start_sec:
+                start_sec, end_sec = end_sec, start_sec
 
             # Normalize timestamps to allow loose AI output to be saved correctly
             start_norm = self.seconds_to_srt_time(start_sec)
@@ -97,6 +84,19 @@ class SubtitleService:
         
         # Save as SRT
         self._save_entries_as_srt(project_id, entries)
+        
+        # Save word-level timestamps directly from transcription result (thread-safe)
+        if not words:
+            try:
+                from gemini_integration import get_last_transcribed_words
+                words = get_last_transcribed_words() or []
+            except Exception:
+                words = []
+        if words:
+            try:
+                self.file_storage.save_subtitle_words(project_id, words)
+            except Exception as e:
+                logger.debug(f"Could not save subtitle words: {e}")
         
         # Initialize default styling if not exists
         if not self.file_storage.get_subtitle_styling(project_id):
@@ -242,7 +242,7 @@ class SubtitleService:
         return BUNDLED_FONTS.copy()
     
     @staticmethod
-    def srt_time_to_seconds(srt_time: str) -> float:
+    def srt_time_to_seconds(srt_time: str | float | int) -> float:
         """Convert SRT time format to seconds.
         
         Format: 00:00:01,000 -> 1.0
@@ -250,15 +250,24 @@ class SubtitleService:
         if isinstance(srt_time, (int, float)):
             return float(srt_time)
 
-        srt_time = str(srt_time).replace(',', '.')
-        parts = srt_time.split(':')
+        s = str(srt_time).strip()
+        if not s:
+            return 0.0
+        if s.lower().endswith("s"):
+            s = s[:-1].strip()
+
+        s = s.replace(',', '.')
+        parts = s.split(':')
         
         if len(parts) == 3:
             try:
-                hours = float(parts[0])
-                minutes = float(parts[1])
-                seconds = float(parts[2])
-                return hours * 3600 + minutes * 60 + seconds
+                p0 = float(parts[0])
+                p1 = float(parts[1])
+                p2 = float(parts[2])
+                # If 3rd component is >= 60 without a dot, it was MM:SS:mmm
+                if p2 >= 60.0 and "." not in parts[2]:
+                    return p0 * 60.0 + p1 + p2 / 1000.0
+                return p0 * 3600.0 + p1 * 60.0 + p2
             except ValueError:
                 pass
         
@@ -266,7 +275,7 @@ class SubtitleService:
             try:
                 minutes = float(parts[0])
                 seconds = float(parts[1])
-                return minutes * 60 + seconds
+                return minutes * 60.0 + seconds
             except ValueError:
                 pass
                 
@@ -287,7 +296,15 @@ class SubtitleService:
         hours = int(seconds // 3600)
         minutes = int((seconds % 3600) // 60)
         secs = seconds % 60
-        millis = int((secs % 1) * 1000)
-        secs = int(secs)
-        
-        return f"{hours:02d}:{minutes:02d}:{secs:02d},{millis:03d}"
+        ms_int = int(round((secs - int(secs)) * 1000))
+        secs_int = int(secs)
+        if ms_int >= 1000:
+            secs_int += 1
+            ms_int -= 1000
+        if secs_int >= 60:
+            minutes += secs_int // 60
+            secs_int = secs_int % 60
+        if minutes >= 60:
+            hours += minutes // 60
+            minutes = minutes % 60
+        return f"{hours:02d}:{minutes:02d}:{secs_int:02d},{ms_int:03d}"

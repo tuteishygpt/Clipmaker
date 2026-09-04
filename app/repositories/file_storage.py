@@ -143,6 +143,23 @@ class FileStorage:
             return json.loads(path.read_text(encoding="utf-8"))
         return None
     
+    def save_subtitle_words(self, project_id: str, words: list[dict]) -> Path:
+        """Save word-level timestamps as JSON."""
+        import json
+        subs_dir = self._project_path(project_id) / "subtitles"
+        subs_dir.mkdir(parents=True, exist_ok=True)
+        path = subs_dir / "words.json"
+        path.write_text(json.dumps(words, indent=2, ensure_ascii=False), encoding="utf-8")
+        return path
+
+    def get_subtitle_words(self, project_id: str) -> list[dict] | None:
+        """Load word-level timestamps from JSON."""
+        import json
+        path = self._project_path(project_id) / "subtitles" / "words.json"
+        if path.exists():
+            return json.loads(path.read_text(encoding="utf-8"))
+        return None
+
     def delete_subtitles(self, project_id: str) -> None:
         """Delete all subtitle files for a project."""
         subs_dir = self._project_path(project_id) / "subtitles"
