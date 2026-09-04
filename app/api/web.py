@@ -35,6 +35,7 @@ async def index() -> FileResponse:
 
 
 @router.get("/showcase", response_model=List[ShowcaseItem])
+@router.get("/api/showcase", response_model=List[ShowcaseItem])
 async def get_showcase_videos() -> List[ShowcaseItem]:
     """
     Get a list of showcase videos for the landing page.

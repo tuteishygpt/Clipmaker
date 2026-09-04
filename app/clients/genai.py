@@ -119,8 +119,13 @@ class GenAIClient:
             logger.error(f"Failed to parse JSON from response: {e}")
             return {"error": "Failed to parse JSON", "raw": text}
     
-    def _upload_file(self, path: Path) -> Any | None:
+    def _upload_file(self, path: Path) -> Any:
         """Upload a file to GenAI and wait for processing."""
+        if not self.api_key or not str(self.api_key).strip():
+            raise RuntimeError(
+                "Gemini API key is missing. Please set GENAI_API_KEY in Clipmaker/.env"
+            )
+
         try:
             logger.info(f"Uploading file: {path}")
             # Fix: The SDK expects 'file' instead of 'path'
@@ -133,14 +138,23 @@ class GenAIClient:
             
             if file_ref.state.name == "FAILED":
                 logger.error("File processing failed in Gemini.")
-                return None
+                raise RuntimeError("File processing failed in Gemini.")
             
             logger.info(f"File uploaded and processed: {file_ref.name}")
             return file_ref
             
         except Exception as e:
             logger.error(f"Failed to upload file: {e}")
-            return None
+            err_str = str(e)
+            if "API_KEY_INVALID" in err_str or "API key not valid" in err_str:
+                raise RuntimeError(
+                    "Gemini API key is invalid or expired. Please update GENAI_API_KEY in Clipmaker/.env (get a valid key at https://aistudio.google.com/apikey)"
+                ) from e
+            if "RESOURCE_EXHAUSTED" in err_str or "Quota exceeded" in err_str:
+                raise RuntimeError(
+                    "Gemini API quota exceeded. Please check your rate limits or billing in Google AI Studio."
+                ) from e
+            raise RuntimeError(f"Failed to upload audio file to Gemini: {e}") from e
     
     def transcribe_audio_for_subtitles(
         self,
@@ -326,7 +340,10 @@ class GenAIClient:
         """Analyze audio track for video clip creation."""
         file_ref = None
         if audio_path and audio_path.exists():
-            file_ref = self._upload_file(audio_path)
+            try:
+                file_ref = self._upload_file(audio_path)
+            except Exception as e:
+                logger.warning(f"Audio upload failed for clip analysis, continuing without audio: {e}")
         
         tech_context = ""
         if technical_analysis:

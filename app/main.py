@@ -38,5 +38,12 @@ app.mount("/assets", StaticFiles(directory=settings.frontend_dir / "assets"), na
 
 # Include routers
 app.include_router(web_router)
+
+# API routes with /api prefix (for built frontend and production)
+app.include_router(projects_router, prefix="/api")
+app.include_router(cabinet_router, prefix="/api")
+
+# Direct routes without /api prefix (for backward compatibility and Vite dev proxy)
 app.include_router(projects_router)
 app.include_router(cabinet_router)
+
