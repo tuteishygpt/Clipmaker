@@ -84,12 +84,16 @@ class GenAIClient:
             self._client = client
             self.is_vertex = getattr(client, "vertexai", True) is True
         else:
+            # When Service Account / ADC credentials are configured, omit api_key so SDK authenticates via Service Account
+            has_service_account = bool(self.service_account_json or os.environ.get("GOOGLE_APPLICATION_CREDENTIALS"))
+            effective_api_key = None if has_service_account else (self.api_key or None)
+
             # Per user requirement: All Gemini models must use Vertex AI
             self._client = genai.Client(
                 vertexai=True,
                 project=self.project or None,
                 location=self.location,
-                api_key=self.api_key or None,
+                api_key=effective_api_key,
             )
             self.is_vertex = True
         

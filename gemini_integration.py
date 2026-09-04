@@ -154,11 +154,13 @@ class GeminiTranscriptionAdapter:
             and os.getenv("VERTEXAI", "true").strip().lower() not in ("0", "false", "no")
         )
         if use_vertex or self._service_account_json or self._project:
+            has_service_account = bool(self._service_account_json or os.environ.get("GOOGLE_APPLICATION_CREDENTIALS"))
+            effective_key = None if has_service_account else (api_key or None)
             return genai.Client(
                 vertexai=True,
                 project=self._project or None,
                 location=self._location,
-                api_key=api_key or None,
+                api_key=effective_key,
             )
 
         # Standard Gemini Developer API (ai.google.dev per official documentation)
