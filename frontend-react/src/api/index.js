@@ -58,20 +58,21 @@ async function buildHeaders(options = {}) {
 }
 
 async function fetchJSON(url, options = {}) {
-    const headers = await buildHeaders(options)
+    const { timeout = 60000, ...fetchOptions } = options
+    const headers = await buildHeaders(fetchOptions)
 
     const controller = new AbortController()
-    const id = setTimeout(() => controller.abort(), 60000) // 60s timeout (Gemini can be slow)
+    const id = setTimeout(() => controller.abort(), timeout)
 
     try {
         const response = await fetch(`${BASE_URL}${url}`, {
-            ...options,
+            ...fetchOptions,
             headers,
             signal: controller.signal
         })
         clearTimeout(id)
 
-        console.log(`API [${options.method || 'GET'}]: ${BASE_URL}${url} -> ${response.status}`);
+        console.log(`API [${fetchOptions.method || 'GET'}]: ${BASE_URL}${url} -> ${response.status}`);
 
         if (!response.ok) {
             // Parse error response for billing errors
@@ -235,4 +236,103 @@ export async function updateProfile(payload) {
 export async function getUserProjects() {
     return fetchJSON('/cabinet/projects')
 }
+
+// Subtitles & Standalone Video API
+export function getVideoUrl(projectId) {
+    return `${BASE_URL}/projects/${projectId}/video?t=${Date.now()}`
+}
+
+export function getSubtitleDownloadUrl(projectId) {
+    return `${BASE_URL}/projects/${projectId}/subtitles/download`
+}
+
+export async function uploadVideoStandalone(projectId, file) {
+    const formData = new FormData()
+    formData.append('video', file)
+
+    const token = await getAuthToken()
+    const headers = {}
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+    }
+
+    const response = await fetch(`${BASE_URL}/projects/${projectId}/upload-video`, {
+        method: 'POST',
+        body: formData,
+        headers
+    })
+
+    if (!response.ok) {
+        let errorMsg = `Video upload failed: ${response.status}`
+        try {
+            const errData = await response.json()
+            if (errData.detail) errorMsg = errData.detail
+        } catch (_) {}
+        throw new Error(errorMsg)
+    }
+
+    return response.json()
+}
+
+export async function renderStandaloneVideo(projectId) {
+    return fetchJSON(`/projects/${projectId}/render-standalone`, { method: 'POST' })
+}
+
+export async function getSubtitles(projectId) {
+    return fetchJSON(`/projects/${projectId}/subtitles`)
+}
+
+export async function generateSubtitles(projectId, params = {}) {
+    return fetchJSON(`/projects/${projectId}/subtitles/generate`, {
+        method: 'POST',
+        body: JSON.stringify(params),
+        timeout: 180000 // Transcription can take 2-3 minutes for longer videos
+    })
+}
+
+export async function updateSubtitles(projectId, payload) {
+    return fetchJSON(`/projects/${projectId}/subtitles`, {
+        method: 'PUT',
+        body: JSON.stringify(payload)
+    })
+}
+
+export async function importSubtitles(projectId, file) {
+    const formData = new FormData()
+    formData.append('srt_file', file)
+
+    const token = await getAuthToken()
+    const headers = {}
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+    }
+
+    const response = await fetch(`${BASE_URL}/projects/${projectId}/subtitles/import`, {
+        method: 'POST',
+        body: formData,
+        headers
+    })
+
+    if (!response.ok) {
+        let errorMsg = `SRT import failed: ${response.status}`
+        try {
+            const errData = await response.json()
+            if (errData.detail) errorMsg = errData.detail
+        } catch (_) {}
+        throw new Error(errorMsg)
+    }
+
+    return response.json()
+}
+
+export async function deleteSubtitles(projectId) {
+    return fetchJSON(`/projects/${projectId}/subtitles`, {
+        method: 'DELETE'
+    })
+}
+
+export async function getSubtitleFonts() {
+    return fetchJSON('/projects/meta/fonts')
+}
+
 

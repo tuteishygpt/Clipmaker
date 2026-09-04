@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import './SubtitleEditor.css'
-
-import { BASE_URL as API_BASE } from '../api'
+import * as api from '../api'
 
 // Font categories with their fonts
 const FONT_CATEGORIES = {
@@ -26,6 +25,134 @@ const FONT_CATEGORIES = {
     ]
 }
 
+const STYLE_PRESETS = [
+    {
+        id: 'classic',
+        name: 'Classic',
+        icon: '📺',
+        styling: {
+            font_family: 'Arial',
+            font_size: 48,
+            font_weight: 'bold',
+            font_color: '#FFFFFF',
+            stroke_color: '#000000',
+            stroke_width: 3,
+            background_enabled: false,
+            position: 'bottom',
+            text_align: 'center',
+            uppercase: false,
+            animation: 'none',
+            highlight_active_word: false
+        }
+    },
+    {
+        id: 'netflix',
+        name: 'Netflix',
+        icon: '🍿',
+        styling: {
+            font_family: 'Roboto',
+            font_size: 44,
+            font_weight: 'bold',
+            font_color: '#FFFFFF',
+            stroke_color: '#000000',
+            stroke_width: 2,
+            background_enabled: true,
+            background_color: '#000000',
+            background_opacity: 0.75,
+            background_padding: 10,
+            position: 'bottom',
+            text_align: 'center',
+            uppercase: false,
+            animation: 'none',
+            highlight_active_word: false
+        }
+    },
+    {
+        id: 'youtube',
+        name: 'YouTube',
+        icon: '▶️',
+        styling: {
+            font_family: 'Montserrat',
+            font_size: 52,
+            font_weight: '900',
+            font_color: '#FFE600',
+            stroke_color: '#000000',
+            stroke_width: 4,
+            background_enabled: false,
+            position: 'middle',
+            text_align: 'center',
+            uppercase: true,
+            animation: 'pop',
+            highlight_active_word: true,
+            highlight_font_color: '#FFFFFF',
+            highlight_bg_color: '#FF0000',
+            highlight_bg_padding: 8,
+            highlight_bg_radius: 8
+        }
+    },
+    {
+        id: 'neon',
+        name: 'Neon',
+        icon: '⚡',
+        styling: {
+            font_family: 'Outfit',
+            font_size: 50,
+            font_weight: 'bold',
+            font_color: '#00FFF0',
+            stroke_color: '#1a0033',
+            stroke_width: 4,
+            background_enabled: false,
+            position: 'bottom',
+            text_align: 'center',
+            uppercase: true,
+            animation: 'pop',
+            highlight_active_word: true,
+            highlight_font_color: '#FFFFFF',
+            highlight_bg_color: '#D900FF',
+            highlight_bg_padding: 8,
+            highlight_bg_radius: 12
+        }
+    },
+    {
+        id: 'minimal',
+        name: 'Minimal',
+        icon: '▫️',
+        styling: {
+            font_family: 'Inter',
+            font_size: 38,
+            font_weight: 'normal',
+            font_color: '#F0F0F0',
+            stroke_color: '#000000',
+            stroke_width: 1,
+            background_enabled: false,
+            position: 'bottom',
+            text_align: 'center',
+            uppercase: false,
+            animation: 'none',
+            highlight_active_word: false
+        }
+    },
+    {
+        id: 'bold',
+        name: 'Bold',
+        icon: '🔥',
+        styling: {
+            font_family: 'Impact',
+            font_size: 56,
+            font_weight: '900',
+            font_color: '#FFFFFF',
+            stroke_color: '#000000',
+            stroke_width: 5,
+            background_enabled: false,
+            position: 'bottom',
+            text_align: 'center',
+            uppercase: true,
+            animation: 'pop',
+            highlight_active_word: false
+        }
+    }
+]
+
 const DEFAULT_STYLING = {
     font_family: 'Montserrat',
     font_size: 48,
@@ -39,13 +166,19 @@ const DEFAULT_STYLING = {
     background_color: '#000000',
     background_opacity: 0.7,
     background_padding: 10,
+    background_radius: 8,
     position: 'bottom',
     margin_x: 50,
     margin_y: 60,
     text_align: 'center',
     max_width_percent: 90,
     uppercase: false,
-    animation: 'none'
+    animation: 'none',
+    highlight_active_word: false,
+    highlight_font_color: '#FFFFFF',
+    highlight_bg_color: '#6e00ff',
+    highlight_bg_radius: 8,
+    highlight_bg_padding: 8
 }
 
 export default function SubtitleEditor({ projectId, onClose, format = '9:16' }) {
@@ -68,13 +201,10 @@ export default function SubtitleEditor({ projectId, onClose, format = '9:16' }) 
         setLoading(true)
         setError(null)
         try {
-            const res = await fetch(`${API_BASE}/projects/${projectId}/subtitles`)
-            if (res.ok) {
-                const data = await res.json()
-                setEntries(data.entries || [])
-                if (data.styling) {
-                    setStyling({ ...DEFAULT_STYLING, ...data.styling })
-                }
+            const data = await api.getSubtitles(projectId)
+            setEntries(data.entries || [])
+            if (data.styling) {
+                setStyling({ ...DEFAULT_STYLING, ...data.styling })
             }
         } catch (err) {
             console.error('Failed to load subtitles:', err)
@@ -87,23 +217,12 @@ export default function SubtitleEditor({ projectId, onClose, format = '9:16' }) 
         setGenerating(true)
         setError(null)
         try {
-            const res = await fetch(`${API_BASE}/projects/${projectId}/subtitles/generate`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    language: 'auto',
-                    max_chars_per_line: 42,
-                    min_duration: 1.0,
-                    max_duration: 5.0
-                })
+            const data = await api.generateSubtitles(projectId, {
+                language: 'auto',
+                min_words: 1,
+                max_words: format === '9:16' ? 5 : 8
             })
 
-            if (!res.ok) {
-                const errData = await res.json()
-                throw new Error(errData.detail || 'Generation failed')
-            }
-
-            const data = await res.json()
             setEntries(data.entries || [])
             if (data.styling) {
                 setStyling({ ...DEFAULT_STYLING, ...data.styling })
@@ -117,24 +236,14 @@ export default function SubtitleEditor({ projectId, onClose, format = '9:16' }) 
     }
 
     const importSrt = async (file) => {
-        const formData = new FormData()
-        formData.append('srt_file', file)
-
         setLoading(true)
         setError(null)
         try {
-            const res = await fetch(`${API_BASE}/projects/${projectId}/subtitles/import`, {
-                method: 'POST',
-                body: formData
-            })
-
-            if (!res.ok) {
-                const errData = await res.json()
-                throw new Error(errData.detail || 'Import failed')
-            }
-
-            const data = await res.json()
+            const data = await api.importSubtitles(projectId, file)
             setEntries(data.entries || [])
+            if (data.styling) {
+                setStyling({ ...DEFAULT_STYLING, ...data.styling })
+            }
             setHasChanges(false)
         } catch (err) {
             setError(err.message)
@@ -147,20 +256,10 @@ export default function SubtitleEditor({ projectId, onClose, format = '9:16' }) 
         setSaving(true)
         setError(null)
         try {
-            const res = await fetch(`${API_BASE}/projects/${projectId}/subtitles`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    entries: entries,
-                    styling: styling
-                })
+            await api.updateSubtitles(projectId, {
+                entries: entries,
+                styling: styling
             })
-
-            if (!res.ok) {
-                const errData = await res.json()
-                throw new Error(errData.detail || 'Save failed')
-            }
-
             setHasChanges(false)
         } catch (err) {
             setError(err.message)
@@ -170,24 +269,28 @@ export default function SubtitleEditor({ projectId, onClose, format = '9:16' }) 
     }
 
     const downloadSrt = () => {
-        window.open(`${API_BASE}/projects/${projectId}/subtitles/download`, '_blank')
+        window.open(api.getSubtitleDownloadUrl(projectId), '_blank')
     }
 
     const deleteSubtitles = async () => {
         if (!confirm('Are you sure you want to delete all subtitles?')) return
 
         try {
-            const res = await fetch(`${API_BASE}/projects/${projectId}/subtitles`, {
-                method: 'DELETE'
-            })
-            if (res.ok) {
-                setEntries([])
-                setStyling(DEFAULT_STYLING)
-                setHasChanges(false)
-            }
+            await api.deleteSubtitles(projectId)
+            setEntries([])
+            setStyling(DEFAULT_STYLING)
+            setHasChanges(false)
         } catch (err) {
             setError(err.message)
         }
+    }
+
+    const applyPreset = (preset) => {
+        setStyling(prev => ({
+            ...prev,
+            ...preset.styling
+        }))
+        setHasChanges(true)
     }
 
     const updateEntry = (id, field, value) => {
@@ -244,11 +347,22 @@ export default function SubtitleEditor({ projectId, onClose, format = '9:16' }) 
         }
     }
 
+    const handleClose = () => {
+        if (hasChanges) {
+            if (!window.confirm('You have unsaved changes. Are you sure you want to close without saving?')) {
+                return
+            }
+        }
+        if (onClose) {
+            onClose()
+        }
+    }
+
     return (
         <div className="subtitle-editor">
             <div className="subtitle-editor-header">
                 <h2>Subtitle Editor</h2>
-                <button className="close-btn" onClick={onClose}>×</button>
+                <button className="close-btn" onClick={handleClose}>×</button>
             </div>
 
             {error && (
@@ -373,6 +487,40 @@ export default function SubtitleEditor({ projectId, onClose, format = '9:16' }) 
                     </div>
                 ) : activeTab === 'styling' ? (
                     <div className="styling-panel">
+                        {/* Style Presets Section */}
+                        <div className="styling-section presets-section">
+                            <h3>Style Presets</h3>
+                            <div className="presets-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginTop: '8px' }}>
+                                {STYLE_PRESETS.map(preset => (
+                                    <button
+                                        key={preset.id}
+                                        type="button"
+                                        className="btn-preset"
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            padding: '10px 8px',
+                                            borderRadius: '8px',
+                                            border: '1px solid rgba(255, 255, 255, 0.15)',
+                                            background: 'rgba(255, 255, 255, 0.05)',
+                                            color: '#fff',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s',
+                                            fontSize: '13px',
+                                            fontWeight: 600,
+                                            gap: '4px'
+                                        }}
+                                        onClick={() => applyPreset(preset)}
+                                    >
+                                        <span style={{ fontSize: '20px' }}>{preset.icon}</span>
+                                        <span>{preset.name}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
                         {/* Font Section */}
                         <div className="styling-section">
                             <h3>Font</h3>
@@ -569,6 +717,60 @@ export default function SubtitleEditor({ projectId, onClose, format = '9:16' }) 
                                 {styling.animation === 'none' && 'No animation - instant appearance'}
                             </p>
                         </div>
+
+                        {/* Karaoke Section */}
+                        <div className="styling-section">
+                            <h3>Karaoke Mode</h3>
+                            <div className="styling-row checkbox">
+                                <input
+                                    type="checkbox"
+                                    id="highlight_active_word"
+                                    checked={Boolean(styling.highlight_active_word)}
+                                    onChange={(e) => updateStyling('highlight_active_word', e.target.checked)}
+                                />
+                                <label htmlFor="highlight_active_word">Highlight Active Word (Karaoke Effect)</label>
+                            </div>
+                            {styling.highlight_active_word && (
+                                <>
+                                    <div className="styling-row">
+                                        <label>Highlight Text Color</label>
+                                        <input
+                                            type="color"
+                                            value={styling.highlight_font_color || '#FFFFFF'}
+                                            onChange={(e) => updateStyling('highlight_font_color', e.target.value)}
+                                        />
+                                    </div>
+                                    <div className="styling-row">
+                                        <label>Highlight Badge Color</label>
+                                        <input
+                                            type="color"
+                                            value={styling.highlight_bg_color || '#6e00ff'}
+                                            onChange={(e) => updateStyling('highlight_bg_color', e.target.value)}
+                                        />
+                                    </div>
+                                    <div className="styling-row">
+                                        <label>Highlight Padding: {styling.highlight_bg_padding ?? 8}px</label>
+                                        <input
+                                            type="range"
+                                            min="0"
+                                            max="30"
+                                            value={styling.highlight_bg_padding ?? 8}
+                                            onChange={(e) => updateStyling('highlight_bg_padding', parseInt(e.target.value))}
+                                        />
+                                    </div>
+                                    <div className="styling-row">
+                                        <label>Corner Radius: {styling.highlight_bg_radius ?? 8}px</label>
+                                        <input
+                                            type="range"
+                                            min="0"
+                                            max="30"
+                                            value={styling.highlight_bg_radius ?? 8}
+                                            onChange={(e) => updateStyling('highlight_bg_radius', parseInt(e.target.value))}
+                                        />
+                                    </div>
+                                </>
+                            )}
+                        </div>
                     </div>
                 ) : (
                     <div className="se-preview-panel">
@@ -583,12 +785,28 @@ export default function SubtitleEditor({ projectId, onClose, format = '9:16' }) 
 // Preview component showing styled subtitle example
 function SubtitlePreview({ entries, styling, format = '9:16' }) {
     const [currentIndex, setCurrentIndex] = useState(0)
+    const [activeWordIdx, setActiveWordIdx] = useState(0)
 
     const sampleText = entries.length > 0
         ? entries[Math.min(currentIndex, entries.length - 1)].text
         : 'Sample subtitle text appears here'
 
     const displayText = styling.uppercase ? sampleText.toUpperCase() : sampleText
+    const words = displayText.trim().split(/\s+/)
+
+    // Live cycling of active word for karaoke effect
+    useEffect(() => {
+        if (!styling.highlight_active_word || words.length <= 1) {
+            setActiveWordIdx(0)
+            return
+        }
+
+        const interval = setInterval(() => {
+            setActiveWordIdx(prev => (prev + 1) % words.length)
+        }, 650)
+
+        return () => clearInterval(interval)
+    }, [styling.highlight_active_word, words.length, currentIndex])
 
     const textStyle = {
         fontFamily: styling.font_family,
@@ -605,7 +823,7 @@ function SubtitlePreview({ entries, styling, format = '9:16' }) {
         backgroundColor: styling.background_enabled
             ? `${styling.background_color}${Math.round(styling.background_opacity * 255).toString(16).padStart(2, '0')}`
             : 'transparent',
-        borderRadius: styling.background_enabled ? '4px' : '0',
+        borderRadius: styling.background_enabled ? `${(styling.background_radius || 8) * 0.5}px` : '0',
     }
 
     const containerStyle = {
@@ -631,7 +849,29 @@ function SubtitlePreview({ entries, styling, format = '9:16' }) {
                 }}
             >
                 <div className="se-preview-text" style={textStyle}>
-                    {displayText}
+                    {styling.highlight_active_word ? (
+                        words.map((word, idx) => {
+                            const isActive = idx === activeWordIdx
+                            return (
+                                <span
+                                    key={idx}
+                                    style={{
+                                        display: 'inline-block',
+                                        margin: '0 4px',
+                                        padding: isActive ? `${(styling.highlight_bg_padding || 8) * 0.3}px ${(styling.highlight_bg_padding || 8) * 0.5}px` : '0',
+                                        backgroundColor: isActive ? (styling.highlight_bg_color || '#6e00ff') : 'transparent',
+                                        color: isActive ? (styling.highlight_font_color || '#FFFFFF') : styling.font_color,
+                                        borderRadius: isActive ? `${(styling.highlight_bg_radius || 8) * 0.5}px` : '0',
+                                        transition: 'all 0.15s ease'
+                                    }}
+                                >
+                                    {word}
+                                </span>
+                            )
+                        })
+                    ) : (
+                        displayText
+                    )}
                 </div>
             </div>
 
@@ -654,7 +894,9 @@ function SubtitlePreview({ entries, styling, format = '9:16' }) {
             )}
 
             <p className="se-preview-note">
-                This is a preview. Final render may vary slightly.
+                {styling.highlight_active_word
+                    ? '✨ Karaoke Preview: Active word highlights in sync with timing.'
+                    : 'This is a preview. Final render may vary slightly.'}
             </p>
         </div>
     )

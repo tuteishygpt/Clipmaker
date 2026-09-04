@@ -50,6 +50,8 @@ class ProjectRepository:
             "created_at": _utc_now(),
             "updated_at": _utc_now(),
             "status": "NEW",
+            "title": payload.get("title") or f"Project {project_id[:8]}",
+            "standalone_mode": payload.get("standalone_mode", False),
             "format": payload.get("format", "9:16"),
             "style": payload.get("style", "cinematic"),
             "subtitles": payload.get("subtitles", True),
@@ -98,8 +100,9 @@ class ProjectRepository:
                     # Search filtering
                     if search_lower:
                         project_id = str(project.get("id", "")).lower()
+                        title = str(project.get("title", "")).lower()
                         description = str(project.get("user_description", "")).lower()
-                        if search_lower not in project_id and search_lower not in description:
+                        if search_lower not in project_id and search_lower not in title and search_lower not in description:
                             continue
                             
                     projects.append(project)

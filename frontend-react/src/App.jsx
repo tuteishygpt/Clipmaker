@@ -123,6 +123,27 @@ function EditorView() {
 
                     <ProjectSelector />
 
+                    <div className="sidebar-subtitles-link-container" style={{ margin: '10px 0 4px' }}>
+                        <Link
+                            to="/subtitles"
+                            className="btn-secondary"
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '8px',
+                                width: '100%',
+                                textDecoration: 'none',
+                                padding: '8px 12px',
+                                fontSize: '13px',
+                                borderRadius: '6px'
+                            }}
+                        >
+                            <span>📝</span>
+                            <span>Subtitles Studio</span>
+                        </Link>
+                    </div>
+
                     {!projectId && (
                         <div className="project-creation-wrapper">
                             <div className="divider"><span>OR</span></div>
@@ -256,7 +277,14 @@ function App() {
                 <Route path="/studio" element={<EditorView />} />
 
                 {/* Standalone Subtitles Tool */}
-                <Route path="/subtitles" element={<SubtitleStandalonePage />} />
+                <Route
+                    path="/subtitles"
+                    element={
+                        <ProtectedRoute>
+                            <SubtitleStandalonePage />
+                        </ProtectedRoute>
+                    }
+                />
 
                 {/* Auth page */}
                 <Route path="/auth" element={<AuthWrapper />} />

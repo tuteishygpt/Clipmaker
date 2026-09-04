@@ -757,10 +757,21 @@ async def list_fonts() -> dict[str, Any]:
 
 # ==================== Standalone Video Endpoints ====================
 
+@router.get("/{project_id}/video")
+async def get_project_video(project_id: str) -> FileResponse:
+    """Get the uploaded source video for standalone subtitle mode."""
+    video_path = file_storage.get_video_path(project_id)
+    if not video_path or not video_path.exists():
+        raise HTTPException(status_code=404, detail="Video not found")
+    media_type = f"video/{video_path.suffix.lstrip('.')}"
+    return FileResponse(video_path, media_type=media_type)
+
+
 @router.post("/{project_id}/upload-video", response_model=RunResponse)
 async def upload_video_standalone(
     project_id: str,
-    video: UploadFile = File(...)
+    video: UploadFile = File(...),
+    user: Optional[AuthenticatedUser] = Depends(get_optional_user)
 ) -> RunResponse:
     """Upload video for standalone subtitle mode."""
     if not project_repo.exists(project_id):
@@ -776,20 +787,89 @@ async def upload_video_standalone(
     # Save video to project
     video_path = file_storage.save_video(project_id, video.file, video.filename or "video.mp4")
     
-    # Also extract audio for transcription
+    # Strict duration validation via ffprobe before extracting audio (max 15 minutes / 900 seconds)
     try:
         import subprocess
-        audio_path = video_path.parent / "track.wav"
-        subprocess.run([
+        import json
+        probe_cmd = [
+            "ffprobe", "-v", "error",
+            "-show_entries", "format=duration:stream=duration",
+            "-of", "json",
+            str(video_path)
+        ]
+        probe_res = subprocess.run(probe_cmd, capture_output=True, text=True, check=True)
+        probe_data = json.loads(probe_res.stdout)
+        duration_val = probe_data.get("format", {}).get("duration")
+        if not duration_val or duration_val == "N/A":
+            streams = probe_data.get("streams", [])
+            for s in streams:
+                if s.get("duration") and s["duration"] != "N/A":
+                    duration_val = s["duration"]
+                    break
+        
+        if not duration_val or duration_val == "N/A":
+            if video_path.exists():
+                video_path.unlink()
+            raise HTTPException(status_code=400, detail="Unable to verify video duration.")
+
+        duration = float(duration_val)
+        if duration <= 0:
+            if video_path.exists():
+                video_path.unlink()
+            raise HTTPException(status_code=400, detail="Invalid video file: duration is 0.")
+
+        if duration > 900.0:
+            if video_path.exists():
+                video_path.unlink()
+            raise HTTPException(
+                status_code=400,
+                detail=f"Video duration ({duration:.1f}s) exceeds maximum allowed limit of 15 minutes (900 seconds)."
+            )
+    except HTTPException:
+        raise
+    except Exception as e:
+        if video_path.exists():
+            video_path.unlink()
+        logger.error(f"Could not probe video duration: {e}")
+        raise HTTPException(status_code=400, detail=f"Unable to verify video duration: {str(e)}")
+    
+    # Safe audio extraction for transcription
+    has_audio = True
+    audio_path = video_path.parent / "track.wav"
+    try:
+        import subprocess
+        res = subprocess.run([
             "ffmpeg", "-y", "-i", str(video_path),
             "-vn", "-acodec", "pcm_s16le", "-ar", "44100", "-ac", "2",
             str(audio_path)
-        ], capture_output=True, check=True)
-        logger.info(f"Extracted audio to {audio_path}")
+        ], capture_output=True, check=False)
+        if res.returncode != 0 or not audio_path.exists() or audio_path.stat().st_size == 0:
+            logger.warning(f"Video may not have audio track: {res.stderr.decode('utf-8', errors='ignore')[:200]}")
+            has_audio = False
+            if audio_path.exists():
+                audio_path.unlink(missing_ok=True)
+        else:
+            logger.info(f"Extracted audio to {audio_path}")
     except Exception as e:
         logger.warning(f"Could not extract audio from video: {e}")
+        has_audio = False
+        if audio_path.exists():
+            audio_path.unlink(missing_ok=True)
     
-    project_repo.update(project_id, {"status": "VIDEO_UPLOADED", "standalone_mode": True})
+    project_updates = {
+        "status": "VIDEO_UPLOADED",
+        "standalone_mode": True,
+        "has_audio": has_audio
+    }
+    project = project_repo.update(project_id, project_updates)
+    
+    if user:
+        await billing_service.link_user_project(
+            user_id=user.id,
+            project_id=project_id,
+            title=project.get("title") or video.filename or f"Project {project_id[:8]}",
+            settings=project
+        )
     
     return RunResponse(status="OK", message="Video uploaded")
 
@@ -798,31 +878,42 @@ async def upload_video_standalone(
 async def render_standalone(
     project_id: str,
     background: BackgroundTasks,
+    user: Optional[AuthenticatedUser] = Depends(get_optional_user),
     pipeline_service: PipelineService = Depends(get_pipeline_service)
 ) -> RunResponse:
     """Render video with subtitles only (standalone mode)."""
     if not project_repo.exists(project_id):
         raise HTTPException(status_code=404, detail="Project not found")
     
+    # Prevent concurrent render jobs
+    jobs = project_repo.get_jobs(project_id)
+    if jobs.get("render", {}).get("status") == "RUNNING":
+        raise HTTPException(status_code=409, detail="Render job is already running for this project.")
+    
     video_path = file_storage.get_video_path(project_id)
-    if not video_path:
+    if not video_path or not video_path.exists():
         raise HTTPException(status_code=400, detail="No video uploaded")
     
     srt_path = file_storage.get_subtitles_path(project_id)
-    if not srt_path:
+    if not srt_path or not srt_path.exists():
         raise HTTPException(status_code=400, detail="No subtitles available")
     
     async def render_with_subtitles():
         from ..services.render_service import RenderService
+        from fastapi.concurrency import run_in_threadpool
         render_service = RenderService(project_repo, file_storage)
         
         project_repo.update_job(project_id, "render", {"status": "RUNNING", "progress": 0})
         
+        def progress_cb(pct: int):
+            project_repo.update_job(project_id, "render", {"status": "RUNNING", "progress": pct})
+        
         try:
-            # Use standard render with video source instead of segments
-            output_path, duration = render_service.render_standalone_video(
+            output_path, duration = await run_in_threadpool(
+                render_service.render_standalone_video,
                 project_id=project_id,
                 video_path=video_path,
+                progress_callback=progress_cb,
             )
             
             project_repo.update_job(project_id, "render", {
@@ -831,6 +922,7 @@ async def render_standalone(
                 "output_path": str(output_path),
                 "render_duration": duration
             })
+            project_repo.update(project_id, {"status": "DONE"})
             
         except Exception as e:
             logger.error(f"Standalone render failed: {e}")

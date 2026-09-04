@@ -1,15 +1,19 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import Header from './Header'
 import SubtitleEditor from './SubtitleEditor'
 import './SubtitleStandalonePage.css'
-
-import { BASE_URL as API_BASE } from '../api'
+import * as api from '../api'
+import { useProjectStore } from '../stores/projectStore'
 
 export default function SubtitleStandalonePage() {
+    const [searchParams] = useSearchParams()
+    const projectIdParam = searchParams.get('project')
+
     const [videoFile, setVideoFile] = useState(null)
     const [videoUrl, setVideoUrl] = useState(null)
     const [projectId, setProjectId] = useState(null)
-    const [status, setStatus] = useState('idle') // idle, uploading, processing, ready, rendering, done, error
+    const [status, setStatus] = useState('idle') // idle, loading, uploading, processing, ready, rendering, done, error
     const [error, setError] = useState(null)
     const [progress, setProgress] = useState(0)
     const [outputUrl, setOutputUrl] = useState(null)
@@ -17,37 +21,141 @@ export default function SubtitleStandalonePage() {
     const [subtitleUrl, setSubtitleUrl] = useState(null)
     const [format, setFormat] = useState('9:16')
     const fileInputRef = useRef(null)
+    const pollTimerRef = useRef(null)
+
+    // Helper to start polling render progress
+    const startPolling = useCallback((id) => {
+        if (pollTimerRef.current) clearInterval(pollTimerRef.current)
+
+        pollTimerRef.current = setInterval(async () => {
+            try {
+                const jobsRes = await api.getJobs(id)
+                const renderJob = jobsRes.jobs?.render
+
+                if (renderJob?.status === 'DONE') {
+                    clearInterval(pollTimerRef.current)
+                    pollTimerRef.current = null
+                    setStatus('done')
+                    setOutputUrl(api.getDownloadUrl(id))
+                } else if (renderJob?.status === 'ERROR') {
+                    clearInterval(pollTimerRef.current)
+                    pollTimerRef.current = null
+                    setError(renderJob.message || 'Render failed')
+                    setStatus('error')
+                } else if (renderJob?.progress !== undefined) {
+                    setProgress(renderJob.progress)
+                }
+            } catch (err) {
+                console.error('Polling error:', err)
+            }
+        }, 1000)
+    }, [])
+
+    // Clean up timer on unmount
+    useEffect(() => {
+        return () => {
+            if (pollTimerRef.current) {
+                clearInterval(pollTimerRef.current)
+                pollTimerRef.current = null
+            }
+        }
+    }, [])
+
+    // Open existing project if ?project=<id> is present in URL
+    useEffect(() => {
+        if (!projectIdParam) return
+
+        let isCancelled = false
+
+        const loadExistingProject = async () => {
+            setStatus('loading')
+            setError(null)
+            try {
+                const proj = await api.getProject(projectIdParam)
+                if (isCancelled) return
+
+                setProjectId(proj.id)
+                setFormat(proj.format || '9:16')
+                setVideoUrl(api.getVideoUrl(proj.id))
+
+                // Check jobs status to resume rendering or show done
+                try {
+                    const jobsData = await api.getJobs(proj.id)
+                    const renderJob = jobsData.jobs?.render
+
+                    if (renderJob?.status === 'DONE') {
+                        setStatus('done')
+                        setOutputUrl(api.getDownloadUrl(proj.id))
+                    } else if (renderJob?.status === 'RUNNING') {
+                        setStatus('rendering')
+                        setProgress(renderJob.progress || 0)
+                        startPolling(proj.id)
+                    } else {
+                        setStatus('ready')
+                    }
+                } catch (_) {
+                    setStatus('ready')
+                }
+            } catch (err) {
+                if (!isCancelled) {
+                    console.error('Failed to load existing project:', err)
+                    setError('Failed to load project: ' + err.message)
+                    setStatus('error')
+                }
+            }
+        }
+
+        loadExistingProject()
+
+        return () => {
+            isCancelled = true
+        }
+    }, [projectIdParam, startPolling])
 
     // Load subtitles for preview
     const loadSubtitles = useCallback(async () => {
         if (!projectId) return
         try {
-            const res = await fetch(`${API_BASE}/projects/${projectId}/subtitles`)
-            if (res.ok) {
-                const data = await res.json()
-                const entries = data.entries || []
+            const data = await api.getSubtitles(projectId)
+            const entries = data.entries || []
 
-                if (entries.length === 0) {
-                    setSubtitleUrl(null)
-                    return
-                }
-
-                // Convert to WebVTT format for <track>
-                const vttContent = "WEBVTT\n\n" + entries.map(e => {
-                    // Start and end times: Replace comma with dot (SRT -> VTT)
-                    const start = e.start_time.replace(',', '.')
-                    const end = e.end_time.replace(',', '.')
-                    return `${start} --> ${end}\n${e.text}`
-                }).join('\n\n')
-
-                const blob = new Blob([vttContent], { type: 'text/vtt' })
-                const url = URL.createObjectURL(blob)
-                setSubtitleUrl(url)
+            if (entries.length === 0) {
+                setSubtitleUrl(null)
+                return
             }
+
+            // Convert to WebVTT format for <track>
+            const vttContent = "WEBVTT\n\n" + entries.map(e => {
+                // Start and end times: Replace comma with dot (SRT -> VTT)
+                const start = e.start_time.replace(',', '.')
+                const end = e.end_time.replace(',', '.')
+                return `${start} --> ${end}\n${e.text}`
+            }).join('\n\n')
+
+            const blob = new Blob([vttContent], { type: 'text/vtt' })
+            const url = URL.createObjectURL(blob)
+            setSubtitleUrl(url)
         } catch (err) {
             console.error("Failed to load subtitles for preview:", err)
         }
     }, [projectId])
+
+    // Revoke object URLs on change or unmount to avoid memory leaks
+    useEffect(() => {
+        return () => {
+            if (videoUrl && videoUrl.startsWith('blob:')) {
+                URL.revokeObjectURL(videoUrl)
+            }
+        }
+    }, [videoUrl])
+
+    useEffect(() => {
+        return () => {
+            if (subtitleUrl && subtitleUrl.startsWith('blob:')) {
+                URL.revokeObjectURL(subtitleUrl)
+            }
+        }
+    }, [subtitleUrl])
 
     // Reload subtitles when editor closes or status becomes ready
     useEffect(() => {
@@ -56,14 +164,44 @@ export default function SubtitleStandalonePage() {
         }
     }, [status, showEditor, loadSubtitles])
 
-    const handleFileDrop = useCallback((e) => {
+    const getVideoMetadata = (file) => {
+        return new Promise((resolve) => {
+            const video = document.createElement('video');
+            video.preload = 'metadata';
+            const url = URL.createObjectURL(file);
+            video.onloadedmetadata = () => {
+                const data = {
+                    width: video.videoWidth,
+                    height: video.videoHeight,
+                    duration: video.duration
+                };
+                URL.revokeObjectURL(url);
+                resolve(data);
+            };
+            video.onerror = () => {
+                URL.revokeObjectURL(url);
+                resolve({ width: 0, height: 0, duration: 0 });
+            };
+            video.src = url;
+        });
+    };
+
+    const handleFileDrop = useCallback(async (e) => {
         e.preventDefault()
+        e.currentTarget?.classList?.remove('drag-over')
         const file = e.dataTransfer?.files[0] || e.target?.files[0]
 
         if (file && file.type.startsWith('video/')) {
+            setError(null)
+            const meta = await getVideoMetadata(file)
+            if (meta.duration && meta.duration > 900) {
+                const mins = Math.floor(meta.duration / 60)
+                const secs = Math.round(meta.duration % 60)
+                setError(`⚠️ Video is too long (${mins}m ${secs}s). Maximum allowed limit is 15 minutes.`)
+                return
+            }
             setVideoFile(file)
             setVideoUrl(URL.createObjectURL(file))
-            setError(null)
             setOutputUrl(null)
             setProjectId(null)
             setStatus('idle')
@@ -81,18 +219,6 @@ export default function SubtitleStandalonePage() {
         e.currentTarget.classList.remove('drag-over')
     }
 
-    const getVideoDimensions = (file) => {
-        return new Promise((resolve) => {
-            const video = document.createElement('video');
-            video.preload = 'metadata';
-            video.onloadedmetadata = () => {
-                resolve({ width: video.videoWidth, height: video.videoHeight });
-            };
-            video.onerror = () => resolve({ width: 0, height: 0 }); // Fallback
-            video.src = URL.createObjectURL(file);
-        });
-    };
-
     const uploadVideo = async () => {
         if (!videoFile) return
 
@@ -101,37 +227,34 @@ export default function SubtitleStandalonePage() {
         setProgress(0)
 
         try {
-            // Detect format
-            const dim = await getVideoDimensions(videoFile)
-            const isHorizontal = dim.width > dim.height
+            // Detect format & duration
+            const meta = await getVideoMetadata(videoFile)
+            if (meta.duration && meta.duration > 900) {
+                const mins = Math.floor(meta.duration / 60)
+                const secs = Math.round(meta.duration % 60)
+                throw new Error(`Video is too long (${mins}m ${secs}s). Maximum allowed limit is 15 minutes.`)
+            }
+
+            const isHorizontal = meta.width > meta.height
             const detectedFormat = isHorizontal ? '16:9' : '9:16'
             setFormat(detectedFormat)
 
-            // Create a standalone project for subtitles
-            const createRes = await fetch(`${API_BASE}/projects`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    title: 'Standalone Subtitles',
-                    format: detectedFormat,
-                    style: 'default'
-                })
+            // Create a standalone project preserving the video filename
+            const project = await api.createProject({
+                title: videoFile.name,
+                format: detectedFormat,
+                style: 'default',
+                standalone_mode: true
             })
 
-            if (!createRes.ok) throw new Error('Failed to create project')
-            const { id } = await createRes.json()
+            const id = project.id
             setProjectId(id)
 
             // Upload video as source
-            const formData = new FormData()
-            formData.append('video', videoFile)
+            await api.uploadVideoStandalone(id, videoFile)
 
-            const uploadRes = await fetch(`${API_BASE}/projects/${id}/upload-video`, {
-                method: 'POST',
-                body: formData
-            })
-
-            if (!uploadRes.ok) throw new Error('Failed to upload video')
+            // Refresh project store
+            useProjectStore.getState().loadProjects()
 
             setStatus('ready')
             setShowEditor(true)
@@ -147,32 +270,11 @@ export default function SubtitleStandalonePage() {
 
         setStatus('rendering')
         setProgress(0)
+        setError(null)
 
         try {
-            const res = await fetch(`${API_BASE}/projects/${projectId}/render-standalone`, {
-                method: 'POST'
-            })
-
-            if (!res.ok) throw new Error('Render failed')
-
-            // Poll for completion
-            const pollRender = async () => {
-                const jobsRes = await fetch(`${API_BASE}/projects/${projectId}/jobs`)
-                const { jobs } = await jobsRes.json()
-
-                if (jobs.render?.status === 'DONE') {
-                    setStatus('done')
-                    setOutputUrl(`${API_BASE}/projects/${projectId}/download`)
-                } else if (jobs.render?.status === 'ERROR') {
-                    throw new Error(jobs.render.message || 'Render failed')
-                } else {
-                    setProgress(jobs.render?.progress || 0)
-                    setTimeout(pollRender, 1000)
-                }
-            }
-
-            setTimeout(pollRender, 1000)
-
+            await api.renderStandaloneVideo(projectId)
+            startPolling(projectId)
         } catch (err) {
             setError(err.message)
             setStatus('error')
@@ -235,6 +337,13 @@ export default function SubtitleStandalonePage() {
                             </div>
 
                             <div className="video-actions">
+                                {status === 'loading' && (
+                                    <div className="status-message">
+                                        <div className="spinner"></div>
+                                        <span>Loading project...</span>
+                                    </div>
+                                )}
+
                                 {status === 'idle' && (
                                     <>
                                         <button className="btn-primary" onClick={uploadVideo}>

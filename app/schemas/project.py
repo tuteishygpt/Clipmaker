@@ -7,12 +7,14 @@ from pydantic import BaseModel, Field
 
 class ProjectCreate(BaseModel):
     """Schema for creating a new project."""
+    title: Optional[str] = Field(default=None, description="Project title (e.g. video filename)")
     format: str = Field(default="9:16", description="Video format ratio")
     style: str = Field(default="cinematic", description="Visual style preset")
     subtitles: bool = Field(default=True, description="Whether to include subtitles")
     user_description: str = Field(default="", description="User's description of the clip idea")
     character_description: str = Field(default="", description="Description of the consistent character")
     render_preset: str = Field(default="fast", description="Encoding preset: fast, veryfast, ultrafast")
+    standalone_mode: bool = Field(default=False, description="Whether project is standalone subtitles mode")
 
 
 class ProjectResponse(BaseModel):
@@ -21,6 +23,7 @@ class ProjectResponse(BaseModel):
     created_at: str
     updated_at: str
     status: str
+    title: Optional[str] = None
     format: str
     style: str
     subtitles: bool
@@ -28,6 +31,7 @@ class ProjectResponse(BaseModel):
     character_description: str = ""
     render_preset: str = "fast"
     video_output: Optional[str] = None
+    standalone_mode: bool = False
     
     class Config:
         extra = "allow"
@@ -35,6 +39,7 @@ class ProjectResponse(BaseModel):
 
 class ProjectUpdate(BaseModel):
     """Schema for updating project fields."""
+    title: Optional[str] = None
     format: Optional[str] = None
     style: Optional[str] = None
     subtitles: Optional[bool] = None
@@ -42,3 +47,4 @@ class ProjectUpdate(BaseModel):
     character_description: Optional[str] = None
     status: Optional[str] = None
     render_preset: Optional[str] = None
+    standalone_mode: Optional[bool] = None

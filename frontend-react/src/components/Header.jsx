@@ -18,8 +18,9 @@ function Header() {
                         <h1>Studio</h1>
                     </div>
                 </Link>
-                <div className="header-nav">
-                    {/* Optional: Add navigation links here if needed */}
+                <div className="header-nav" style={{ display: 'flex', gap: '16px', marginLeft: '24px' }}>
+                    <Link to="/studio" className="nav-link" style={{ color: 'var(--text-secondary, #aaa)', textDecoration: 'none', fontSize: '14px', fontWeight: 500 }}>Studio</Link>
+                    <Link to="/subtitles" className="nav-link" style={{ color: 'var(--text-secondary, #aaa)', textDecoration: 'none', fontSize: '14px', fontWeight: 500 }}>Subtitles</Link>
                 </div>
             </div>
 

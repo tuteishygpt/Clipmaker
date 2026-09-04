@@ -89,6 +89,10 @@ export default function CabinetSidebar({
                     <span className="nav-icon">🎥</span>
                     <span>Open Editor</span>
                 </Link>
+                <Link to="/subtitles" className="btn-back-to-app btn-subtitles-action" style={{ marginTop: '8px' }}>
+                    <span className="nav-icon">📝</span>
+                    <span>Subtitles Studio</span>
+                </Link>
             </div>
 
             {/* Sign Out */}

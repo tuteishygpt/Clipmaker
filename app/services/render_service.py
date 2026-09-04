@@ -41,6 +41,32 @@ def _parse_time(t_str: Any) -> float:
     return 0.0
 
 
+def _create_moviepy_logger(progress_callback: Callable[[int], None] | None):
+    """Create a moviepy ProgressBarLogger that calls progress_callback."""
+    if not progress_callback:
+        return None
+    try:
+        from proglog import ProgressBarLogger
+        class MoviePyProgressLogger(ProgressBarLogger):
+            def __init__(self, cb):
+                super().__init__()
+                self.cb = cb
+                self.last_pct = -1
+            def callback(self, **changes):
+                bars = self.state.get('bars', {})
+                if not bars: return
+                # Prioritize 't' bar (main rendering bar)
+                main_bar = bars.get('t') or next(iter(bars.values()), None)
+                if main_bar and main_bar.get('total'):
+                    pct = min(int(100 * main_bar['index'] / main_bar['total']), 100)
+                    if pct != self.last_pct:
+                        self.cb(pct)
+                        self.last_pct = pct
+        return MoviePyProgressLogger(progress_callback)
+    except (ImportError, Exception):
+        return None
+
+
 class RenderService:
     """Service for rendering final video."""
     
@@ -63,27 +89,7 @@ class RenderService:
         
         import moviepy.editor as mp
         
-        try:
-            from proglog import ProgressBarLogger
-            class MoviePyProgressLogger(ProgressBarLogger):
-                def __init__(self, cb):
-                    super().__init__()
-                    self.cb = cb
-                    self.last_pct = -1
-                def callback(self, **changes):
-                    bars = self.state.get('bars', {})
-                    if not bars: return
-                    # Prioritize 't' bar (main rendering bar)
-                    main_bar = bars.get('t') or next(iter(bars.values()), None)
-                    if main_bar and main_bar.get('total'):
-                        pct = min(int(100 * main_bar['index'] / main_bar['total']), 100)
-                        if pct != self.last_pct:
-                            self.cb(pct)
-                            self.last_pct = pct
-            
-            logger_obj = MoviePyProgressLogger(progress_callback) if progress_callback else None
-        except (ImportError, Exception):
-            logger_obj = None
+        logger_obj = _create_moviepy_logger(progress_callback)
 
         # Load data
         segments = self.project_repo.get_segments(project_id)
@@ -161,6 +167,7 @@ class RenderService:
         import moviepy.editor as mp
         
         logger.info(f"Starting standalone render for project {project_id}")
+        logger_obj = _create_moviepy_logger(progress_callback)
         
         video = None
         
@@ -174,14 +181,21 @@ class RenderService:
             # Get output path
             output_path = self.file_storage.get_next_render_path(project_id)
             
+            # Get render preset from project settings
+            project = self.project_repo.get(project_id) or {}
+            render_preset = project.get("render_preset", "fast")
+            if render_preset not in ("fast", "veryfast", "ultrafast"):
+                render_preset = "fast"
+            
             # Render
             video.write_videofile(
                 str(output_path),
                 fps=video.fps or 24,
                 codec="libx264",
                 audio_codec="aac",
+                logger=logger_obj,
                 threads=0,
-                preset="fast",
+                preset=render_preset,
                 audio_bitrate="320k",
                 ffmpeg_params=["-crf", "23"],
             )
@@ -192,7 +206,21 @@ class RenderService:
             
         finally:
             if video:
-                video.close()
+                try:
+                    if hasattr(video, 'clips') and video.clips:
+                        for c in video.clips:
+                            try:
+                                c.close()
+                            except Exception:
+                                pass
+                    if hasattr(video, 'audio') and video.audio:
+                        try:
+                            video.audio.close()
+                        except Exception:
+                            pass
+                    video.close()
+                except Exception:
+                    pass
     
     def _ensure_pil_compatibility(self) -> None:
         """Ensure PIL compatibility with moviepy."""
@@ -897,382 +925,6 @@ class RenderService:
         except Exception as e:
             logger.error(f"Failed to composite subtitles: {e}")
             return video
-
-    def _add_subtitles_deprecated(self, video, project_id: str, mp):
-        """Overlay subtitles on video using moviepy TextClip."""
-        srt_path = self.file_storage.get_subtitles_path(project_id)
-        if not srt_path:
-            logger.info(f"No subtitles found for project {project_id}")
-            return video
-        
-        styling_dict = self.file_storage.get_subtitle_styling(project_id) or {}
-        
-        # Parse styling
-        font_family = styling_dict.get("font_family", "Arial")
-        font_size = styling_dict.get("font_size", 48)
-        font_color = styling_dict.get("font_color", "#FFFFFF")
-        stroke_color = styling_dict.get("stroke_color", "#000000")
-        stroke_width = styling_dict.get("stroke_width", 3)
-        position = styling_dict.get("position", "bottom")
-        margin_x = styling_dict.get("margin_x", 50)
-        margin_y = styling_dict.get("margin_y", 60)
-        text_align = styling_dict.get("text_align", "center")
-        max_width_pct = styling_dict.get("max_width_percent", 90)
-        uppercase = styling_dict.get("uppercase", False)
-        bg_enabled = styling_dict.get("background_enabled", False)
-        bg_color = styling_dict.get("background_color", "#000000")
-        bg_opacity = styling_dict.get("background_opacity", 0.7)
-        bg_padding = styling_dict.get("background_padding", 10)
-        bg_radius = styling_dict.get("background_radius", 8)
-        animation = styling_dict.get("animation", "none")  # none, fade, pop, typewriter
-        
-        # Parse highlight styling
-        hl_font_color = styling_dict.get("highlight_font_color", "#FFFFFF")
-        hl_bg_color = styling_dict.get("highlight_bg_color", "#6e00ff")
-        hl_bg_radius = styling_dict.get("highlight_bg_radius", 8)
-        hl_bg_padding = styling_dict.get("highlight_bg_padding", 8)
-        
-        # Parse SRT file
-        entries = self._parse_srt_file(srt_path)
-        if not entries:
-            logger.info(f"No subtitle entries parsed for project {project_id}")
-            return video
-        
-        video_w, video_h = video.size
-        max_text_width = int(video_w * max_width_pct / 100)
-        
-        subtitle_clips = []
-        
-        logger.info(f"Processing {len(entries)} subtitle entries for video ({video_w}x{video_h})")
-        
-        for idx, entry in enumerate(entries):
-            text = entry["text"]
-            if uppercase:
-                text = text.upper()
-            
-            start_time = entry["start_seconds"]
-            end_time = entry["end_seconds"]
-            duration = end_time - start_time
-            
-            if duration <= 0:
-                logger.warning(f"Subtitle {idx+1}: invalid duration ({start_time} -> {end_time})")
-                continue
-            
-            logger.debug(f"Subtitle {idx+1}: {start_time:.2f}s - {end_time:.2f}s: {text[:30]}...")
-            
-            try:
-                # Custom PIL-based text rendering to avoid ImageMagick dependency
-                try:
-                    # Parse colors
-                    def hex_to_rgba(hex_code, alpha=255):
-                        h = hex_code.lstrip('#')
-                        return tuple(int(h[i:i+2], 16) for i in (0, 2, 4)) + (alpha,)
-                    
-                    text_color = hex_to_rgba(font_color)
-                    outline_color = hex_to_rgba(stroke_color) if stroke_width > 0 else None
-                    
-                    # Font loading with improved fallback chain
-                    font = None
-                    font_weight = styling_dict.get("font_weight", "bold")
-                    is_bold = font_weight in ("bold", "700", "black", "900")
-                    
-                    # Normalize font name (e.g. "Open Sans" -> "OpenSans")
-                    clean_family = font_family.replace(" ", "")
-                    
-                    # Calculate paths
-                    base_dir = Path(__file__).resolve().parent.parent.parent  # Clipmaker root
-                    font_dir = base_dir / "app" / "static" / "fonts"
-                    
-                    # Windows font directory
-                    windows_fonts = Path("C:/Windows/Fonts")
-                    
-                    # Build search paths prioritizing bundled fonts, then system fonts
-                    search_paths = [
-                        # Bundled fonts
-                        str(font_dir / f"{clean_family}.ttf"),
-                        str(font_dir / f"{clean_family}.otf"),
-                        str(font_dir / f"{clean_family}-Bold.ttf") if is_bold else str(font_dir / f"{clean_family}-Regular.ttf"),
-                        str(font_dir / f"{font_family}.ttf"),
-                        # Windows system fonts (common names)
-                        str(windows_fonts / f"{clean_family.lower()}.ttf"),
-                        str(windows_fonts / f"{clean_family.lower()}b.ttf") if is_bold else str(windows_fonts / f"{clean_family.lower()}.ttf"),
-                        # Common Windows font variations
-                        str(windows_fonts / f"{font_family.lower().replace(' ', '')}.ttf"),
-                    ]
-                    
-                    # Add common Windows fallback fonts
-                    windows_fallbacks = [
-                        str(windows_fonts / "arial.ttf"),
-                        str(windows_fonts / "arialbd.ttf") if is_bold else str(windows_fonts / "arial.ttf"),
-                        str(windows_fonts / "segoeui.ttf"),
-                        str(windows_fonts / "segoeuib.ttf") if is_bold else str(windows_fonts / "segoeui.ttf"),
-                        str(windows_fonts / "calibri.ttf"),
-                        str(windows_fonts / "calibrib.ttf") if is_bold else str(windows_fonts / "calibri.ttf"),
-                    ]
-                    
-                    loaded = False
-                    for path in search_paths:
-                        try:
-                            font = ImageFont.truetype(path, font_size)
-                            loaded = True
-                            logger.info(f"Loaded font: {path}")
-                            break
-                        except OSError:
-                            continue
-                    
-                    # Try Windows fallbacks if primary font not found
-                    if not loaded:
-                        logger.warning(f"Font {font_family} not found, trying Windows fallbacks")
-                        for path in windows_fallbacks:
-                            try:
-                                font = ImageFont.truetype(path, font_size)
-                                loaded = True
-                                logger.info(f"Using fallback font: {path}")
-                                break
-                            except OSError:
-                                continue
-                    
-                    # Final fallback to PIL default
-                    if not loaded:
-                        logger.warning("All font loading failed, using PIL default")
-                        font = ImageFont.load_default()
-                    
-                    # Text wrapping
-                    hl_text_color_rgba = hex_to_rgba(hl_font_color)
-                    hl_bg_color_rgba = hex_to_rgba(hl_bg_color)
-
-                    # Tokenize text
-                    tokens = []
-                    parts = re.split(r'(<h>.*?</h>)', text)
-                    for part in parts:
-                        if part.startswith('<h>') and part.endswith('</h>'):
-                            content = part[3:-4]
-                            subwords = content.split()
-                            for w in subwords:
-                                tokens.append({'text': w, 'hl': True})
-                        else:
-                            subwords = part.split()
-                            for w in subwords:
-                                tokens.append({'text': w, 'hl': False})
-
-                    # Measure
-                    dummy_draw = ImageDraw.Draw(Image.new('RGBA', (1, 1)))
-                    
-                    def get_width(t_str):
-                        bb = dummy_draw.textbbox((0, 0), t_str, font=font)
-                        return bb[2] - bb[0]
-                    
-                    space_w = get_width(" ")
-                    if space_w == 0:
-                        space_w = int(font_size * 0.25)
-
-                    lines = []
-                    current_line = []
-                    current_w = 0
-
-                    for token in tokens:
-                        w = get_width(token['text'])
-                        # If highlight, add padding width
-                        t_w = w + (hl_bg_padding * 2 if token['hl'] else 0)
-                        
-                        needed = t_w + (space_w if current_line else 0)
-                        
-                        if current_w + needed <= max_text_width:
-                            current_line.append(token)
-                            current_w += needed
-                        else:
-                            if current_line:
-                                lines.append(current_line)
-                                current_line = [token]
-                                current_w = t_w
-                            else:
-                                lines.append([token])
-                                current_w = 0
-                    if current_line:
-                        lines.append(current_line)
-
-                    # Calculate heights
-                    # Use 'Ag' as representative for heigth
-                    bbox_h = dummy_draw.textbbox((0, 0), "Ag", font=font)
-                    text_height = bbox_h[3] - bbox_h[1]
-                    
-                    line_height = text_height + stroke_width * 2 + 10 # Base height
-                    # If using highlights, ensure enough vertical space
-                    step_y = max(line_height, text_height + hl_bg_padding * 2) + 5
-                    
-                    total_h = len(lines) * step_y + 20
-                    
-                    # Create Image
-                    img = Image.new('RGBA', (max_text_width + 20, int(total_h)), (0, 0, 0, 0))
-                    draw = ImageDraw.Draw(img)
-                    
-                    y = stroke_width + 10 + hl_bg_padding # Initial offset
-                    
-                    for line in lines:
-                        # Measure line width for alignment
-                        lw = 0
-                        for i, t in enumerate(line):
-                            wd = get_width(t['text'])
-                            if t['hl']:
-                                lw += wd + hl_bg_padding * 2
-                            else:
-                                lw += wd
-                            if i < len(line) - 1:
-                                lw += space_w
-                        
-                        # Align
-                        if text_align == 'center':
-                            x = (max_text_width - lw) / 2
-                        elif text_align == 'right':
-                            x = max_text_width - lw
-                        else:
-                            x = stroke_width
-                        
-                        # Draw tokens
-                        for i, t in enumerate(line):
-                            wd = get_width(t['text'])
-                            
-                            if t['hl']:
-                                # Draw BG
-                                # Center text in bg?
-                                # Highlight box
-                                rx = x
-                                ry = y - hl_bg_padding
-                                rw = wd + hl_bg_padding * 2
-                                rh = text_height + hl_bg_padding * 2 + 5 # slight adjust
-                                
-                                draw.rounded_rectangle(
-                                    (rx, ry, rx + rw, ry + rh),
-                                    radius=hl_bg_radius,
-                                    fill=hl_bg_color_rgba
-                                )
-                                
-                                # Draw text (no stroke usually)
-                                draw.text((x + hl_bg_padding, y), t['text'], font=font, fill=hl_text_color_rgba)
-                                x += rw
-                            else:
-                                # Normal
-                                # Stroke
-                                if stroke_width > 0:
-                                    for dx in range(-stroke_width, stroke_width + 1):
-                                        for dy in range(-stroke_width, stroke_width + 1):
-                                            if dx*dx + dy*dy <= stroke_width*stroke_width:
-                                                draw.text((x + dx, y + dy), t['text'], font=font, fill=outline_color)
-                                
-                                draw.text((x, y), t['text'], font=font, fill=text_color)
-                                x += wd
-                            
-                            if i < len(line) - 1:
-                                x += space_w
-                                
-                        y += step_y
-                    
-                    # Convert to numpy
-                    img_np = np.array(img)
-                    txt_clip = mp.ImageClip(img_np)
-                    
-                except Exception as pil_err:
-                    logger.warning(f"PIL Text rendering failed, trying fallback: {pil_err}")
-                    # Fallback to pure TextClip (might fail if no ImageMagick)
-                    txt_clip = mp.TextClip(
-                        txt=text,
-                        fontsize=font_size,
-                        font=font_family,
-                        color=font_color,
-                        stroke_color=stroke_color if stroke_width > 0 else None,
-                        stroke_width=stroke_width,
-                        method="caption",
-                        align=text_align,
-                        size=(max_text_width, None),
-                    )
-                
-                # Calculate position
-                # Ensure we use the clips dimensions
-                clip_w, clip_h = txt_clip.size
-                
-                # Horizontal safety check: Resize if wider than video
-                if clip_w > video_w:
-                    txt_clip = txt_clip.resize(width=video_w)
-                    clip_w, clip_h = txt_clip.size
-                
-                if position == "top":
-                    y_pos = margin_y
-                elif position == "middle":
-                    y_pos = (video_h - clip_h) // 2
-                else:  # bottom
-                    y_pos = video_h - clip_h - margin_y
-                
-                # Vertical safety clamp
-                # Ensure it never goes off screen top or bottom
-                # Allow a minimum safety margin (e.g. 10px) unless margins handle it effectively
-                safe_y_min = 0  # Absolute minimum top
-                safe_y_max = video_h - clip_h  # Absolute minimum bottom position
-                
-                # Clamp y_pos
-                if y_pos < safe_y_min:
-                    y_pos = safe_y_min
-                elif y_pos > safe_y_max:
-                    y_pos = safe_y_max
-                
-                x_pos = (video_w - clip_w) // 2
-                
-                # Set timing and position
-                txt_clip = txt_clip.set_start(start_time).set_duration(duration)
-                txt_clip = txt_clip.set_position((x_pos, y_pos))
-                
-                # Apply animations
-                if animation == "fade":
-                    fade_duration = min(0.3, duration / 4)
-                    txt_clip = txt_clip.crossfadein(fade_duration).crossfadeout(fade_duration)
-                elif animation == "pop":
-                    # Simple pop effect using resize
-                    txt_clip = txt_clip.resize(lambda t: 1 + 0.1 * (1 - abs(t - duration/2)/(duration/2)) if t < duration else 1)
-                
-                # Add background if enabled
-                if bg_enabled:
-                    # Create semi-transparent background
-                    # Use ColorClip from moviepy
-                    from moviepy.video.VideoClip import ColorClip
-                    bg_width = clip_w + bg_padding * 2
-                    bg_height = clip_h + bg_padding * 2
-                    
-                    # Parse hex color
-                    bg_rgb = tuple(int(bg_color.lstrip('#')[i:i+2], 16) for i in (0, 2, 4))
-                    
-                    bg_clip = ColorClip(
-                        size=(bg_width, bg_height),
-                        color=bg_rgb,
-                    ).set_opacity(bg_opacity)
-                    
-                    bg_clip = bg_clip.set_start(start_time).set_duration(duration)
-                    bg_x = x_pos - bg_padding
-                    bg_y = y_pos - bg_padding
-                    bg_clip = bg_clip.set_position((bg_x, bg_y))
-                    
-                    # Apply same fade to background
-                    if animation == "fade":
-                        bg_clip = bg_clip.crossfadein(fade_duration).crossfadeout(fade_duration)
-                    
-                    subtitle_clips.append(bg_clip)
-                
-                subtitle_clips.append(txt_clip)
-                
-            except Exception as e:
-                logger.warning(f"Failed to create subtitle clip: {e}")
-                continue
-        
-        if not subtitle_clips:
-            return video
-        
-        # Composite all subtitle clips on top of video
-        try:
-            result = mp.CompositeVideoClip([video] + subtitle_clips)
-            logger.info(f"Added {len(entries)} subtitle entries to video")
-            return result
-        except Exception as e:
-            logger.error(f"Failed to composite subtitles: {e}")
-            return video
-    
     def _parse_srt_file(self, srt_path: Path) -> list[dict]:
         """Parse SRT file to list of entries with timing."""
         content = srt_path.read_text(encoding="utf-8")

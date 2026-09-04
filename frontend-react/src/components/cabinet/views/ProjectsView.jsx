@@ -77,9 +77,15 @@ export default function ProjectsView() {
                     <h1>Projects</h1>
                     <p className="view-subtitle">Manage your video generation projects</p>
                 </div>
-                <Link to="/studio?new=true" className="btn-primary">
-                    <span>+ New Project</span>
-                </Link>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                    <Link to="/subtitles" className="btn-secondary" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                        <span>📝</span>
+                        <span>+ Add Subtitles to Video</span>
+                    </Link>
+                    <Link to="/studio?new=true" className="btn-primary">
+                        <span>+ New Project</span>
+                    </Link>
+                </div>
             </div>
 
             {/* Filters */}
@@ -119,52 +125,77 @@ export default function ProjectsView() {
                 {/* Projects List */}
                 <div className="projects-list">
                     {filteredProjects.length > 0 ? (
-                        filteredProjects.map(project => (
-                            <div
-                                key={project.id}
-                                className={`project-card ${selectedProject?.id === project.id ? 'selected' : ''}`}
-                                onClick={() => setSelectedProject(project)}
-                            >
-                                <div className="project-thumbnail">
-                                    {project.thumbnail_url ? (
-                                        <img src={project.thumbnail_url} alt={project.title} />
-                                    ) : (
-                                        <span className="thumbnail-placeholder">🎬</span>
-                                    )}
-                                </div>
-                                <div className="project-info">
-                                    <h3 className="project-title">{project.title}</h3>
-                                    <div className="project-meta">
-                                        <span className={`project-status status-${project.status}`}>
-                                            {project.status}
-                                        </span>
-                                        <span className="project-date">
-                                            {new Date(project.updated_at).toLocaleDateString()}
-                                        </span>
+                        filteredProjects.map(project => {
+                            const isStandalone = Boolean(project.standalone_mode || project.settings?.standalone_mode)
+                            const projectUrl = isStandalone
+                                ? `/subtitles?project=${project.project_id}`
+                                : `/studio?project=${project.project_id}`
+
+                            return (
+                                <div
+                                    key={project.id}
+                                    className={`project-card ${selectedProject?.id === project.id ? 'selected' : ''}`}
+                                    onClick={() => setSelectedProject(project)}
+                                >
+                                    <div className="project-thumbnail">
+                                        {project.thumbnail_url ? (
+                                            <img src={project.thumbnail_url} alt={project.title} />
+                                        ) : (
+                                            <span className="thumbnail-placeholder">{isStandalone ? '📝' : '🎬'}</span>
+                                        )}
+                                    </div>
+                                    <div className="project-info">
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                            <h3 className="project-title" style={{ margin: 0 }}>{project.title}</h3>
+                                            {isStandalone && (
+                                                <span
+                                                    className="project-badge subtitles-badge"
+                                                    style={{
+                                                        backgroundColor: 'rgba(110, 0, 255, 0.2)',
+                                                        color: '#b388ff',
+                                                        padding: '2px 8px',
+                                                        borderRadius: '4px',
+                                                        fontSize: '11px',
+                                                        fontWeight: 600,
+                                                        border: '1px solid rgba(110, 0, 255, 0.4)'
+                                                    }}
+                                                >
+                                                    📝 Subtitles
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div className="project-meta">
+                                            <span className={`project-status status-${project.status}`}>
+                                                {project.status}
+                                            </span>
+                                            <span className="project-date">
+                                                {new Date(project.updated_at).toLocaleDateString()}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="project-actions">
+                                        <Link
+                                            to={projectUrl}
+                                            className="btn-icon"
+                                            title={isStandalone ? "Open in Subtitles Studio" : "Open in Editor"}
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            {isStandalone ? '📝' : '🎥'}
+                                        </Link>
+                                        <button
+                                            className="btn-icon danger"
+                                            title="Delete"
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                deleteProject(project.id)
+                                            }}
+                                        >
+                                            🗑️
+                                        </button>
                                     </div>
                                 </div>
-                                <div className="project-actions">
-                                    <Link
-                                        to={`/studio?project=${project.project_id}`}
-                                        className="btn-icon"
-                                        title="Open in Editor"
-                                        onClick={(e) => e.stopPropagation()}
-                                    >
-                                        🎥
-                                    </Link>
-                                    <button
-                                        className="btn-icon danger"
-                                        title="Delete"
-                                        onClick={(e) => {
-                                            e.stopPropagation()
-                                            deleteProject(project.id)
-                                        }}
-                                    >
-                                        🗑️
-                                    </button>
-                                </div>
-                            </div>
-                        ))
+                            )
+                        })
                     ) : (
                         <div className="empty-state">
                             <span className="empty-icon">📁</span>
@@ -245,10 +276,14 @@ export default function ProjectsView() {
 
                         <div className="panel-footer">
                             <Link
-                                to={`/studio?project=${selectedProject.project_id}`}
+                                to={selectedProject.standalone_mode || selectedProject.settings?.standalone_mode
+                                    ? `/subtitles?project=${selectedProject.project_id}`
+                                    : `/studio?project=${selectedProject.project_id}`}
                                 className="btn-primary full-width"
                             >
-                                Open in Editor
+                                {selectedProject.standalone_mode || selectedProject.settings?.standalone_mode
+                                    ? 'Open in Subtitles Studio'
+                                    : 'Open in Editor'}
                             </Link>
                         </div>
                     </div>
