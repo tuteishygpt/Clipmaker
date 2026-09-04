@@ -276,15 +276,8 @@ function App() {
                 {/* Main Editor - Works without auth */}
                 <Route path="/studio" element={<EditorView />} />
 
-                {/* Standalone Subtitles Tool */}
-                <Route
-                    path="/subtitles"
-                    element={
-                        <ProtectedRoute>
-                            <SubtitleStandalonePage />
-                        </ProtectedRoute>
-                    }
-                />
+                {/* Standalone Subtitles Tool - Works without auth */}
+                <Route path="/subtitles" element={<SubtitleStandalonePage />} />
 
                 {/* Auth page */}
                 <Route path="/auth" element={<AuthWrapper />} />

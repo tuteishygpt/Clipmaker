@@ -25,6 +25,10 @@ class ShowcaseItem(BaseModel):
 
 
 @router.get("/")
+@router.get("/subtitles")
+@router.get("/cabinet")
+@router.get("/auth")
+@router.get("/app")
 async def index() -> FileResponse:
     """Serve the main HTML page."""
     return FileResponse(settings.frontend_dir / "index.html")
