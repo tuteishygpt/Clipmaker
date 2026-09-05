@@ -39,6 +39,11 @@ export default {
         langAuto: 'Аўтавызначэнне (AI)',
         langBe: 'Беларуская',
         langEn: 'English',
+        langEs: 'Іспанская',
+        langZh: 'Кітайская',
+        langFr: 'Французская',
+        langDe: 'Нямецкая',
+        langJa: 'Японская',
         langRu: 'Русский',
         langUk: 'Українська',
         langPl: 'Polski',
@@ -52,12 +57,30 @@ export default {
         skipToEditor: 'Прапусціць і перайсці ў рэдактар',
         
         // Top bar
+        newVideo: 'Новае відэа',
+        myVideos: 'Мае відэа',
+        nextVideo: 'Наступнае відэа',
+        prevVideo: 'Папярэдняе відэа',
+        switchVideo: 'Пераключыць відэа',
+        recentVideos: 'Вашы нядаўнія відэа',
+        noRecentVideos: 'Няма захаваных відэа',
+        searchVideosPlaceholder: 'Пошук відэа...',
+        allProjectsInCabinet: 'Адкрыць усе ў кабінеце',
+        videoCount: '{current} з {total}',
+        uploadNextVideo: 'Загрузіць новы файл',
+        returnToDropzone: 'Вярнуцца да загрузкі',
         autosaveSaving: 'Захаванне...',
         autosaveSaved: 'Захавана',
         downloadSrt: 'SRT',
         downloadSrtTitle: 'Спампаваць субцітры ў фармаце .SRT',
         downloadVideo: 'Спампаваць відэа (MP4)',
         exportRender: 'Экспарт / Рэндэр',
+        exportMenu: 'Экспарт',
+        exportVideo: 'Відэа з субцітрамі (MP4)',
+        exportVideoDesc: 'Рэндэрынг і спампоўка',
+        exportVideoReadyDesc: 'Гатова да спампоўкі',
+        exportSrt: 'Субцітры (.SRT)',
+        exportSrtDesc: 'Спампаваць файл субцітраў',
         rendering: 'Рэндэрынг ({progress}%)',
         
         // Tabs
@@ -172,5 +195,13 @@ export default {
             empty: '(пуста)',
             tip: '💡 Запусціце відэа для прагляду сінхранізацыі або пераключайце субцітры стрэлкамі.'
         }
+    },
+    profile: {
+        preferencesTitle: 'Налады',
+        preferencesDesc: 'Персаналізацыя мовы інтэрфейсу і параметраў прыкладання',
+        languageLabel: 'Мова інтэрфейсу',
+        languageDesc: 'Выберыце зручную мову. Змены адразу прымяняюцца ва ўсёй студыі.',
+        languageActiveBadge: 'Актыўная',
+        languageUpdated: 'Мова паспяхова абноўленая!'
     }
 }

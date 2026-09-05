@@ -5,7 +5,6 @@ import SubtitleVideoPlayer, { parseSrtTimeToSeconds } from './SubtitleVideoPlaye
 import SubtitleTimeline from './SubtitleTimeline'
 import SubtitlePresetsGallery, { STUDIO_PRESETS } from './SubtitlePresetsGallery'
 import SubtitleEntryCard, { formatSecondsToSrt, sanitizeHighlightTags } from './SubtitleEntryCard'
-import LanguageSwitcher from './common/LanguageSwitcher'
 import { useTranslation } from '../i18n'
 import './SubtitleStudio.css'
 import * as api from '../api'
@@ -82,6 +81,15 @@ export default function SubtitleStandalonePage() {
     const [duration, setDuration] = useState(0)
     const [activeEntryId, setActiveEntryId] = useState(null)
 
+    // Existing Projects List & Switcher State
+    const [projectsList, setProjectsList] = useState([])
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+    const [projectSearchQuery, setProjectSearchQuery] = useState('')
+
+    // Render & Export Dropdown State
+    const [isRenderDirty, setIsRenderDirty] = useState(false)
+    const [isExportDropdownOpen, setIsExportDropdownOpen] = useState(false)
+
     // Refs
     const playerRef = useRef(null)
     const fileInputRef = useRef(null)
@@ -91,6 +99,20 @@ export default function SubtitleStandalonePage() {
     const isUserTypingRef = useRef(false)
     const activeEntryIdRef = useRef(null)
     const entriesListRef = useRef(null)
+    const projectDropdownRef = useRef(null)
+    const exportDropdownRef = useRef(null)
+    const autoDownloadOnFinishRef = useRef(false)
+
+    // Helper: Trigger browser file download
+    const triggerFileDownload = (url, filename) => {
+        if (!url) return
+        const a = document.createElement('a')
+        a.href = url
+        if (filename) a.download = filename
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+    }
 
     // Helper: Flush pending autosave immediately
     const flushPendingAutosave = useCallback(async (currentEntries = entries, currentStyling = styling) => {
@@ -114,6 +136,7 @@ export default function SubtitleStandalonePage() {
 
     // Helper: Trigger debounced autosave
     const triggerAutosave = useCallback((newEntries, newStyling) => {
+        setIsRenderDirty(true)
         if (!projectId) return
         setAutosaveStatus('saving')
         if (autosaveTimerRef.current) clearTimeout(autosaveTimerRef.current)
@@ -159,10 +182,17 @@ export default function SubtitleStandalonePage() {
                     clearInterval(pollTimerRef.current)
                     pollTimerRef.current = null
                     setStatus('done')
+                    setIsRenderDirty(false)
                     loadSubtitles(id)
+                    if (autoDownloadOnFinishRef.current) {
+                        autoDownloadOnFinishRef.current = false
+                        const url = api.getDownloadUrl(id)
+                        triggerFileDownload(url, `${projectTitle || 'video'}.mp4`)
+                    }
                 } else if (renderJob?.status === 'ERROR') {
                     clearInterval(pollTimerRef.current)
                     pollTimerRef.current = null
+                    autoDownloadOnFinishRef.current = false
                     setError(renderJob.message || 'Render failed')
                     setStatus('ready')
                 } else if (renderJob?.progress !== undefined) {
@@ -172,7 +202,51 @@ export default function SubtitleStandalonePage() {
                 console.error('Polling error:', err)
             }
         }, 1000)
-    }, [loadSubtitles])
+    }, [loadSubtitles, projectTitle])
+
+    // Load list of all projects
+    const loadProjectsList = useCallback(async () => {
+        try {
+            const data = await api.getProjects()
+            if (Array.isArray(data)) {
+                setProjectsList(data)
+            }
+        } catch (err) {
+            console.warn('Failed to load projects list:', err)
+        }
+    }, [])
+
+    useEffect(() => {
+        loadProjectsList()
+    }, [loadProjectsList])
+
+    // Close dropdowns when clicking outside or pressing Escape
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (projectDropdownRef.current && !projectDropdownRef.current.contains(e.target)) {
+                setIsDropdownOpen(false)
+                setProjectSearchQuery('')
+            }
+            if (exportDropdownRef.current && !exportDropdownRef.current.contains(e.target)) {
+                setIsExportDropdownOpen(false)
+            }
+        }
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') {
+                setIsDropdownOpen(false)
+                setProjectSearchQuery('')
+                setIsExportDropdownOpen(false)
+            }
+        }
+        if (isDropdownOpen || isExportDropdownOpen) {
+            document.addEventListener('mousedown', handleClickOutside)
+            document.addEventListener('keydown', handleKeyDown)
+        }
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside)
+            document.removeEventListener('keydown', handleKeyDown)
+        }
+    }, [isDropdownOpen, isExportDropdownOpen])
 
     // Clean up timers on unmount
     useEffect(() => {
@@ -183,9 +257,76 @@ export default function SubtitleStandalonePage() {
         }
     }, [])
 
-    // Load existing project if URL param ?project=<id> is present
+    // Switch to another project
+    const handleSwitchProject = useCallback(async (targetId) => {
+        if (!targetId || targetId === projectId) {
+            setIsDropdownOpen(false)
+            setProjectSearchQuery('')
+            return
+        }
+        setIsDropdownOpen(false)
+        setProjectSearchQuery('')
+        await flushPendingAutosave(entries, styling)
+
+        if (pollTimerRef.current) {
+            clearInterval(pollTimerRef.current)
+            pollTimerRef.current = null
+        }
+        if (transcribingTimerRef.current) {
+            clearInterval(transcribingTimerRef.current)
+            transcribingTimerRef.current = null
+        }
+
+        setCurrentTime(0)
+        setDuration(0)
+        setSearchParams({ project: targetId })
+    }, [projectId, entries, styling, flushPendingAutosave, setSearchParams])
+
+    // Start a new video (clean reset)
+    const handleStartNewVideo = useCallback(async () => {
+        setIsDropdownOpen(false)
+        setIsExportDropdownOpen(false)
+        setIsRenderDirty(false)
+        autoDownloadOnFinishRef.current = false
+        await flushPendingAutosave(entries, styling)
+
+        if (pollTimerRef.current) {
+            clearInterval(pollTimerRef.current)
+            pollTimerRef.current = null
+        }
+        if (transcribingTimerRef.current) {
+            clearInterval(transcribingTimerRef.current)
+            transcribingTimerRef.current = null
+        }
+
+        setProjectId(null)
+        setProjectTitle('My Video')
+        setVideoFile(null)
+        setVideoUrl(null)
+        setEntries([])
+        setStatus('idle')
+        setProgress(0)
+        setError(null)
+        setCurrentTime(0)
+        setDuration(0)
+        setSearchParams({})
+        loadProjectsList()
+    }, [entries, styling, flushPendingAutosave, setSearchParams, loadProjectsList])
+
+    // Load existing project if URL param ?project=<id> is present, or reset if absent
     useEffect(() => {
-        if (!projectIdParam) return
+        if (!projectIdParam) {
+            setProjectId(null)
+            setProjectTitle('My Video')
+            setVideoFile(null)
+            setVideoUrl(null)
+            setEntries([])
+            setStatus('idle')
+            setProgress(0)
+            setError(null)
+            setIsRenderDirty(false)
+            return
+        }
         let isCancelled = false
 
         const loadExistingProject = async () => {
@@ -207,15 +348,18 @@ export default function SubtitleStandalonePage() {
                     const renderJob = jobsData.jobs?.render
                     if (renderJob?.status === 'DONE') {
                         setStatus('done')
+                        setIsRenderDirty(false)
                     } else if (renderJob?.status === 'RUNNING') {
                         setStatus('rendering')
                         setProgress(renderJob.progress || 0)
                         startPolling(proj.id)
                     } else {
                         setStatus('ready')
+                        setIsRenderDirty(true)
                     }
                 } catch (_) {
                     setStatus('ready')
+                    setIsRenderDirty(true)
                 }
             } catch (err) {
                 if (!isCancelled) {
@@ -346,8 +490,9 @@ export default function SubtitleStandalonePage() {
                 }
             }
 
-            // Refresh project store
+            // Refresh project store and list
             useProjectStore.getState().loadProjects()
+            loadProjectsList()
 
             setStatus('ready')
 
@@ -564,12 +709,13 @@ export default function SubtitleStandalonePage() {
             const res = await api.importSubtitles(projectId, file)
             setEntries(res.entries || [])
             if (res.styling) setStyling(prev => ({ ...prev, ...res.styling }))
+            setIsRenderDirty(true)
         } catch (err) {
             setError(err.message || 'Failed to import SRT')
         }
     }
 
-    // Render / Export
+    // Render Video
     const handleRenderVideo = async () => {
         if (!projectId) return
         // Flush any pending changes to backend
@@ -585,6 +731,33 @@ export default function SubtitleStandalonePage() {
         } catch (err) {
             setError(err.message || 'Render failed')
             setStatus('ready')
+            autoDownloadOnFinishRef.current = false
+        }
+    }
+
+    // Export Video: triggers render automatically if modified/not rendered, then downloads
+    const handleExportVideo = async () => {
+        setIsExportDropdownOpen(false)
+        if (!projectId || status === 'rendering') return
+
+        // If video is already rendered and no edits were made, download directly
+        if (status === 'done' && !isRenderDirty && downloadVideoUrl) {
+            triggerFileDownload(downloadVideoUrl, `${projectTitle || 'video'}.mp4`)
+            return
+        }
+
+        // Otherwise automatically start render, and autoDownloadOnFinish will download when complete
+        autoDownloadOnFinishRef.current = true
+        await handleRenderVideo()
+    }
+
+    // Export SRT file
+    const handleExportSrt = async () => {
+        setIsExportDropdownOpen(false)
+        if (!projectId) return
+        await flushPendingAutosave(entries, styling)
+        if (srtDownloadUrl) {
+            triggerFileDownload(srtDownloadUrl, `${projectTitle || 'subtitles'}.srt`)
         }
     }
 
@@ -698,6 +871,49 @@ export default function SubtitleStandalonePage() {
                             <button onClick={() => setError(null)}>×</button>
                         </div>
                     )}
+
+                    {/* Recent Videos Section */}
+                    {projectsList && projectsList.length > 0 && (
+                        <div className="recent-videos-section">
+                            <div className="recent-videos-header">
+                                <h3>
+                                    <span>📂</span>
+                                    <span>{t('subtitles.recentVideos')}</span>
+                                </h3>
+                                <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)' }}>
+                                    {t('subtitles.videoCount', { current: projectsList.length, total: projectsList.length })}
+                                </span>
+                            </div>
+                            <div className="recent-videos-grid">
+                                {projectsList.slice(0, 8).map((proj) => {
+                                    const dateStr = proj.updated_at
+                                        ? new Date(proj.updated_at).toLocaleDateString()
+                                        : (proj.created_at ? new Date(proj.created_at).toLocaleDateString() : '')
+                                    const isStandalone = Boolean(proj.standalone_mode)
+                                    return (
+                                        <div
+                                            key={proj.id}
+                                            className="recent-video-card"
+                                            onClick={() => handleSwitchProject(proj.id)}
+                                            title={proj.title || proj.id}
+                                        >
+                                            <div className="recent-card-top">
+                                                <span className="recent-card-icon">{isStandalone ? '📝' : '🎬'}</span>
+                                                <span className="recent-card-title">{proj.title || `Project ${proj.id.slice(0, 8)}`}</span>
+                                            </div>
+                                            <div className="recent-card-meta">
+                                                <span className="recent-card-format">{proj.format || '9:16'}</span>
+                                                <span className={`status-tag status-${(proj.status || '').toLowerCase()}`} style={{ fontSize: '10px' }}>
+                                                    {proj.status === 'DONE' ? '✓ DONE' : (proj.status || 'READY')}
+                                                </span>
+                                                {dateStr && <span className="recent-card-date">{dateStr}</span>}
+                                            </div>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        </div>
+                    )}
                 </main>
             </div>
         )
@@ -754,16 +970,122 @@ export default function SubtitleStandalonePage() {
             {/* Top Bar */}
             <header className="studio-top-bar">
                 <div className="studio-top-left">
-                    <Link to="/subtitles" className="studio-brand-logo">
+                    <button
+                        type="button"
+                        className="studio-brand-logo"
+                        onClick={handleStartNewVideo}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                        title={t('subtitles.returnToDropzone')}
+                    >
                         <span>🎬</span>
                         <span>{t('subtitles.title')}</span>
-                    </Link>
+                    </button>
 
-                    <div className="studio-project-title-badge">
-                        <span className="project-title-text" title={projectTitle}>
-                            {projectTitle}
-                        </span>
-                        <span className="project-format-tag">{format}</span>
+                    <div className="studio-project-nav-wrapper" ref={projectDropdownRef}>
+                        {/* Interactive Project Title Badge */}
+                        <div
+                            className={`studio-project-title-badge clickable ${isDropdownOpen ? 'active' : ''}`}
+                            onClick={() => setIsDropdownOpen(prev => !prev)}
+                            title={t('subtitles.switchVideo')}
+                        >
+                            <span className="project-title-text" title={projectTitle}>
+                                {projectTitle}
+                            </span>
+                            <span className="project-format-tag">{format}</span>
+                            <span className={`dropdown-caret ${isDropdownOpen ? 'open' : ''}`}>▼</span>
+                        </div>
+
+                        {/* Project Switcher Dropdown */}
+                        {isDropdownOpen && (
+                            <div className="studio-project-dropdown-menu">
+                                <div className="dropdown-menu-header">
+                                    <span className="dropdown-menu-title">📂 {t('subtitles.myVideos')}</span>
+                                    <button
+                                        type="button"
+                                        className="dropdown-footer-btn"
+                                        onClick={() => setIsDropdownOpen(false)}
+                                        style={{ fontSize: '13px', padding: '2px 6px' }}
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+
+                                <div className="dropdown-search-wrapper">
+                                    <input
+                                        type="text"
+                                        className="dropdown-search-input"
+                                        placeholder={t('subtitles.searchVideosPlaceholder')}
+                                        value={projectSearchQuery}
+                                        onChange={(e) => setProjectSearchQuery(e.target.value)}
+                                        autoFocus
+                                    />
+                                </div>
+
+                                <div className="dropdown-project-list">
+                                    {projectsList
+                                        .filter(p => !projectSearchQuery || (p.title || p.id).toLowerCase().includes(projectSearchQuery.toLowerCase()))
+                                        .map(proj => {
+                                            const isActive = proj.id === projectId
+                                            const dateStr = proj.updated_at
+                                                ? new Date(proj.updated_at).toLocaleDateString()
+                                                : (proj.created_at ? new Date(proj.created_at).toLocaleDateString() : '')
+                                            return (
+                                                <button
+                                                    key={proj.id}
+                                                    type="button"
+                                                    className={`dropdown-project-item ${isActive ? 'active' : ''}`}
+                                                    onClick={() => handleSwitchProject(proj.id)}
+                                                >
+                                                    <span className="dropdown-item-icon">{proj.standalone_mode ? '📝' : '🎬'}</span>
+                                                    <div className="dropdown-item-info">
+                                                        <span className="dropdown-item-title">{proj.title || proj.id.slice(0, 8)}</span>
+                                                        <div className="dropdown-item-meta">
+                                                            <span className="dropdown-item-badge">{proj.format || '9:16'}</span>
+                                                            <span>{proj.status === 'DONE' ? '✓ DONE' : (proj.status || '')}</span>
+                                                            {dateStr && <span>• {dateStr}</span>}
+                                                        </div>
+                                                    </div>
+                                                    {isActive && <span className="dropdown-item-check">✓</span>}
+                                                </button>
+                                            )
+                                        })}
+                                    {projectsList.length === 0 && (
+                                        <div className="dropdown-empty-hint">
+                                            {t('subtitles.noRecentVideos')}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="dropdown-menu-footer">
+                                    <button
+                                        type="button"
+                                        className="dropdown-footer-btn"
+                                        onClick={handleStartNewVideo}
+                                        style={{ color: '#a5b4fc', fontWeight: 700 }}
+                                    >
+                                        ➕ {t('subtitles.newVideo')}
+                                    </button>
+                                    <Link
+                                        to="/cabinet"
+                                        className="dropdown-footer-btn"
+                                        onClick={() => setIsDropdownOpen(false)}
+                                    >
+                                        {t('subtitles.allProjectsInCabinet')} →
+                                    </Link>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Direct Button: + New Video */}
+                        <button
+                            type="button"
+                            className="btn-studio-new-video"
+                            onClick={handleStartNewVideo}
+                            title={t('subtitles.newVideo')}
+                        >
+                            <span>➕</span>
+                            <span>{t('subtitles.newVideo')}</span>
+                        </button>
                     </div>
 
                     <div className={`autosave-indicator ${autosaveStatus}`}>
@@ -772,38 +1094,76 @@ export default function SubtitleStandalonePage() {
                 </div>
 
                 <div className="studio-top-right">
-                    <LanguageSwitcher />
-
-                    {srtDownloadUrl && (
-                        <a
-                            href={srtDownloadUrl}
-                            download
-                            className="btn-studio-secondary"
-                            title={t('subtitles.downloadSrtTitle')}
+                    {/* Unified Export Dropdown */}
+                    <div className="studio-export-wrapper" ref={exportDropdownRef}>
+                        <button
+                            type="button"
+                            className={`btn-studio-export ${isExportDropdownOpen ? 'active' : ''}`}
+                            onClick={() => {
+                                if (status === 'rendering') return
+                                setIsExportDropdownOpen(prev => !prev)
+                            }}
+                            disabled={status === 'rendering'}
+                            title={t('subtitles.exportMenu')}
                         >
-                            📄 {t('subtitles.downloadSrt')}
-                        </a>
-                    )}
+                            {status === 'rendering' ? (
+                                <>⏳ {t('subtitles.rendering', { progress })}</>
+                            ) : (
+                                <>
+                                    <span>🚀</span>
+                                    <span>{t('subtitles.exportMenu')}</span>
+                                    <span className={`dropdown-caret ${isExportDropdownOpen ? 'open' : ''}`}>▼</span>
+                                </>
+                            )}
+                        </button>
 
-                    {status === 'done' && downloadVideoUrl && (
-                        <a
-                            href={downloadVideoUrl}
-                            download
-                            className="btn-studio-download-done"
-                        >
-                            ⬇️ {t('subtitles.downloadVideo')}
-                        </a>
-                    )}
+                        {isExportDropdownOpen && (
+                            <div className="studio-export-dropdown-menu">
+                                <button
+                                    type="button"
+                                    className="export-dropdown-item"
+                                    onClick={handleExportVideo}
+                                >
+                                    <span className="export-item-icon">🎬</span>
+                                    <div className="export-item-info">
+                                        <span className="export-item-title">{t('subtitles.exportVideo')}</span>
+                                        <span className="export-item-desc">
+                                            {status === 'done' && !isRenderDirty
+                                                ? `✓ ${t('subtitles.exportVideoReadyDesc')}`
+                                                : `⚡ ${t('subtitles.exportVideoDesc')}`}
+                                        </span>
+                                    </div>
+                                    {status === 'done' && !isRenderDirty && (
+                                        <span className="export-item-badge">MP4</span>
+                                    )}
+                                </button>
 
-                    <button
-                        className="btn-studio-export"
-                        onClick={handleRenderVideo}
-                        disabled={status === 'rendering'}
-                    >
-                        {status === 'rendering' ? `⏳ ${t('subtitles.rendering', { progress })}` : `🚀 ${t('subtitles.exportRender')}`}
-                    </button>
+                                {srtDownloadUrl && (
+                                    <button
+                                        type="button"
+                                        className="export-dropdown-item"
+                                        onClick={handleExportSrt}
+                                    >
+                                        <span className="export-item-icon">📄</span>
+                                        <div className="export-item-info">
+                                            <span className="export-item-title">{t('subtitles.exportSrt')}</span>
+                                            <span className="export-item-desc">{t('subtitles.exportSrtDesc')}</span>
+                                        </div>
+                                        <span className="export-item-badge">SRT</span>
+                                    </button>
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </header>
+
+            {error && (
+                <div className="error-message" style={{ margin: '14px 28px 0', borderRadius: '8px' }}>
+                    ⚠️ {error}
+                    <button onClick={() => setError(null)}>×</button>
+                </div>
+            )}
 
             {/* Studio Body: Split View */}
             <div className="studio-workspace">

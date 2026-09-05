@@ -25,7 +25,6 @@ import SubtitlePanel from './components/SubtitlePanel'
 // Cabinet (new module)
 import AuthPage from './components/auth/AuthPage'
 import CabinetLayout from './components/cabinet/CabinetLayout'
-import LanguageSwitcher from './components/common/LanguageSwitcher'
 import { useTranslation } from './i18n'
 
 import './styles/index.css'
@@ -101,7 +100,6 @@ function EditorView() {
                                 <span className="logo-icon">🎬</span>
                                 <span className="logo-text">Studio</span>
                             </Link>
-                            <LanguageSwitcher />
                         </div>
                         <p className="sidebar-tagline">{t('nav.tagline')}</p>
 

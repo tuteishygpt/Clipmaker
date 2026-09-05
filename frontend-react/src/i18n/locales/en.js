@@ -39,6 +39,11 @@ export default {
         langAuto: 'Auto-detect (AI)',
         langBe: 'Belarusian',
         langEn: 'English',
+        langEs: 'Spanish',
+        langZh: 'Chinese',
+        langFr: 'French',
+        langDe: 'German',
+        langJa: 'Japanese',
         langRu: 'Russian',
         langUk: 'Ukrainian',
         langPl: 'Polish',
@@ -52,12 +57,30 @@ export default {
         skipToEditor: 'Skip and open editor',
         
         // Top bar
+        newVideo: 'New Video',
+        myVideos: 'My Videos',
+        nextVideo: 'Next Video',
+        prevVideo: 'Previous Video',
+        switchVideo: 'Switch Video',
+        recentVideos: 'Your Recent Videos',
+        noRecentVideos: 'No saved videos yet',
+        searchVideosPlaceholder: 'Search videos...',
+        allProjectsInCabinet: 'Open all in Cabinet',
+        videoCount: '{current} of {total}',
+        uploadNextVideo: 'Upload new file',
+        returnToDropzone: 'Return to upload',
         autosaveSaving: 'Saving...',
         autosaveSaved: 'Saved',
         downloadSrt: 'SRT',
         downloadSrtTitle: 'Download subtitles in .SRT format',
         downloadVideo: 'Download video (MP4)',
         exportRender: 'Export / Render',
+        exportMenu: 'Export',
+        exportVideo: 'Video with Subtitles (MP4)',
+        exportVideoDesc: 'Render & download video',
+        exportVideoReadyDesc: 'Ready to download',
+        exportSrt: 'Subtitles (.SRT)',
+        exportSrtDesc: 'Download subtitle file',
         rendering: 'Rendering ({progress}%)',
         
         // Tabs
@@ -171,5 +194,13 @@ export default {
             empty: '(empty)',
             tip: '💡 Play the video to preview synchronization or switch subtitles with arrow keys.'
         }
+    },
+    profile: {
+        preferencesTitle: 'Preferences',
+        preferencesDesc: 'Customize your interface language and personal app settings',
+        languageLabel: 'Interface Language',
+        languageDesc: 'Select your preferred language. Changes apply immediately across the entire studio.',
+        languageActiveBadge: 'Active',
+        languageUpdated: 'Language preference updated successfully!'
     }
 }

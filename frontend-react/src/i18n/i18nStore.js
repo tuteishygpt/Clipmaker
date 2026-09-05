@@ -1,12 +1,22 @@
 import { create } from 'zustand'
 import en from './locales/en.js'
 import be from './locales/be.js'
+import es from './locales/es.js'
+import zh from './locales/zh.js'
+import fr from './locales/fr.js'
+import de from './locales/de.js'
+import ja from './locales/ja.js'
 
-const dictionaries = { en, be }
+const dictionaries = { en, be, es, zh, fr, de, ja }
 
 export const AVAILABLE_LANGUAGES = [
-    { code: 'en', label: 'English', short: 'EN' },
-    { code: 'be', label: 'Беларуская', short: 'BE' }
+    { code: 'en', label: 'English', native: 'English', flag: '🇬🇧', short: 'EN' },
+    { code: 'es', label: 'Spanish', native: 'Español', flag: '🇪🇸', short: 'ES' },
+    { code: 'zh', label: 'Chinese', native: '简体中文', flag: '🇨🇳', short: 'ZH' },
+    { code: 'fr', label: 'French', native: 'Français', flag: '🇫🇷', short: 'FR' },
+    { code: 'de', label: 'German', native: 'Deutsch', flag: '🇩🇪', short: 'DE' },
+    { code: 'ja', label: 'Japanese', native: '日本語', flag: '🇯🇵', short: 'JA' },
+    { code: 'be', label: 'Belarusian', native: 'Беларуская', flag: '🇧🇾', short: 'BE' }
 ]
 
 function getInitialLanguage() {
@@ -87,9 +97,12 @@ export const useLanguageStore = create((set, get) => ({
             return `${count} ${label}`.trim()
         }
 
-        // English / default pluralization
+        // Standard 2-form pluralization
         const form = c === 1 ? 'singular' : 'plural'
-        const label = resolveKey(dictionaries.en, `${pathPrefix}.${form}`) || ''
+        const currentDict = dictionaries[currentLang] || dictionaries.en
+        const label = resolveKey(currentDict, `${pathPrefix}.${form}`) ||
+                      resolveKey(dictionaries.en, `${pathPrefix}.${form}`) ||
+                      ''
         return `${count} ${label}`.trim()
     }
 }))

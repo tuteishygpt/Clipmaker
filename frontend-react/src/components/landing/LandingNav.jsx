@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuthStore } from '../../stores/authStore'
 import { useTranslation } from '../../i18n'
-import LanguageSwitcher from '../common/LanguageSwitcher'
 
 const navLinks = [
     { key: 'nav.product', defaultLabel: 'Product', href: '#features' },
@@ -36,8 +35,7 @@ function LandingNav() {
                     </Link>
                 </nav>
 
-                <div className="landing-nav-actions" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <LanguageSwitcher />
+                <div className="landing-nav-actions">
 
                     {!user && (
                         <Link className="nav-link login-link" to="/auth">{t('nav.login')}</Link>
@@ -77,8 +75,7 @@ function LandingNav() {
                         {t('nav.subtitles')}
                     </Link>
                 </div>
-                <div className="mobile-menu-actions" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    <LanguageSwitcher />
+                <div className="mobile-menu-actions">
                     {!user && (
                         <Link className="btn btn-secondary" to="/auth">{t('nav.login')}</Link>
                     )}

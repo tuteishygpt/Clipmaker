@@ -4,7 +4,6 @@ import { useAuthStore } from '../stores/authStore'
 import { useBillingStore } from '../stores/billingStore'
 import { isSupabaseConfigured } from '../lib/supabase'
 import { useTranslation } from '../i18n'
-import LanguageSwitcher from './common/LanguageSwitcher'
 
 function Header() {
     const { projectId, project, resetProject } = useProjectStore()
@@ -29,7 +28,6 @@ function Header() {
 
             <div className="header-right">
                 <p className="tagline">{t('nav.tagline')}</p>
-                <LanguageSwitcher />
                 {/* Right side - User info */}
                 {isSupabaseConfigured() && (
                     <div className="header-actions">

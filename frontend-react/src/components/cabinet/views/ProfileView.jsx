@@ -4,9 +4,11 @@
  */
 import { useState } from 'react'
 import { useAuthStore } from '../../../stores/authStore'
+import { useTranslation } from '../../../i18n'
 
 export default function ProfileView() {
     const { user, profile, updateProfile, updatePassword } = useAuthStore()
+    const { t, currentLang, setLanguage, availableLanguages } = useTranslation()
 
     const [isEditing, setIsEditing] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
@@ -221,6 +223,47 @@ export default function ProfileView() {
                         )}
                     </div>
                 )}
+            </div>
+
+            {/* Preferences / Interface Language */}
+            <div className="settings-section">
+                <h3>🌐 {t('profile.preferencesTitle')}</h3>
+                <div className="language-preferences-card">
+                    <div className="language-preferences-header">
+                        <div>
+                            <span className="language-pref-label">{t('profile.languageLabel')}</span>
+                            <p className="language-pref-desc">{t('profile.languageDesc')}</p>
+                        </div>
+                    </div>
+                    
+                    <div className="languages-grid">
+                        {availableLanguages.map((lang) => {
+                            const isActive = currentLang === lang.code
+                            return (
+                                <button
+                                    key={lang.code}
+                                    type="button"
+                                    className={`language-option-card ${isActive ? 'active' : ''}`}
+                                    onClick={() => {
+                                        setLanguage(lang.code)
+                                        setMessage({ type: 'success', text: t('profile.languageUpdated') })
+                                    }}
+                                >
+                                    <span className="language-flag">{lang.flag}</span>
+                                    <div className="language-meta">
+                                        <span className="language-native-name">{lang.native}</span>
+                                        <span className="language-english-name">{lang.label}</span>
+                                    </div>
+                                    {isActive && (
+                                        <span className="language-active-badge">
+                                            ✓ {t('profile.languageActiveBadge')}
+                                        </span>
+                                    )}
+                                </button>
+                            )
+                        })}
+                    </div>
+                </div>
             </div>
 
             {/* Security Section */}

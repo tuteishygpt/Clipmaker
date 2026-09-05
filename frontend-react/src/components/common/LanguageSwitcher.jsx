@@ -6,20 +6,19 @@ export default function LanguageSwitcher({ className = '' }) {
 
     return (
         <div className={`lang-switcher-root ${className}`}>
-            <span className="lang-switcher-icon" title="Language / Мова">🌐</span>
-            <div className="lang-switcher-buttons">
+            <span className="lang-switcher-icon" title="Language">🌐</span>
+            <select
+                className="lang-switcher-select"
+                value={currentLang}
+                onChange={(e) => setLanguage(e.target.value)}
+                aria-label="Language selection"
+            >
                 {availableLanguages.map((lang) => (
-                    <button
-                        key={lang.code}
-                        type="button"
-                        className={`lang-btn ${currentLang === lang.code ? 'active' : ''}`}
-                        onClick={() => setLanguage(lang.code)}
-                        title={lang.label}
-                    >
-                        {lang.short}
-                    </button>
+                    <option key={lang.code} value={lang.code}>
+                        {lang.flag} {lang.native} ({lang.short})
+                    </option>
                 ))}
-            </div>
+            </select>
         </div>
     )
 }
