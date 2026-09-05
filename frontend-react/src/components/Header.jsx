@@ -1,12 +1,10 @@
 import { Link } from 'react-router-dom'
-import { useProjectStore } from '../stores/projectStore'
 import { useAuthStore } from '../stores/authStore'
 import { useBillingStore } from '../stores/billingStore'
 import { isSupabaseConfigured } from '../lib/supabase'
 import { useTranslation } from '../i18n'
 
 function Header() {
-    const { projectId, project, resetProject } = useProjectStore()
     const { user } = useAuthStore()
     const { credits } = useBillingStore()
     const { t } = useTranslation()

@@ -985,7 +985,17 @@ export default function SubtitleStandalonePage() {
                         {/* Interactive Project Title Badge */}
                         <div
                             className={`studio-project-title-badge clickable ${isDropdownOpen ? 'active' : ''}`}
+                            role="button"
+                            tabIndex={0}
+                            aria-expanded={isDropdownOpen}
+                            aria-haspopup="true"
                             onClick={() => setIsDropdownOpen(prev => !prev)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault()
+                                    setIsDropdownOpen(prev => !prev)
+                                }
+                            }}
                             title={t('subtitles.switchVideo')}
                         >
                             <span className="project-title-text" title={projectTitle}>

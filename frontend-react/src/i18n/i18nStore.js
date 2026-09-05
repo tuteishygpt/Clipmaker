@@ -19,16 +19,24 @@ export const AVAILABLE_LANGUAGES = [
     { code: 'be', label: 'Belarusian', native: 'Беларуская', flag: '🇧🇾', short: 'BE' }
 ]
 
+function applyDocumentLang(lang) {
+    if (typeof document !== 'undefined' && document.documentElement) {
+        document.documentElement.lang = lang
+    }
+}
+
 function getInitialLanguage() {
+    let lang = 'en'
     try {
         const saved = localStorage.getItem('clipmaker_lang')
         if (saved && dictionaries[saved]) {
-            return saved
+            lang = saved
         }
     } catch (e) {
         // Ignore localStorage error (e.g. incognito)
     }
-    return 'en'
+    applyDocumentLang(lang)
+    return lang
 }
 
 function resolveKey(dict, path) {
@@ -59,6 +67,7 @@ export const useLanguageStore = create((set, get) => ({
         } catch (e) {
             // Ignore storage error
         }
+        applyDocumentLang(lang)
         set({ currentLang: lang })
     },
     
@@ -76,32 +85,34 @@ export const useLanguageStore = create((set, get) => ({
         return interpolate(val, params)
     },
 
-    // Pluralization helper
+    // Pluralization helper using native Intl.PluralRules (CLDR standard for all languages)
     formatCount: (count, pathPrefix) => {
         const { currentLang } = get()
         const c = Math.abs(Number(count) || 0)
+        const dict = dictionaries[currentLang] || dictionaries.en
 
-        if (currentLang === 'be') {
-            const mod10 = c % 10
-            const mod100 = c % 100
-            let form = 'plural'
-            if (mod10 === 1 && mod100 !== 11) {
-                form = 'singular'
-            } else if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) {
-                form = 'few'
-            }
-            const label = resolveKey(dictionaries.be, `${pathPrefix}.${form}`) ||
-                          resolveKey(dictionaries.be, `${pathPrefix}.plural`) ||
-                          resolveKey(dictionaries.en, `${pathPrefix}.plural`) ||
-                          ''
-            return `${count} ${label}`.trim()
+        let category = 'other'
+        try {
+            const pr = new Intl.PluralRules(currentLang)
+            category = pr.select(c) // 'zero' | 'one' | 'two' | 'few' | 'many' | 'other'
+        } catch (e) {
+            category = c === 1 ? 'one' : 'other'
         }
 
-        // Standard 2-form pluralization
-        const form = c === 1 ? 'singular' : 'plural'
-        const currentDict = dictionaries[currentLang] || dictionaries.en
-        const label = resolveKey(currentDict, `${pathPrefix}.${form}`) ||
-                      resolveKey(dictionaries.en, `${pathPrefix}.${form}`) ||
+        // Map CLDR categories to project form keys (singular, few, plural)
+        const formMap = {
+            one: 'singular',
+            few: 'few',
+            many: 'plural',
+            other: 'plural'
+        }
+        const targetForm = formMap[category] || 'plural'
+
+        const label = resolveKey(dict, `${pathPrefix}.${targetForm}`) ||
+                      resolveKey(dict, `${pathPrefix}.plural`) ||
+                      resolveKey(dict, `${pathPrefix}.singular`) ||
+                      resolveKey(dictionaries.en, `${pathPrefix}.${targetForm}`) ||
+                      resolveKey(dictionaries.en, `${pathPrefix}.plural`) ||
                       ''
         return `${count} ${label}`.trim()
     }
