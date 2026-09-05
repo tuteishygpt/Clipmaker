@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import './SubtitleEditor.css'
 import * as api from '../api'
+import SubtitleVideoPlayer, { parseSrtTimeToSeconds } from './SubtitleVideoPlayer'
 
 // Font categories with their fonts
 const FONT_CATEGORIES = {
@@ -181,7 +182,7 @@ const DEFAULT_STYLING = {
     highlight_bg_padding: 8
 }
 
-export default function SubtitleEditor({ projectId, onClose, format = '9:16' }) {
+export default function SubtitleEditor({ projectId, videoUrl: propVideoUrl, onClose, format = '9:16' }) {
     const [entries, setEntries] = useState([])
     const [styling, setStyling] = useState(DEFAULT_STYLING)
     const [loading, setLoading] = useState(false)
@@ -191,6 +192,9 @@ export default function SubtitleEditor({ projectId, onClose, format = '9:16' }) 
     const [activeTab, setActiveTab] = useState('entries')
     const [editingEntry, setEditingEntry] = useState(null)
     const [hasChanges, setHasChanges] = useState(false)
+    const [previewEntryIndex, setPreviewEntryIndex] = useState(0)
+    const playerRef = useRef(null)
+    const effectiveVideoUrl = propVideoUrl || (projectId ? api.getVideoUrl(projectId) : null)
 
     // Load subtitles on mount
     useEffect(() => {
@@ -774,7 +778,79 @@ export default function SubtitleEditor({ projectId, onClose, format = '9:16' }) 
                     </div>
                 ) : (
                     <div className="se-preview-panel">
-                        <SubtitlePreview entries={entries} styling={styling} format={format} />
+                        {effectiveVideoUrl ? (
+                            <div className="se-video-preview-wrapper">
+                                <SubtitleVideoPlayer
+                                    ref={playerRef}
+                                    videoUrl={effectiveVideoUrl}
+                                    entries={entries}
+                                    styling={styling}
+                                    format={format}
+                                    badgeText="👁️ Перадпрагляд субцітраў з відэа"
+                                    previewEntryId={entries[previewEntryIndex]?.id}
+                                />
+
+                                {entries.length > 0 && (
+                                    <div className="se-preview-nav">
+                                        <button
+                                            type="button"
+                                            className="btn-nav"
+                                            disabled={previewEntryIndex === 0}
+                                            onClick={() => {
+                                                const newIdx = Math.max(0, previewEntryIndex - 1)
+                                                setPreviewEntryIndex(newIdx)
+                                                const time = parseSrtTimeToSeconds(entries[newIdx]?.start_time)
+                                                playerRef.current?.seekTo(time)
+                                            }}
+                                        >
+                                            ◀ Папярэдні
+                                        </button>
+
+                                        <div className="se-nav-select-wrapper">
+                                            <span className="se-nav-label">
+                                                Субцітр {previewEntryIndex + 1} з {entries.length}
+                                            </span>
+                                            <select
+                                                className="se-nav-select"
+                                                value={previewEntryIndex}
+                                                onChange={(e) => {
+                                                    const newIdx = parseInt(e.target.value, 10)
+                                                    setPreviewEntryIndex(newIdx)
+                                                    const time = parseSrtTimeToSeconds(entries[newIdx]?.start_time)
+                                                    playerRef.current?.seekTo(time)
+                                                }}
+                                            >
+                                                {entries.map((entry, idx) => (
+                                                    <option key={entry.id || idx} value={idx}>
+                                                        #{entry.id} ({entry.start_time}): {entry.text ? (entry.text.length > 35 ? entry.text.slice(0, 35) + '...' : entry.text) : '(пуста)'}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            className="btn-nav"
+                                            disabled={previewEntryIndex >= entries.length - 1}
+                                            onClick={() => {
+                                                const newIdx = Math.min(entries.length - 1, previewEntryIndex + 1)
+                                                setPreviewEntryIndex(newIdx)
+                                                const time = parseSrtTimeToSeconds(entries[newIdx]?.start_time)
+                                                playerRef.current?.seekTo(time)
+                                            }}
+                                        >
+                                            Наступны ▶
+                                        </button>
+                                    </div>
+                                )}
+
+                                <p className="se-preview-tip">
+                                    💡 Запусціце відэа для прагляду сінхранізацыі або пераключайце субцітры стрэлкамі.
+                                </p>
+                            </div>
+                        ) : (
+                            <SubtitlePreview entries={entries} styling={styling} format={format} />
+                        )}
                     </div>
                 )}
             </div>

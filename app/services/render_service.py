@@ -797,7 +797,7 @@ class RenderService:
         for idx, entry in enumerate(entries):
             text = entry["text"]
             if uppercase:
-                text = text.upper()
+                text = text.upper().replace('<H>', '<h>').replace('</H>', '</h>')
             
             start_time = entry["start_seconds"]
             end_time = entry["end_seconds"]
@@ -1013,12 +1013,12 @@ class RenderService:
         for line_str in explicit_lines:
             # Parse <h> tags
             tokens = []
-            parts = re.split(r'(<h>.*?</h>)', line_str)
+            parts = re.split(r'(<h>.*?</h>)', line_str, flags=re.IGNORECASE)
             
             for part in parts:
                 is_hl = False
                 content = part
-                if part.startswith('<h>') and part.endswith('</h>'):
+                if part.lower().startswith('<h>') and part.lower().endswith('</h>'):
                     is_hl = True
                     content = part[3:-4]
                 
@@ -1157,7 +1157,7 @@ class RenderService:
                 # Draw text
                 # Stroke
                 x, y = t['x'], t['y']
-                if stroke_width > 0 and not is_active:
+                if stroke_width > 0 and not is_active and not t.get('hl'):
                      for dx in range(-stroke_width, stroke_width + 1):
                         for dy in range(-stroke_width, stroke_width + 1):
                             if dx*dx + dy*dy <= stroke_width*stroke_width:

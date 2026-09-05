@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Any, Optional
 
 from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, Request, UploadFile
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import FileResponse, StreamingResponse, Response
 
 from ..schemas.project import ProjectCreate, ProjectResponse
 from ..schemas.segment import SegmentUpdate
@@ -552,18 +552,109 @@ async def get_image(project_id: str, image_name: str) -> FileResponse:
     return FileResponse(image_path)
 
 
+def stream_video_file(path: Any, request: Request, media_type: str = "video/mp4") -> Response:
+    """Stream video file with support for HTTP Range (206 Partial Content) requests."""
+    from pathlib import Path
+    p = Path(path)
+    if not p.exists():
+        raise HTTPException(status_code=404, detail="Video not found")
+
+    file_size = p.stat().st_size
+    range_header = request.headers.get("range") or request.headers.get("Range")
+
+    if request.method == "HEAD":
+        headers = {
+            "Content-Type": media_type,
+            "Accept-Ranges": "bytes",
+            "Content-Length": str(file_size),
+            "Content-Disposition": "inline",
+        }
+        return Response(status_code=200, headers=headers, media_type=media_type)
+
+    if not range_header:
+        headers = {
+            "Content-Type": media_type,
+            "Accept-Ranges": "bytes",
+            "Content-Length": str(file_size),
+            "Content-Disposition": "inline",
+        }
+        return FileResponse(
+            p,
+            media_type=media_type,
+            content_disposition_type="inline",
+            headers=headers,
+        )
+
+    try:
+        unit, _, range_spec = range_header.partition("=")
+        if unit.strip().lower() != "bytes":
+            return Response(status_code=400, content="Invalid range unit")
+
+        start_str, _, end_str = range_spec.partition("-")
+        start = int(start_str) if start_str.strip() else 0
+        end = int(end_str) if end_str.strip() else file_size - 1
+        end = min(end, file_size - 1)
+
+        if start > end or start >= file_size:
+            return Response(
+                status_code=416,
+                headers={"Content-Range": f"bytes */{file_size}"}
+            )
+
+        content_length = end - start + 1
+
+        def file_iterator():
+            with open(p, "rb") as f:
+                f.seek(start)
+                bytes_left = content_length
+                chunk_size = 256 * 1024  # 256KB chunks
+                while bytes_left > 0:
+                    read_size = min(bytes_left, chunk_size)
+                    chunk = f.read(read_size)
+                    if not chunk:
+                        break
+                    bytes_left -= len(chunk)
+                    yield chunk
+
+        headers = {
+            "Content-Range": f"bytes {start}-{end}/{file_size}",
+            "Accept-Ranges": "bytes",
+            "Content-Length": str(content_length),
+            "Content-Disposition": "inline",
+            "Content-Type": media_type,
+        }
+
+        return StreamingResponse(
+            file_iterator(),
+            status_code=206,
+            headers=headers,
+            media_type=media_type,
+        )
+    except Exception as e:
+        logger.warning(f"Error handling video range request: {e}")
+        headers = {
+            "Content-Type": media_type,
+            "Accept-Ranges": "bytes",
+            "Content-Length": str(file_size),
+            "Content-Disposition": "inline",
+        }
+        return FileResponse(
+            p,
+            media_type=media_type,
+            content_disposition_type="inline",
+            headers=headers,
+        )
+
+
 @router.get("/{project_id}/renders/{render_name}")
-async def get_render(project_id: str, render_name: str):
-    """Serve a rendered video. FastAPI's FileResponse handles Range requests automatically."""
+@router.head("/{project_id}/renders/{render_name}")
+async def get_render(project_id: str, render_name: str, request: Request) -> Response:
+    """Serve a rendered video with Range request support."""
     render_path = file_storage.get_render_path(project_id, render_name)
     if not render_path:
         raise HTTPException(status_code=404, detail="Render not found")
     
-    return FileResponse(
-        render_path, 
-        media_type="video/mp4",
-        filename=render_name
-    )
+    return stream_video_file(render_path, request, media_type="video/mp4")
 
 
 @router.get("/{project_id}/download")
@@ -581,7 +672,19 @@ async def download_project_video(project_id: str) -> FileResponse:
     )
 
 
+@router.get("/{project_id}/rendered-video")
+@router.head("/{project_id}/rendered-video")
+async def get_rendered_video(project_id: str, request: Request) -> Response:
+    """Stream the latest rendered video inline for video player preview with Range support."""
+    video_path = file_storage.get_latest_render(project_id)
+    if not video_path or not video_path.exists():
+        raise HTTPException(status_code=404, detail="Rendered video not found")
+    
+    return stream_video_file(video_path, request, media_type="video/mp4")
+
+
 # ==================== Subtitle Endpoints ====================
+
 
 @router.post("/{project_id}/subtitles/generate", response_model=SubtitleResponse)
 async def generate_subtitles(
@@ -758,13 +861,18 @@ async def list_fonts() -> dict[str, Any]:
 # ==================== Standalone Video Endpoints ====================
 
 @router.get("/{project_id}/video")
-async def get_project_video(project_id: str) -> FileResponse:
-    """Get the uploaded source video for standalone subtitle mode."""
+@router.head("/{project_id}/video")
+async def get_project_video(project_id: str, request: Request) -> Response:
+    """Get the uploaded source video for standalone subtitle mode with Range support."""
     video_path = file_storage.get_video_path(project_id)
     if not video_path or not video_path.exists():
         raise HTTPException(status_code=404, detail="Video not found")
-    media_type = f"video/{video_path.suffix.lstrip('.')}"
-    return FileResponse(video_path, media_type=media_type)
+    media_type = "video/mp4"
+    if video_path.suffix.lower() == ".webm":
+        media_type = "video/webm"
+    elif video_path.suffix.lower() == ".mov":
+        media_type = "video/quicktime"
+    return stream_video_file(video_path, request, media_type=media_type)
 
 
 @router.post("/{project_id}/upload-video", response_model=RunResponse)
@@ -920,9 +1028,13 @@ async def render_standalone(
                 "status": "DONE",
                 "progress": 100,
                 "output_path": str(output_path),
+                "output": str(output_path),
                 "render_duration": duration
             })
-            project_repo.update(project_id, {"status": "DONE"})
+            project_repo.update(project_id, {
+                "status": "DONE",
+                "video_output": f"/projects/{project_id}/renders/{output_path.name}"
+            })
             
         except Exception as e:
             logger.error(f"Standalone render failed: {e}")

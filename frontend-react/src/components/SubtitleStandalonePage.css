@@ -99,7 +99,45 @@
     max-width: 800px;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 20px;
+}
+
+.view-mode-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    padding: 6px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    width: fit-content;
+    margin: 0 auto;
+}
+
+.view-mode-tab {
+    padding: 10px 20px;
+    border-radius: 8px;
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.view-mode-tab:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.view-mode-tab.active {
+    color: #fff;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 4px 14px rgba(102, 126, 234, 0.35);
 }
 
 .video-container {
@@ -244,6 +282,24 @@
 .done-section h3 {
     font-size: 1.5rem;
     color: #fff;
+    margin: 0;
+}
+
+.done-desc {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+    text-align: center;
+    max-width: 500px;
+    margin: 0;
+}
+
+.done-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    margin-top: 8px;
 }
 
 /* Error Message */

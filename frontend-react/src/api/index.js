@@ -242,6 +242,10 @@ export function getVideoUrl(projectId) {
     return `${BASE_URL}/projects/${projectId}/video?t=${Date.now()}`
 }
 
+export function getRenderedVideoUrl(projectId) {
+    return `${BASE_URL}/projects/${projectId}/rendered-video?t=${Date.now()}`
+}
+
 export function getSubtitleDownloadUrl(projectId) {
     return `${BASE_URL}/projects/${projectId}/subtitles/download`
 }
