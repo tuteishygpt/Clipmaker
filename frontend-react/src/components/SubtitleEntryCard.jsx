@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useMemo, useState, memo } from 'react'
 import { parseSrtTimeToSeconds } from './SubtitleVideoPlayer'
+import { useTranslation } from '../i18n'
 
 /**
  * Convert seconds to SRT time format: 00:00:00,000
@@ -102,6 +103,7 @@ function SubtitleEntryCard({
     hasNext,
     isUserTypingRef
 }) {
+    const { t } = useTranslation()
     const textareaRef = useRef(null)
     const selectionTimeoutRef = useRef(null)
     const [hasSelection, setHasSelection] = useState(false)
@@ -133,11 +135,11 @@ function SubtitleEntryCard({
 
     // Characters per second (CPS)
     const cps = durationSec > 0 ? (charCount / durationSec).toFixed(1) : 0
-    let paceBadge = { label: 'Звычайна', class: 'pace-optimal', icon: '🟢', title: `${cps} сімв/с • ${wordCount} сл. — чытаецца камфортна` }
+    let paceBadge = { label: t('subtitles.card.paceOptimal'), class: 'pace-optimal', icon: '🟢', title: t('subtitles.card.paceOptimalTitle', { cps, words: wordCount }) }
     if (cps > 24) {
-        paceBadge = { label: 'Занадта хутка', class: 'pace-too-fast', icon: '🔴', title: `${cps} сімв/с • ${wordCount} сл. — глядач можа не паспець прачытаць!` }
+        paceBadge = { label: t('subtitles.card.paceTooFast'), class: 'pace-too-fast', icon: '🔴', title: t('subtitles.card.paceTooFastTitle', { cps, words: wordCount }) }
     } else if (cps > 17) {
-        paceBadge = { label: 'Хутка', class: 'pace-fast', icon: '🟡', title: `${cps} сімв/с • ${wordCount} сл. — хуткі тэмп маўлення` }
+        paceBadge = { label: t('subtitles.card.paceFast'), class: 'pace-fast', icon: '🟡', title: t('subtitles.card.paceFastTitle', { cps, words: wordCount }) }
     } else if (charCount === 0) {
         paceBadge = null
     }
@@ -293,7 +295,7 @@ function SubtitleEntryCard({
                         <input
                             type="text"
                             value={entry.start_time}
-                            title="Пачатак субцітра (00:00:00,000)"
+                            title={t('subtitles.card.startTimeTitle')}
                             onFocus={() => { if (isUserTypingRef) isUserTypingRef.current = true }}
                             onBlur={() => { if (isUserTypingRef) isUserTypingRef.current = false }}
                             onChange={(e) => onUpdate(entry.id, 'start_time', e.target.value)}
@@ -302,14 +304,14 @@ function SubtitleEntryCard({
                         <input
                             type="text"
                             value={entry.end_time}
-                            title="Канец субцітра (00:00:00,000)"
+                            title={t('subtitles.card.endTimeTitle')}
                             onFocus={() => { if (isUserTypingRef) isUserTypingRef.current = true }}
                             onBlur={() => { if (isUserTypingRef) isUserTypingRef.current = false }}
                             onChange={(e) => onUpdate(entry.id, 'end_time', e.target.value)}
                         />
                     </div>
-                    <span className="caption-duration-badge" title="Працягласць">
-                        {durationSec.toFixed(1)}с
+                    <span className="caption-duration-badge" title={t('subtitles.card.durationTitle')}>
+                        {durationSec.toFixed(1)}{t('subtitles.card.secShort')}
                     </span>
 
                     {paceBadge && (
@@ -325,15 +327,15 @@ function SubtitleEntryCard({
                         type="button"
                         className="btn-card-seek"
                         onClick={() => onSeek?.(startSec)}
-                        title="Перайсці да гэтага моманту на відэа"
+                        title={t('subtitles.card.seekTitle')}
                     >
-                        ▶ Перайсці
+                        {t('subtitles.card.seek')}
                     </button>
                     <button
                         type="button"
                         className="btn-card-delete"
                         onClick={() => onDelete?.(entry.id)}
-                        title="Выдаліць гэты субцітр"
+                        title={t('subtitles.card.deleteTitle')}
                     >
                         🗑️
                     </button>
@@ -356,7 +358,7 @@ function SubtitleEntryCard({
                     onKeyUp={handleSelectText}
                     onMouseUp={handleSelectText}
                     onChange={(e) => onUpdate(entry.id, 'text', e.target.value)}
-                    placeholder="Увядзіце тэкст субцітра..."
+                    placeholder={t('subtitles.card.placeholder')}
                     rows={1}
                 />
             </div>
@@ -366,34 +368,34 @@ function SubtitleEntryCard({
                 <div className="caption-words-accent-bar">
                     <div className="accent-bar-header">
                         <span className="accent-bar-title">
-                            ⚡ Акцэнты слоў:
+                            {t('subtitles.card.accentsTitle')}
                         </span>
                         <span className="accent-bar-hint">
-                            клікніце на слова для караоке-вылучэння
+                            {t('subtitles.card.accentsHint')}
                         </span>
                     </div>
 
                     <div className="caption-word-chips-list">
-                        {wordTokens.map((t, wIdx) => {
+                        {wordTokens.map((tWord, wIdx) => {
                             return (
                                 <button
                                     key={wIdx}
                                     type="button"
-                                    className={`word-chip ${t.isHighlighted ? 'highlighted' : ''}`}
-                                    style={t.isHighlighted ? {
+                                    className={`word-chip ${tWord.isHighlighted ? 'highlighted' : ''}`}
+                                    style={tWord.isHighlighted ? {
                                         backgroundColor: highlightBg,
                                         color: highlightColor,
                                         borderColor: highlightBg,
                                         boxShadow: `0 2px 10px ${highlightBg}55`
                                     } : undefined}
                                     onClick={() => handleToggleWordHighlight(wIdx)}
-                                    title={t.isHighlighted
-                                        ? `Зняць вылучэнне з «${t.text}»`
-                                        : `Вылучыць «${t.text}» яркім колерам`}
+                                    title={tWord.isHighlighted
+                                        ? t('subtitles.card.removeHighlightTitle', { text: tWord.text })
+                                        : t('subtitles.card.addHighlightTitle', { text: tWord.text })}
                                 >
-                                    {t.isHighlighted && <span className="chip-sparkle">✨</span>}
-                                    <span className="chip-text">{t.text}</span>
-                                    {t.isHighlighted && <span className="chip-remove">×</span>}
+                                    {tWord.isHighlighted && <span className="chip-sparkle">✨</span>}
+                                    <span className="chip-text">{tWord.text}</span>
+                                    {tWord.isHighlighted && <span className="chip-remove">×</span>}
                                 </button>
                             )
                         })}
@@ -408,18 +410,18 @@ function SubtitleEntryCard({
                         type="button"
                         className={`btn-toolbar-action ${hasSelection ? 'pulse-active' : ''}`}
                         onClick={handleHighlightSelectedOrFirst}
-                        title={hasSelection ? 'Вылучыць выдзелены фрагмент тэгам <h>' : 'Вылучыць першае слова'}
+                        title={hasSelection ? t('subtitles.card.highlightFragmentTitle') : t('subtitles.card.highlightFirstTitle')}
                     >
-                        ✨ {hasSelection ? 'Вылучыць фрагмент' : 'Вылучыць'}
+                        ✨ {hasSelection ? t('subtitles.card.highlightFragment') : t('subtitles.card.highlight')}
                     </button>
 
                     <button
                         type="button"
                         className="btn-toolbar-action"
                         onClick={handleCycleCase}
-                        title="Змяніць рэгістр: УСЕ ВЯЛІКІЯ / Як у сказе"
+                        title={t('subtitles.card.caseTitle')}
                     >
-                        🔤 Рэгістр
+                        🔤 {t('subtitles.card.case')}
                     </button>
 
                     {highlightedWordsCount > 0 && (
@@ -427,9 +429,9 @@ function SubtitleEntryCard({
                             type="button"
                             className="btn-toolbar-action btn-clear-tags"
                             onClick={handleClearHighlights}
-                            title="Зняць усе вылучэнні"
+                            title={t('subtitles.card.clearTitle')}
                         >
-                            🧹 Ачысціць
+                            🧹 {t('subtitles.card.clear')}
                         </button>
                     )}
                 </div>
@@ -439,9 +441,9 @@ function SubtitleEntryCard({
                         type="button"
                         className="btn-toolbar-action"
                         onClick={handleTriggerSplit}
-                        title="Разбіць гэты субцітр на два асобныя"
+                        title={t('subtitles.card.splitTitle')}
                     >
-                        ✂️ Разбіць
+                        ✂️ {t('subtitles.card.split')}
                     </button>
 
                     {hasNext && (
@@ -449,9 +451,9 @@ function SubtitleEntryCard({
                             type="button"
                             className="btn-toolbar-action"
                             onClick={() => onMergeNext?.(entry.id)}
-                            title="Аб'яднаць з наступным субцітрам"
+                            title={t('subtitles.card.mergeTitle')}
                         >
-                            🔗 Аб'яднаць
+                            🔗 {t('subtitles.card.merge')}
                         </button>
                     )}
                 </div>

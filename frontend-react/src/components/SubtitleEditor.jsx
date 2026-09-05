@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import './SubtitleEditor.css'
 import * as api from '../api'
 import SubtitleVideoPlayer, { parseSrtTimeToSeconds } from './SubtitleVideoPlayer'
+import { useTranslation } from '../i18n'
 
 // Font categories with their fonts
 const FONT_CATEGORIES = {
@@ -183,6 +184,7 @@ const DEFAULT_STYLING = {
 }
 
 export default function SubtitleEditor({ projectId, videoUrl: propVideoUrl, onClose, format = '9:16' }) {
+    const { t } = useTranslation()
     const [entries, setEntries] = useState([])
     const [styling, setStyling] = useState(DEFAULT_STYLING)
     const [loading, setLoading] = useState(false)
@@ -786,7 +788,7 @@ export default function SubtitleEditor({ projectId, videoUrl: propVideoUrl, onCl
                                     entries={entries}
                                     styling={styling}
                                     format={format}
-                                    badgeText="👁️ Перадпрагляд субцітраў з відэа"
+                                    badgeText={t('subtitles.previewNav.badgeText')}
                                     previewEntryId={entries[previewEntryIndex]?.id}
                                 />
 
@@ -803,12 +805,12 @@ export default function SubtitleEditor({ projectId, videoUrl: propVideoUrl, onCl
                                                 playerRef.current?.seekTo(time)
                                             }}
                                         >
-                                            ◀ Папярэдні
+                                            {t('subtitles.previewNav.previous')}
                                         </button>
 
                                         <div className="se-nav-select-wrapper">
                                             <span className="se-nav-label">
-                                                Субцітр {previewEntryIndex + 1} з {entries.length}
+                                                {t('subtitles.previewNav.counter', { current: previewEntryIndex + 1, total: entries.length })}
                                             </span>
                                             <select
                                                 className="se-nav-select"
@@ -822,7 +824,7 @@ export default function SubtitleEditor({ projectId, videoUrl: propVideoUrl, onCl
                                             >
                                                 {entries.map((entry, idx) => (
                                                     <option key={entry.id || idx} value={idx}>
-                                                        #{entry.id} ({entry.start_time}): {entry.text ? (entry.text.length > 35 ? entry.text.slice(0, 35) + '...' : entry.text) : '(пуста)'}
+                                                        #{entry.id} ({entry.start_time}): {entry.text ? (entry.text.length > 35 ? entry.text.slice(0, 35) + '...' : entry.text) : t('subtitles.previewNav.empty')}
                                                     </option>
                                                 ))}
                                             </select>
@@ -839,13 +841,13 @@ export default function SubtitleEditor({ projectId, videoUrl: propVideoUrl, onCl
                                                 playerRef.current?.seekTo(time)
                                             }}
                                         >
-                                            Наступны ▶
+                                            {t('subtitles.previewNav.next')}
                                         </button>
                                     </div>
                                 )}
 
                                 <p className="se-preview-tip">
-                                    💡 Запусціце відэа для прагляду сінхранізацыі або пераключайце субцітры стрэлкамі.
+                                    {t('subtitles.previewNav.tip')}
                                 </p>
                             </div>
                         ) : (

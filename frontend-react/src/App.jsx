@@ -25,6 +25,8 @@ import SubtitlePanel from './components/SubtitlePanel'
 // Cabinet (new module)
 import AuthPage from './components/auth/AuthPage'
 import CabinetLayout from './components/cabinet/CabinetLayout'
+import LanguageSwitcher from './components/common/LanguageSwitcher'
+import { useTranslation } from './i18n'
 
 import './styles/index.css'
 
@@ -54,6 +56,7 @@ function EditorView() {
     const { loadProjects, stopPolling, projectId, refreshJobs, videoOutput, openProject, resetProject } = useProjectStore()
     const { user } = useAuthStore()
     const { canGenerate, generationBlockReason = null, credits } = useBillingStore()
+    const { t } = useTranslation()
     const [showSubtitles, setShowSubtitles] = useState(false)
     const [showAnalysis, setShowAnalysis] = useState(false)
 
@@ -84,7 +87,7 @@ function EditorView() {
                 <div className="generation-warning-banner">
                     <span className="warning-icon">⚠️</span>
                     <span>{generationBlockReason}</span>
-                    <a href="/cabinet" className="btn-warning-action">Manage Account</a>
+                    <a href="/cabinet" className="btn-warning-action">{t('common.manageAccount')}</a>
                 </div>
             )}
 
@@ -93,11 +96,14 @@ function EditorView() {
                 <aside className="control-panel">
                     {/* Header Section in Sidebar */}
                     <div className="sidebar-header-section">
-                        <Link to="/" className="sidebar-app-logo">
-                            <span className="logo-icon">🎬</span>
-                            <span className="logo-text">Studio</span>
-                        </Link>
-                        <p className="sidebar-tagline">AI-powered music video generator</p>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: '8px' }}>
+                            <Link to="/" className="sidebar-app-logo">
+                                <span className="logo-icon">🎬</span>
+                                <span className="logo-text">Studio</span>
+                            </Link>
+                            <LanguageSwitcher />
+                        </div>
+                        <p className="sidebar-tagline">{t('nav.tagline')}</p>
 
                         {/* User Auth */}
                         {isSupabaseConfigured() && (
@@ -108,13 +114,13 @@ function EditorView() {
                                             {user.email?.charAt(0).toUpperCase() || '?'}
                                         </div>
                                         <div className="user-info-col">
-                                            <span className="user-label">My Account</span>
+                                            <span className="user-label">{t('nav.myAccount')}</span>
                                             <span className="credits-badge">💎 {credits}</span>
                                         </div>
                                     </Link>
                                 ) : (
                                     <Link to="/auth" className="sidebar-signin-btn">
-                                        Sign In
+                                        {t('nav.signIn')}
                                     </Link>
                                 )}
                             </div>

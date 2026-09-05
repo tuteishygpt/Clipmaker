@@ -1,17 +1,20 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuthStore } from '../../stores/authStore'
+import { useTranslation } from '../../i18n'
+import LanguageSwitcher from '../common/LanguageSwitcher'
 
 const navLinks = [
-    { label: 'Product', href: '#features' },
-    { label: 'How it works', href: '#how-it-works' },
-    { label: 'Examples', href: '#examples' },
-    { label: 'Pricing', href: '#pricing' },
-    { label: 'FAQ', href: '#faq' }
+    { key: 'nav.product', defaultLabel: 'Product', href: '#features' },
+    { key: 'nav.howItWorks', defaultLabel: 'How it works', href: '#how-it-works' },
+    { key: 'nav.examples', defaultLabel: 'Examples', href: '#examples' },
+    { key: 'nav.pricing', defaultLabel: 'Pricing', href: '#pricing' },
+    { key: 'nav.faq', defaultLabel: 'FAQ', href: '#faq' }
 ]
 
 function LandingNav() {
     const { user } = useAuthStore()
+    const { t } = useTranslation()
     const [isOpen, setIsOpen] = useState(false)
 
     return (
@@ -25,19 +28,24 @@ function LandingNav() {
                 <nav className="landing-nav-links" aria-label="Primary">
                     {navLinks.map((link) => (
                         <a key={link.href} href={link.href} className="nav-link">
-                            {link.label}
+                            {t(link.key) || link.defaultLabel}
                         </a>
                     ))}
+                    <Link to="/subtitles" className="nav-link">
+                        {t('nav.subtitles')}
+                    </Link>
                 </nav>
 
-                <div className="landing-nav-actions">
+                <div className="landing-nav-actions" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <LanguageSwitcher />
+
                     {!user && (
-                        <Link className="nav-link login-link" to="/auth">Login</Link>
+                        <Link className="nav-link login-link" to="/auth">{t('nav.login')}</Link>
                     )}
                     {user ? (
-                        <Link className="btn btn-secondary" to="/studio">Open Studio</Link>
+                        <Link className="btn btn-secondary" to="/studio">{t('nav.openStudio')}</Link>
                     ) : (
-                        <Link className="btn btn-primary" to="/auth">Start free</Link>
+                        <Link className="btn btn-primary" to="/auth">{t('nav.startFree')}</Link>
                     )}
                     <button
                         className="menu-toggle"
@@ -62,18 +70,22 @@ function LandingNav() {
                             className="nav-link"
                             onClick={() => setIsOpen(false)}
                         >
-                            {link.label}
+                            {t(link.key) || link.defaultLabel}
                         </a>
                     ))}
+                    <Link to="/subtitles" className="nav-link" onClick={() => setIsOpen(false)}>
+                        {t('nav.subtitles')}
+                    </Link>
                 </div>
-                <div className="mobile-menu-actions">
+                <div className="mobile-menu-actions" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <LanguageSwitcher />
                     {!user && (
-                        <Link className="btn btn-secondary" to="/auth">Login</Link>
+                        <Link className="btn btn-secondary" to="/auth">{t('nav.login')}</Link>
                     )}
                     {user ? (
-                        <Link className="btn btn-primary" to="/studio">Open Studio</Link>
+                        <Link className="btn btn-primary" to="/studio">{t('nav.openStudio')}</Link>
                     ) : (
-                        <Link className="btn btn-primary" to="/auth">Start free</Link>
+                        <Link className="btn btn-primary" to="/auth">{t('nav.startFree')}</Link>
                     )}
                 </div>
             </div>

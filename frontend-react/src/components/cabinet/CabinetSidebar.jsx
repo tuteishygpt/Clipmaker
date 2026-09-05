@@ -3,6 +3,7 @@
  */
 import { Link } from 'react-router-dom'
 import { useBillingStore, SUBSCRIPTION_PLANS } from '../../stores/billingStore'
+import LanguageSwitcher from '../common/LanguageSwitcher'
 
 export default function CabinetSidebar({
     activeView,
@@ -95,8 +96,9 @@ export default function CabinetSidebar({
                 </Link>
             </div>
 
-            {/* Sign Out */}
-            <div className="sidebar-footer">
+            {/* Sign Out & Language */}
+            <div className="sidebar-footer" style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'center' }}>
+                <LanguageSwitcher />
                 <button className="btn-signout" onClick={onSignOut}>
                     <span className="nav-icon">🚪</span>
                     <span>Sign Out</span>

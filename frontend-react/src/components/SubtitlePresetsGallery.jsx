@@ -1,9 +1,11 @@
+import { useTranslation } from '../i18n'
 import './SubtitlePresetsGallery.css'
 
 export const STUDIO_PRESETS = [
     {
         id: 'viral',
         name: 'TikTok Viral',
+        tagKey: 'subtitles.presets.viralTag',
         tag: 'Топ для Shorts / Reels',
         icon: '🔥',
         previewText: 'VIRAL HOOK',
@@ -41,6 +43,7 @@ export const STUDIO_PRESETS = [
     {
         id: 'neon',
         name: 'Cyber Neon',
+        tagKey: 'subtitles.presets.neonTag',
         tag: 'Ззянне і музыка',
         icon: '⚡',
         previewText: 'NEON WAVE',
@@ -78,6 +81,7 @@ export const STUDIO_PRESETS = [
     {
         id: 'mrbeast',
         name: 'MrBeast Bold',
+        tagKey: 'subtitles.presets.mrbeastTag',
         tag: 'Дынаміка і ўвага',
         icon: '💪',
         previewText: 'CRAZY DEAL',
@@ -115,6 +119,7 @@ export const STUDIO_PRESETS = [
     {
         id: 'netflix',
         name: 'Netflix Cinema',
+        tagKey: 'subtitles.presets.netflixTag',
         tag: 'Падкасты і кіно',
         icon: '🍿',
         previewText: 'Cinematic dialog',
@@ -149,6 +154,7 @@ export const STUDIO_PRESETS = [
     {
         id: 'minimal',
         name: 'Minimal Clean',
+        tagKey: 'subtitles.presets.minimalTag',
         tag: 'Эстэтыка і блогі',
         icon: '✨',
         previewText: 'Aesthetic mood',
@@ -177,6 +183,7 @@ export const STUDIO_PRESETS = [
     {
         id: 'classic',
         name: 'Classic TV',
+        tagKey: 'subtitles.presets.classicTag',
         tag: 'Зразумелы тэлевізар',
         icon: '📺',
         previewText: 'Classic TV Sub',
@@ -205,6 +212,8 @@ export const STUDIO_PRESETS = [
 ]
 
 export default function SubtitlePresetsGallery({ currentStyling, onApplyPreset }) {
+    const { t } = useTranslation()
+
     return (
         <div className="presets-gallery-grid">
             {STUDIO_PRESETS.map((preset) => {
@@ -222,7 +231,7 @@ export default function SubtitlePresetsGallery({ currentStyling, onApplyPreset }
                             <span className="preset-icon">{preset.icon}</span>
                             <div className="preset-meta">
                                 <span className="preset-title">{preset.name}</span>
-                                <span className="preset-tag">{preset.tag}</span>
+                                <span className="preset-tag">{preset.tagKey ? t(preset.tagKey) : preset.tag}</span>
                             </div>
                         </div>
 
@@ -243,7 +252,7 @@ export default function SubtitlePresetsGallery({ currentStyling, onApplyPreset }
 
                         <div className="preset-card-footer">
                             <span className="preset-apply-btn">
-                                {isCurrent ? '✓ Выбрана' : 'Ужыць стыль'}
+                                {isCurrent ? t('subtitles.presets.selected') : t('subtitles.presets.applyStyle')}
                             </span>
                         </div>
                     </div>

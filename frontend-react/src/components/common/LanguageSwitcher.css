@@ -1,0 +1,46 @@
+.lang-switcher-root {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    padding: 3px 6px;
+    user-select: none;
+}
+
+.lang-switcher-icon {
+    font-size: 13px;
+    opacity: 0.8;
+    margin-left: 2px;
+}
+
+.lang-switcher-buttons {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.lang-btn {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    line-height: 1.2;
+}
+
+.lang-btn:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.lang-btn.active {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(99, 102, 241, 0.35);
+}

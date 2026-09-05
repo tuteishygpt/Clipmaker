@@ -5,6 +5,8 @@ import SubtitleVideoPlayer, { parseSrtTimeToSeconds } from './SubtitleVideoPlaye
 import SubtitleTimeline from './SubtitleTimeline'
 import SubtitlePresetsGallery, { STUDIO_PRESETS } from './SubtitlePresetsGallery'
 import SubtitleEntryCard, { formatSecondsToSrt, sanitizeHighlightTags } from './SubtitleEntryCard'
+import LanguageSwitcher from './common/LanguageSwitcher'
+import { useTranslation } from '../i18n'
 import './SubtitleStudio.css'
 import * as api from '../api'
 import { useProjectStore } from '../stores/projectStore'
@@ -52,6 +54,7 @@ const DEFAULT_STYLING = {
 }
 
 export default function SubtitleStandalonePage() {
+    const { t } = useTranslation()
     const [searchParams, setSearchParams] = useSearchParams()
     const projectIdParam = searchParams.get('project')
 
@@ -629,8 +632,8 @@ export default function SubtitleStandalonePage() {
                 <Header />
                 <main className="studio-upload-screen">
                     <div className="upload-screen-hero">
-                        <h1>Subtitle Studio</h1>
-                        <p>Стварайце вірусныя субцітры з караоке, анімацыямі і штучным інтэлектам Gemini</p>
+                        <h1>{t('subtitles.heroTitle')}</h1>
+                        <p>{t('subtitles.heroSubtitle')}</p>
                     </div>
 
                     <div
@@ -657,29 +660,29 @@ export default function SubtitleStandalonePage() {
                         />
                         <div className="dropzone-icon">🎬</div>
                         <div className="dropzone-text">
-                            <h2>Перацягніце відэа сюды</h2>
-                            <p>альбо клікніце для выбару файла (MP4, MOV, WebM)</p>
+                            <h2>{t('subtitles.dropzoneTitle')}</h2>
+                            <p>{t('subtitles.dropzoneSubtitle')}</p>
                         </div>
                     </div>
 
                     <div className="upload-options-row">
                         <div className="upload-lang-picker">
-                            <span>🌐 Мова маўлення:</span>
+                            <span>🌐 {t('subtitles.speechLanguage')}</span>
                             <select
                                 value={selectedLanguage}
                                 onChange={(e) => setSelectedLanguage(e.target.value)}
                             >
-                                <option value="auto">Аўтавызначэнне (AI)</option>
-                                <option value="be">Беларуская</option>
-                                <option value="en">English</option>
-                                <option value="ru">Русский</option>
-                                <option value="uk">Українська</option>
-                                <option value="pl">Polski</option>
+                                <option value="auto">{t('subtitles.langAuto')}</option>
+                                <option value="be">{t('subtitles.langBe')}</option>
+                                <option value="en">{t('subtitles.langEn')}</option>
+                                <option value="ru">{t('subtitles.langRu')}</option>
+                                <option value="uk">{t('subtitles.langUk')}</option>
+                                <option value="pl">{t('subtitles.langPl')}</option>
                             </select>
                         </div>
 
                         <label className="btn-studio-secondary">
-                            📄 У мяне ўжо ёсць .SRT
+                            📄 {t('subtitles.haveSrt')}
                             <input
                                 type="file"
                                 accept=".srt"
@@ -716,17 +719,17 @@ export default function SubtitleStandalonePage() {
                     </div>
 
                     <h2>
-                        {status === 'uploading' ? 'Загрузка відэа на сервер...' : 'Gemini AI стварае субцітры...'}
+                        {status === 'uploading' ? t('subtitles.uploadingTitle') : t('subtitles.transcribingTitle')}
                     </h2>
                     <p>
                         {status === 'uploading'
-                            ? 'Рыхтуем файл да апрацоўкі і вымаем аўдыядарожку.'
-                            : 'Распазнаем кожнае слова, разлічваем таймкоды і прымяняем прэсет караоке.'}
+                            ? t('subtitles.uploadingDesc')
+                            : t('subtitles.transcribingDesc')}
                     </p>
 
                     {status === 'transcribing' && (
                         <div className="transcription-timer">
-                            ⏱️ {transcribingSeconds} сек
+                            ⏱️ {transcribingSeconds} {t('subtitles.card.secShort')}
                         </div>
                     )}
 
@@ -738,7 +741,7 @@ export default function SubtitleStandalonePage() {
                             if (transcribingTimerRef.current) clearInterval(transcribingTimerRef.current)
                         }}
                     >
-                        Прапусціць і перайсці ў рэдактар
+                        {t('subtitles.skipToEditor')}
                     </button>
                 </main>
             </div>
@@ -753,7 +756,7 @@ export default function SubtitleStandalonePage() {
                 <div className="studio-top-left">
                     <Link to="/subtitles" className="studio-brand-logo">
                         <span>🎬</span>
-                        <span>Subtitle Studio</span>
+                        <span>{t('subtitles.title')}</span>
                     </Link>
 
                     <div className="studio-project-title-badge">
@@ -764,19 +767,21 @@ export default function SubtitleStandalonePage() {
                     </div>
 
                     <div className={`autosave-indicator ${autosaveStatus}`}>
-                        {autosaveStatus === 'saving' ? '⏳ Захаванне...' : '✓ Захавана'}
+                        {autosaveStatus === 'saving' ? `⏳ ${t('subtitles.autosaveSaving')}` : `✓ ${t('subtitles.autosaveSaved')}`}
                     </div>
                 </div>
 
                 <div className="studio-top-right">
+                    <LanguageSwitcher />
+
                     {srtDownloadUrl && (
                         <a
                             href={srtDownloadUrl}
                             download
                             className="btn-studio-secondary"
-                            title="Спампаваць субцітры ў фармаце .SRT"
+                            title={t('subtitles.downloadSrtTitle')}
                         >
-                            📄 SRT
+                            📄 {t('subtitles.downloadSrt')}
                         </a>
                     )}
 
@@ -786,7 +791,7 @@ export default function SubtitleStandalonePage() {
                             download
                             className="btn-studio-download-done"
                         >
-                            ⬇️ Спампаваць відэа (MP4)
+                            ⬇️ {t('subtitles.downloadVideo')}
                         </a>
                     )}
 
@@ -795,7 +800,7 @@ export default function SubtitleStandalonePage() {
                         onClick={handleRenderVideo}
                         disabled={status === 'rendering'}
                     >
-                        {status === 'rendering' ? `⏳ Рэндэрынг (${progress}%)` : '🚀 Экспарт / Рэндэр'}
+                        {status === 'rendering' ? `⏳ ${t('subtitles.rendering', { progress })}` : `🚀 ${t('subtitles.exportRender')}`}
                     </button>
                 </div>
             </header>
@@ -810,21 +815,21 @@ export default function SubtitleStandalonePage() {
                             onClick={() => setActiveTab('captions')}
                         >
                             <span>📝</span>
-                            <span>Субцітры ({entries.length})</span>
+                            <span>{t('subtitles.tabs.captions', { count: entries.length })}</span>
                         </button>
                         <button
                             className={`studio-tab-btn ${activeTab === 'styling' ? 'active' : ''}`}
                             onClick={() => setActiveTab('styling')}
                         >
                             <span>🎨</span>
-                            <span>Стыль</span>
+                            <span>{t('subtitles.tabs.styling')}</span>
                         </button>
                         <button
                             className={`studio-tab-btn ${activeTab === 'presets' ? 'active' : ''}`}
                             onClick={() => setActiveTab('presets')}
                         >
                             <span>⚡</span>
-                            <span>Прэсеты</span>
+                            <span>{t('subtitles.tabs.presets')}</span>
                         </button>
                     </div>
 
@@ -837,7 +842,7 @@ export default function SubtitleStandalonePage() {
                                         <span className="search-icon-placeholder">🔍</span>
                                         <input
                                             type="text"
-                                            placeholder="Пошук у тэксце..."
+                                            placeholder={t('subtitles.searchPlaceholder')}
                                             value={searchQuery}
                                             onChange={(e) => setSearchQuery(e.target.value)}
                                         />
@@ -846,21 +851,21 @@ export default function SubtitleStandalonePage() {
                                         className="btn-add-caption"
                                         onClick={handleAddEntry}
                                     >
-                                        + Дадаць
+                                        {t('subtitles.addCaption')}
                                     </button>
                                 </div>
 
                                 {filteredEntries.length === 0 ? (
                                     <div className="no-entries" style={{ padding: '30px 10px', textAlign: 'center' }}>
                                         <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px' }}>
-                                            Няма субцітраў. Запусціце распазнаванне альбо дадайце радок уручную.
+                                            {t('subtitles.noEntries')}
                                         </p>
                                         <button
                                             className="btn-studio-secondary"
                                             style={{ margin: '12px auto' }}
                                             onClick={handleTranscribeAgain}
                                         >
-                                            🎤 Распазнаць праз AI
+                                            🎤 {t('subtitles.transcribeAgain')}
                                         </button>
                                     </div>
                                 ) : (
@@ -895,9 +900,9 @@ export default function SubtitleStandalonePage() {
                         {activeTab === 'styling' && (
                             <>
                                 <div className="style-accordion-section">
-                                    <h4 className="style-accordion-title">Шрыфт і тэкст</h4>
+                                    <h4 className="style-accordion-title">{t('subtitles.fontAndText')}</h4>
                                     <div className="style-control-row">
-                                        <label>Шрыфт</label>
+                                        <label>{t('subtitles.fontFamily')}</label>
                                         <select
                                             value={styling.font_family}
                                             onChange={(e) => handleUpdateStyling('font_family', e.target.value)}
@@ -914,7 +919,7 @@ export default function SubtitleStandalonePage() {
 
                                     <div className="style-control-row">
                                         <div className="style-label-group">
-                                            <label>Памер шрыфту</label>
+                                            <label>{t('subtitles.fontSize')}</label>
                                             <span className="slider-badge">{styling.font_size}px</span>
                                         </div>
                                         <input
@@ -927,14 +932,14 @@ export default function SubtitleStandalonePage() {
                                     </div>
 
                                     <div className="style-control-row">
-                                        <label>Тлустасць</label>
+                                        <label>{t('subtitles.fontWeight')}</label>
                                         <select
                                             value={styling.font_weight}
                                             onChange={(e) => handleUpdateStyling('font_weight', e.target.value)}
                                         >
-                                            <option value="normal">Звычайны (400)</option>
-                                            <option value="bold">Тлусты (700)</option>
-                                            <option value="900">Звыш-тлусты Black (900)</option>
+                                            <option value="normal">{t('subtitles.weightNormal')}</option>
+                                            <option value="bold">{t('subtitles.weightBold')}</option>
+                                            <option value="900">{t('subtitles.weightBlack')}</option>
                                         </select>
                                     </div>
 
@@ -945,14 +950,14 @@ export default function SubtitleStandalonePage() {
                                             checked={styling.uppercase}
                                             onChange={(e) => handleUpdateStyling('uppercase', e.target.checked)}
                                         />
-                                        <label htmlFor="uppercase_check">Усе літары вялікія (UPPERCASE)</label>
+                                        <label htmlFor="uppercase_check">{t('subtitles.uppercase')}</label>
                                     </div>
                                 </div>
 
                                 <div className="style-accordion-section">
-                                    <h4 className="style-accordion-title">Колеры і абводка</h4>
+                                    <h4 className="style-accordion-title">{t('subtitles.colorsAndStroke')}</h4>
                                     <div className="style-control-row">
-                                        <label>Колер тэксту</label>
+                                        <label>{t('subtitles.textColor')}</label>
                                         <input
                                             type="color"
                                             value={styling.font_color}
@@ -961,7 +966,7 @@ export default function SubtitleStandalonePage() {
                                     </div>
 
                                     <div className="style-control-row">
-                                        <label>Колер абводкі</label>
+                                        <label>{t('subtitles.strokeColor')}</label>
                                         <input
                                             type="color"
                                             value={styling.stroke_color}
@@ -971,7 +976,7 @@ export default function SubtitleStandalonePage() {
 
                                     <div className="style-control-row">
                                         <div className="style-label-group">
-                                            <label>Шырыня абводкі</label>
+                                            <label>{t('subtitles.strokeWidth')}</label>
                                             <span className="slider-badge">{styling.stroke_width}px</span>
                                         </div>
                                         <input
@@ -985,7 +990,7 @@ export default function SubtitleStandalonePage() {
                                 </div>
 
                                 <div className="style-accordion-section">
-                                    <h4 className="style-accordion-title">Фонавая плашка</h4>
+                                    <h4 className="style-accordion-title">{t('subtitles.backgroundPlate')}</h4>
                                     <div className="style-control-row checkbox-row">
                                         <input
                                             type="checkbox"
@@ -993,13 +998,13 @@ export default function SubtitleStandalonePage() {
                                             checked={styling.background_enabled}
                                             onChange={(e) => handleUpdateStyling('background_enabled', e.target.checked)}
                                         />
-                                        <label htmlFor="bg_enable_check">Уключыць фон пад субцітрамі</label>
+                                        <label htmlFor="bg_enable_check">{t('subtitles.enableBackground')}</label>
                                     </div>
 
                                     {styling.background_enabled && (
                                         <>
                                             <div className="style-control-row">
-                                                <label>Колер фону</label>
+                                                <label>{t('subtitles.backgroundColor')}</label>
                                                 <input
                                                     type="color"
                                                     value={styling.background_color}
@@ -1008,7 +1013,7 @@ export default function SubtitleStandalonePage() {
                                             </div>
                                             <div className="style-control-row">
                                                 <div className="style-label-group">
-                                                    <label>Празрыстасць</label>
+                                                    <label>{t('subtitles.opacity')}</label>
                                                     <span className="slider-badge">{Math.round(styling.background_opacity * 100)}%</span>
                                                 </div>
                                                 <input
@@ -1024,22 +1029,22 @@ export default function SubtitleStandalonePage() {
                                 </div>
 
                                 <div className="style-accordion-section">
-                                    <h4 className="style-accordion-title">Пазіцыянаванне</h4>
+                                    <h4 className="style-accordion-title">{t('subtitles.positioning')}</h4>
                                     <div className="style-control-row">
-                                        <label>Пазіцыя</label>
+                                        <label>{t('subtitles.position')}</label>
                                         <select
                                             value={styling.position}
                                             onChange={(e) => handleUpdateStyling('position', e.target.value)}
                                         >
-                                            <option value="bottom">Ніз экрана</option>
-                                            <option value="middle">Цэнтр экрана</option>
-                                            <option value="top">Верх экрана</option>
+                                            <option value="bottom">{t('subtitles.posBottom')}</option>
+                                            <option value="middle">{t('subtitles.posMiddle')}</option>
+                                            <option value="top">{t('subtitles.posTop')}</option>
                                         </select>
                                     </div>
 
                                     <div className="style-control-row">
                                         <div className="style-label-group">
-                                            <label>Водступ (Y)</label>
+                                            <label>{t('subtitles.marginY')}</label>
                                             <span className="slider-badge">{styling.margin_y}px</span>
                                         </div>
                                         <input
@@ -1053,7 +1058,7 @@ export default function SubtitleStandalonePage() {
                                 </div>
 
                                 <div className="style-accordion-section">
-                                    <h4 className="style-accordion-title">Караоке і анімацыя</h4>
+                                    <h4 className="style-accordion-title">{t('subtitles.karaokeAndAnimation')}</h4>
                                     <div className="style-control-row checkbox-row">
                                         <input
                                             type="checkbox"
@@ -1061,12 +1066,12 @@ export default function SubtitleStandalonePage() {
                                             checked={Boolean(styling.highlight_active_word)}
                                             onChange={(e) => handleUpdateStyling('highlight_active_word', e.target.checked)}
                                         />
-                                        <label htmlFor="karaoke_enable_check">Караоке-падсветка актыўнага слова</label>
+                                        <label htmlFor="karaoke_enable_check">{t('subtitles.karaokeHighlight')}</label>
                                     </div>
 
                                     {styling.highlight_active_word && (
                                         <div className="style-control-row">
-                                            <label>Колер бэйджа</label>
+                                            <label>{t('subtitles.badgeColor')}</label>
                                             <input
                                                 type="color"
                                                 value={styling.highlight_bg_color || '#FF0000'}

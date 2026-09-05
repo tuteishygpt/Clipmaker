@@ -1,5 +1,6 @@
 import { useRef, useCallback, useEffect } from 'react'
 import { parseSrtTimeToSeconds } from './SubtitleVideoPlayer'
+import { useTranslation } from '../i18n'
 import './SubtitleTimeline.css'
 
 function formatSeconds(secs) {
@@ -17,6 +18,7 @@ export default function SubtitleTimeline({
     onSeek = () => {},
     onSelectEntry = () => {}
 }) {
+    const { formatCount } = useTranslation()
     const trackRef = useRef(null)
     const isDraggingRef = useRef(false)
 
@@ -82,7 +84,7 @@ export default function SubtitleTimeline({
                     <span className="total-time">{formatSeconds(duration)}</span>
                 </div>
                 <div className="timeline-entry-count">
-                    <span>{entries.length} {entries.length === 1 ? 'субцітр' : entries.length < 5 ? 'субцітры' : 'субцітраў'}</span>
+                    <span>{formatCount(entries.length, 'subtitles.timeline')}</span>
                 </div>
             </div>
 

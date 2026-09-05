@@ -3,11 +3,14 @@ import { useProjectStore } from '../stores/projectStore'
 import { useAuthStore } from '../stores/authStore'
 import { useBillingStore } from '../stores/billingStore'
 import { isSupabaseConfigured } from '../lib/supabase'
+import { useTranslation } from '../i18n'
+import LanguageSwitcher from './common/LanguageSwitcher'
 
 function Header() {
     const { projectId, project, resetProject } = useProjectStore()
     const { user } = useAuthStore()
     const { credits } = useBillingStore()
+    const { t } = useTranslation()
 
     return (
         <header className="app-header">
@@ -19,13 +22,14 @@ function Header() {
                     </div>
                 </Link>
                 <div className="header-nav" style={{ display: 'flex', gap: '16px', marginLeft: '24px' }}>
-                    <Link to="/studio" className="nav-link" style={{ color: 'var(--text-secondary, #aaa)', textDecoration: 'none', fontSize: '14px', fontWeight: 500 }}>Studio</Link>
-                    <Link to="/subtitles" className="nav-link" style={{ color: 'var(--text-secondary, #aaa)', textDecoration: 'none', fontSize: '14px', fontWeight: 500 }}>Subtitles</Link>
+                    <Link to="/studio" className="nav-link" style={{ color: 'var(--text-secondary, #aaa)', textDecoration: 'none', fontSize: '14px', fontWeight: 500 }}>{t('nav.studio')}</Link>
+                    <Link to="/subtitles" className="nav-link" style={{ color: 'var(--text-secondary, #aaa)', textDecoration: 'none', fontSize: '14px', fontWeight: 500 }}>{t('nav.subtitles')}</Link>
                 </div>
             </div>
 
             <div className="header-right">
-                <p className="tagline">AI-powered music video generator</p>
+                <p className="tagline">{t('nav.tagline')}</p>
+                <LanguageSwitcher />
                 {/* Right side - User info */}
                 {isSupabaseConfigured() && (
                     <div className="header-actions">
@@ -39,12 +43,12 @@ function Header() {
                                     <span className="user-initial">
                                         {user.email?.charAt(0).toUpperCase() || '?'}
                                     </span>
-                                    <span className="cabinet-label">My Account</span>
+                                    <span className="cabinet-label">{t('nav.myAccount')}</span>
                                 </Link>
                             </>
                         ) : (
                             <Link to="/auth" className="btn-sign-in">
-                                Sign In
+                                {t('nav.signIn')}
                             </Link>
                         )}
                     </div>
