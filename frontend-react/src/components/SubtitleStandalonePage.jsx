@@ -5,6 +5,7 @@ import SubtitleVideoPlayer, { parseSrtTimeToSeconds } from './SubtitleVideoPlaye
 import SubtitleTimeline from './SubtitleTimeline'
 import SubtitlePresetsGallery, { STUDIO_PRESETS } from './SubtitlePresetsGallery'
 import SubtitleEntryCard, { formatSecondsToSrt, sanitizeHighlightTags } from './SubtitleEntryCard'
+import ConfirmDialog from './common/ConfirmDialog'
 import { useTranslation } from '../i18n'
 import './SubtitleStudio.css'
 import * as api from '../api'
@@ -89,6 +90,7 @@ export default function SubtitleStandalonePage() {
     // Render & Export Dropdown State
     const [isRenderDirty, setIsRenderDirty] = useState(false)
     const [isExportDropdownOpen, setIsExportDropdownOpen] = useState(false)
+    const [entryToDelete, setEntryToDelete] = useState(null)
 
     // Refs
     const playerRef = useRef(null)
@@ -378,10 +380,11 @@ export default function SubtitleStandalonePage() {
         setCurrentTime(time)
 
         // Find active entry
-        const match = entries.find(e => {
+        const match = entries.find((e, i) => {
             const s = parseSrtTimeToSeconds(e.start_time)
             const end = parseSrtTimeToSeconds(e.end_time)
-            return time >= s && time <= end
+            const isLast = i === entries.length - 1
+            return time >= s && (isLast ? time <= end : time < end)
         })
 
         if (match) {
@@ -545,6 +548,10 @@ export default function SubtitleStandalonePage() {
 
     // Delete entry
     const handleDeleteEntry = (id) => {
+        if (activeEntryId === id) {
+            setActiveEntryId(null)
+            activeEntryIdRef.current = null
+        }
         setEntries(prev => {
             const updated = prev.filter(e => e.id !== id)
             triggerAutosave(updated, styling)
@@ -1252,8 +1259,18 @@ export default function SubtitleStandalonePage() {
                                                     isActive={isActive}
                                                     styling={styling}
                                                     onUpdate={handleUpdateEntry}
-                                                    onDelete={handleDeleteEntry}
-                                                    onSeek={(time) => playerRef.current?.seekTo(time)}
+                                                    onDelete={(id, entryObj) => {
+                                                        const target = entryObj || entries.find(e => e.id === id) || entry
+                                                        setEntryToDelete(target)
+                                                    }}
+                                                    onSeek={(time, entryId) => {
+                                                        const targetTime = Math.max(0, Number(time) || 0)
+                                                        playerRef.current?.seekTo(targetTime, true)
+                                                        if (entryId != null) {
+                                                            setActiveEntryId(entryId)
+                                                            activeEntryIdRef.current = entryId
+                                                        }
+                                                    }}
                                                     onSplit={handleSplitEntry}
                                                     onMergeNext={handleMergeEntry}
                                                     hasNext={hasNext}
@@ -1476,6 +1493,7 @@ export default function SubtitleStandalonePage() {
                             format={format}
                             isRendered={false}
                             badgeText={null}
+                            previewEntryId={activeEntryId}
                             onTimeChange={handleTimeUpdate}
                             onDurationChange={setDuration}
                         />
@@ -1489,7 +1507,7 @@ export default function SubtitleStandalonePage() {
                             entries={entries}
                             activeEntryId={activeEntryId}
                             onSeek={(targetSec) => {
-                                playerRef.current?.seekTo(targetSec)
+                                playerRef.current?.seekTo(targetSec, false)
                             }}
                             onSelectEntry={(entry) => {
                                 setActiveEntryId(entry.id)
@@ -1498,6 +1516,35 @@ export default function SubtitleStandalonePage() {
                     </div>
                 </main>
             </div>
+
+            {/* Subtitle Delete Confirmation Dialog */}
+            <ConfirmDialog
+                isOpen={Boolean(entryToDelete)}
+                title={t('subtitles.card.confirmDeleteTitle') || 'Delete Subtitle?'}
+                message={t('subtitles.card.confirmDelete')}
+                confirmLabel={t('common.delete') || 'Delete'}
+                cancelLabel={t('common.cancel') || 'Cancel'}
+                confirmIcon="🗑️"
+                confirmVariant="danger"
+                onConfirm={() => {
+                    if (entryToDelete) {
+                        handleDeleteEntry(entryToDelete.id)
+                        setEntryToDelete(null)
+                    }
+                }}
+                onCancel={() => setEntryToDelete(null)}
+            >
+                {entryToDelete && (
+                    <div className="confirm-dialog-snippet">
+                        <div className="confirm-snippet-time">
+                            ⏱️ {entryToDelete.start_time} → {entryToDelete.end_time}
+                        </div>
+                        <div className="confirm-snippet-text">
+                            "{entryToDelete.text?.replace(/<\/?h>/gi, '') || '...'}"
+                        </div>
+                    </div>
+                )}
+            </ConfirmDialog>
         </div>
     )
 }

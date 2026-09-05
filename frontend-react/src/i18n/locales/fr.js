@@ -148,6 +148,8 @@ export default {
             seek: '▶ Aller à',
             seekTitle: 'Se positionner à ce moment dans la vidéo',
             deleteTitle: 'Supprimer ce sous-titre',
+            confirmDeleteTitle: 'Supprimer ce sous-titre ?',
+            confirmDelete: 'Voulez-vous vraiment supprimer ce sous-titre ?',
             placeholder: 'Saisissez le texte du sous-titre...',
             
             // Accents

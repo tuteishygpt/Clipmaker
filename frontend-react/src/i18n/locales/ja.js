@@ -148,6 +148,8 @@ export default {
             seek: '▶ 再生位置へ',
             seekTitle: '動画のこの位置にシーク',
             deleteTitle: 'この字幕を削除',
+            confirmDeleteTitle: '字幕を削除しますか？',
+            confirmDelete: 'この字幕を削除してもよろしいですか？',
             placeholder: '字幕テキストを入力...',
             
             // Accents

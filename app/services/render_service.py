@@ -67,6 +67,43 @@ def _create_moviepy_logger(progress_callback: Callable[[int], None] | None):
         return None
 
 
+def _download_google_font(family: str, weight_label: str, target_dir: Path) -> Path | None:
+    """Download Google Font dynamically if not present locally."""
+    weight_map = {
+        "regular": 400,
+        "normal": 400,
+        "bold": 700,
+        "black": 900,
+        "900": 900,
+        "700": 700,
+        "400": 400,
+    }
+    numeric_weight = weight_map.get(weight_label.lower(), 400)
+    family_query = family.replace(" ", "+")
+    css_url = f"https://fonts.googleapis.com/css2?family={family_query}:wght@{numeric_weight}"
+    try:
+        import urllib.request
+        import re
+        req = urllib.request.Request(css_url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            css = resp.read().decode("utf-8")
+        src_match = re.search(r"src:\s*url\((https://[^)]+)\)", css)
+        if src_match:
+            font_url = src_match.group(1)
+            clean_family = family.replace(" ", "")
+            target_dir.mkdir(parents=True, exist_ok=True)
+            out_file = target_dir / f"{clean_family}-{weight_label.capitalize()}.ttf"
+            font_req = urllib.request.Request(font_url, headers={"User-Agent": "Mozilla/5.0"})
+            with urllib.request.urlopen(font_req, timeout=5) as font_resp:
+                font_data = font_resp.read()
+            out_file.write_bytes(font_data)
+            logger.info(f"Downloaded Google Font: {family} ({weight_label}) -> {out_file}")
+            return out_file
+    except Exception as e:
+        logger.debug(f"Could not auto-download font {family}: {e}")
+    return None
+
+
 class RenderService:
     """Service for rendering final video."""
     
@@ -693,19 +730,56 @@ class RenderService:
         
         logger.info(f"Processing {len(entries)} subtitle entries for video ({video_w}x{video_h}), scale_factor={scale_factor:.2f}, scaled_font_size={font_size}, karaoke_mode={hl_active_word}")
         
-        # -- Font Loading (Reuse logic) --
+        # -- Font Loading --
         from PIL import ImageFont
         import platform
         
         font = None
-        font_weight = styling_dict.get("font_weight", "bold")
-        is_bold = font_weight in ("bold", "700", "black", "900")
+        font_weight = str(styling_dict.get("font_weight", "bold")).lower().strip()
+        is_black = font_weight in ("black", "900", "heavy", "extrabold", "extra-bold", "ultra-bold", "ultrabold", "800")
+        is_bold = is_black or font_weight in ("bold", "700", "semibold", "semi-bold", "600")
         clean_family = font_family.replace(" ", "")
         
         base_dir = Path(__file__).resolve().parent.parent.parent
         font_dir = base_dir / "app" / "static" / "fonts"
+        root_font_dir = base_dir.parent / "app" / "static" / "fonts"
         
-        # Platform-specific font directories
+        # Local font candidate files in order of preference
+        local_candidates = []
+        if is_black:
+            local_candidates.extend([
+                f"{clean_family}-Black.ttf",
+                f"{clean_family}-Black.otf",
+                f"{clean_family}-ExtraBold.ttf",
+                f"{clean_family}-Bold.ttf",
+                f"{clean_family}-Bold.otf",
+            ])
+        elif is_bold:
+            local_candidates.extend([
+                f"{clean_family}-Bold.ttf",
+                f"{clean_family}-Bold.otf",
+                f"{clean_family}-SemiBold.ttf",
+                f"{clean_family}-Black.ttf",
+            ])
+        else:
+            local_candidates.extend([
+                f"{clean_family}-Regular.ttf",
+                f"{clean_family}-Regular.otf",
+            ])
+        local_candidates.extend([
+            f"{clean_family}.ttf",
+            f"{clean_family}.otf",
+            f"{font_family}.ttf",
+            f"{font_family}.otf",
+        ])
+
+        search_paths = []
+        for cand in local_candidates:
+            search_paths.append(str(font_dir / cand))
+            if root_font_dir != font_dir:
+                search_paths.append(str(root_font_dir / cand))
+        
+        # Platform-specific system font paths
         is_windows = platform.system() == "Windows"
         windows_fonts = Path("C:/Windows/Fonts")
         linux_fonts = [
@@ -716,50 +790,46 @@ class RenderService:
             Path.home() / ".fonts",
         ]
         
-        search_paths = [
-            str(font_dir / f"{clean_family}.ttf"),
-            str(font_dir / f"{clean_family}.otf"),
-            str(font_dir / f"{clean_family}-Bold.ttf") if is_bold else str(font_dir / f"{clean_family}-Regular.ttf"),
-            str(font_dir / f"{font_family}.ttf"),
-        ]
-        
-        # Add platform-specific paths
         if is_windows:
-            search_paths.extend([
-                str(windows_fonts / f"{clean_family.lower()}.ttf"),
-                str(windows_fonts / f"{clean_family.lower()}b.ttf") if is_bold else str(windows_fonts / f"{clean_family.lower()}.ttf"),
-                str(windows_fonts / f"{font_family.lower().replace(' ', '')}.ttf"),
-            ])
+            win_candidates = []
+            clean_low = clean_family.lower()
+            if is_black:
+                win_candidates.extend([
+                    f"{clean_low}blk.ttf",
+                    f"{clean_low}bd.ttf",
+                    f"{clean_low}b.ttf",
+                    f"{clean_low}.ttf"
+                ])
+            elif is_bold:
+                win_candidates.extend([
+                    f"{clean_low}bd.ttf",
+                    f"{clean_low}b.ttf",
+                    f"{clean_low}.ttf"
+                ])
+            else:
+                win_candidates.append(f"{clean_low}.ttf")
+            win_candidates.append(f"{font_family.lower().replace(' ', '')}.ttf")
+            
+            for wc in win_candidates:
+                search_paths.append(str(windows_fonts / wc))
         else:
-            # Linux/Mac font paths
             for linux_dir in linux_fonts:
                 if linux_dir.exists():
+                    if is_black:
+                        search_paths.extend([
+                            str(linux_dir / f"{clean_family}-Black.ttf"),
+                            str(linux_dir / f"{clean_family}-Bold.ttf"),
+                        ])
+                    elif is_bold:
+                        search_paths.extend([
+                            str(linux_dir / f"{clean_family}-Bold.ttf"),
+                        ])
                     search_paths.extend([
                         str(linux_dir / f"{clean_family}.ttf"),
                         str(linux_dir / f"{clean_family.lower()}.ttf"),
-                        str(linux_dir / "dejavu" / "DejaVuSans.ttf"),
-                        str(linux_dir / "liberation" / "LiberationSans-Regular.ttf"),
-                        str(linux_dir / "freefont" / "FreeSans.ttf"),
+                        str(linux_dir / "dejavu" / ("DejaVuSans-Bold.ttf" if is_bold else "DejaVuSans.ttf")),
+                        str(linux_dir / "liberation" / ("LiberationSans-Bold.ttf" if is_bold else "LiberationSans-Regular.ttf")),
                     ])
-        
-        # Fallback fonts
-        if is_windows:
-            fallback_fonts = [
-                str(windows_fonts / "arial.ttf"),
-                str(windows_fonts / "arialbd.ttf") if is_bold else str(windows_fonts / "arial.ttf"),
-                str(windows_fonts / "segoeui.ttf"),
-                str(windows_fonts / "calibri.ttf"),
-            ]
-        else:
-            # Linux fallback fonts
-            fallback_fonts = [
-                "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-                "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf" if is_bold else "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-                "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
-                "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf" if is_bold else "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
-                "/usr/share/fonts/truetype/freefont/FreeSans.ttf",
-                "/usr/share/fonts/TTF/DejaVuSans.ttf",
-            ]
         
         loaded = False
         for path in search_paths:
@@ -771,17 +841,66 @@ class RenderService:
             except OSError:
                 continue
         
+        # If not loaded, attempt to auto-download from Google Fonts
         if not loaded:
+            weight_label = "Black" if is_black else ("Bold" if is_bold else "Regular")
+            downloaded = _download_google_font(font_family, weight_label, font_dir)
+            if downloaded and downloaded.exists():
+                try:
+                    font = ImageFont.truetype(str(downloaded), font_size)
+                    loaded = True
+                    logger.info(f"Loaded auto-downloaded font: {downloaded}")
+                except OSError:
+                    pass
+
+        # Fallback fonts if everything else fails
+        if not loaded:
+            if is_windows:
+                if is_black:
+                    fallback_fonts = [
+                        str(windows_fonts / "ariblk.ttf"),
+                        str(windows_fonts / "arialbd.ttf"),
+                        str(windows_fonts / "segoeuib.ttf"),
+                        str(windows_fonts / "arial.ttf"),
+                    ]
+                elif is_bold:
+                    fallback_fonts = [
+                        str(windows_fonts / "arialbd.ttf"),
+                        str(windows_fonts / "segoeuib.ttf"),
+                        str(windows_fonts / "arial.ttf"),
+                    ]
+                else:
+                    fallback_fonts = [
+                        str(windows_fonts / "arial.ttf"),
+                        str(windows_fonts / "segoeui.ttf"),
+                        str(windows_fonts / "calibri.ttf"),
+                    ]
+            else:
+                if is_bold:
+                    fallback_fonts = [
+                        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+                        "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
+                        "/usr/share/fonts/truetype/freefont/FreeSansBold.ttf",
+                        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+                    ]
+                else:
+                    fallback_fonts = [
+                        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+                        "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+                        "/usr/share/fonts/truetype/freefont/FreeSans.ttf",
+                    ]
             for path in fallback_fonts:
                 try:
                     font = ImageFont.truetype(path, font_size)
                     loaded = True
+                    logger.warning(f"Using fallback font: {path}")
                     break
                 except OSError:
                     continue
         
         if not loaded:
-             font = ImageFont.load_default()
+            font = ImageFont.load_default()
+            logger.warning("Using Pillow default font")
 
         # Parse colors helper
         def hex_to_rgba(hex_code, alpha=255):
@@ -810,7 +929,8 @@ class RenderService:
             # Always pass padding, but control application via pad_all flag
             layout = self._layout_text(
                 text, font, max_text_width, 
-                text_align, hl_bg_padding, pad_all=hl_active_word
+                text_align, hl_bg_padding, pad_all=hl_active_word,
+                stroke_width=stroke_width
             )
             
             # 2. Render Clips
@@ -994,13 +1114,13 @@ class RenderService:
         return 0.0
     
     
-    def _layout_text(self, text, font, max_width, align, hl_padding, pad_all=False):
+    def _layout_text(self, text, font, max_width, align, hl_padding, pad_all=False, stroke_width=0):
         """Compute stable text layout with support for <h> highlighting."""
         from PIL import Image, ImageDraw
         dummy_draw = ImageDraw.Draw(Image.new('RGBA', (1, 1)))
 
         def get_width(t_str):
-            bb = dummy_draw.textbbox((0, 0), t_str, font=font)
+            bb = dummy_draw.textbbox((0, 0), t_str, font=font, stroke_width=stroke_width)
             return bb[2] - bb[0]
         
         space_w = get_width(" ")
@@ -1154,16 +1274,12 @@ class RenderService:
                 else:
                     fill = text_color
                 
-                # Draw text
-                # Stroke
+                # Draw text with outline
                 x, y = t['x'], t['y']
-                if stroke_width > 0 and not is_active and not t.get('hl'):
-                     for dx in range(-stroke_width, stroke_width + 1):
-                        for dy in range(-stroke_width, stroke_width + 1):
-                            if dx*dx + dy*dy <= stroke_width*stroke_width:
-                                draw.text((x + dx, y + dy), t['text'], font=font, fill=outline_color)
-                
-                draw.text((x, y), t['text'], font=font, fill=fill)
+                if stroke_width > 0 and outline_color and not is_active and not t.get('hl'):
+                    draw.text((x, y), t['text'], font=font, fill=fill, stroke_width=stroke_width, stroke_fill=outline_color)
+                else:
+                    draw.text((x, y), t['text'], font=font, fill=fill)
                 
                 word_counter += 1
         

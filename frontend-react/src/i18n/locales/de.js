@@ -148,6 +148,8 @@ export default {
             seek: '▶ Zu dieser Stelle',
             seekTitle: 'Zu dieser Stelle im Video springen',
             deleteTitle: 'Diesen Untertitel löschen',
+            confirmDeleteTitle: 'Untertitel löschen?',
+            confirmDelete: 'Möchten Sie diesen Untertitel wirklich löschen?',
             placeholder: 'Untertiteltext eingeben...',
             
             // Accents

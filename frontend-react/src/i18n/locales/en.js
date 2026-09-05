@@ -148,6 +148,8 @@ export default {
             seek: '▶ Jump',
             seekTitle: 'Jump to this timestamp in video',
             deleteTitle: 'Delete this subtitle',
+            confirmDeleteTitle: 'Delete Subtitle?',
+            confirmDelete: 'Are you sure you want to delete this subtitle?',
             placeholder: 'Enter subtitle text...',
             
             // Accents

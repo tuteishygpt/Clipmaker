@@ -148,6 +148,8 @@ export default {
             seek: '▶ Saltar',
             seekTitle: 'Ir a este momento en el video',
             deleteTitle: 'Eliminar este subtítulo',
+            confirmDeleteTitle: '¿Eliminar subtítulo?',
+            confirmDelete: '¿Estás seguro de que deseas eliminar este subtítulo?',
             placeholder: 'Escribe el texto del subtítulo...',
             
             // Accents

@@ -162,12 +162,46 @@ const SubtitleVideoPlayer = forwardRef(function SubtitleVideoPlayer({
 
     // Expose video control methods via ref
     useImperativeHandle(ref, () => ({
-        play: () => videoRef.current?.play(),
-        pause: () => videoRef.current?.pause(),
-        seekTo: (seconds) => {
+        play: () => {
             if (videoRef.current) {
-                videoRef.current.currentTime = seconds
-                setCurrentTime(seconds)
+                return videoRef.current.play().catch(err => {
+                    console.warn('Video play error:', err)
+                })
+            }
+        },
+        pause: () => videoRef.current?.pause(),
+        seekTo: (seconds, andPlay = true) => {
+            if (videoRef.current) {
+                const video = videoRef.current
+                const target = Math.max(0, Number(seconds) || 0)
+
+                const executeSeek = () => {
+                    try {
+                        video.currentTime = target
+                    } catch (e) {
+                        console.warn('Seek error:', e)
+                    }
+                    setCurrentTime(target)
+                    if (onTimeChange) onTimeChange(target)
+                    if (andPlay) {
+                        const playPromise = video.play()
+                        if (playPromise && typeof playPromise.catch === 'function') {
+                            playPromise.catch(err => {
+                                console.warn('Playback after seek prevented:', err)
+                            })
+                        }
+                    }
+                }
+
+                if (video.readyState >= 1) {
+                    executeSeek()
+                } else {
+                    const onMeta = () => {
+                        video.removeEventListener('loadedmetadata', onMeta)
+                        executeSeek()
+                    }
+                    video.addEventListener('loadedmetadata', onMeta)
+                }
             }
         },
         getVideoElement: () => videoRef.current
@@ -341,10 +375,11 @@ const SubtitleVideoPlayer = forwardRef(function SubtitleVideoPlayer({
             }
         }
 
-        const active = entries.find(e => {
+        const active = entries.find((e, i) => {
             const start = parseSrtTimeToSeconds(e.start_time)
             const end = parseSrtTimeToSeconds(e.end_time)
-            return currentTime >= start && currentTime <= end
+            const isLast = i === entries.length - 1
+            return currentTime >= start && (isLast ? currentTime <= end : currentTime < end)
         })
 
         if (active) {

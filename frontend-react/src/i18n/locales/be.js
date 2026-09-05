@@ -148,6 +148,8 @@ export default {
             seek: '▶ Перайсці',
             seekTitle: 'Перайсці да гэтага моманту на відэа',
             deleteTitle: 'Выдаліць гэты субцітр',
+            confirmDeleteTitle: 'Выдаліць субцітр?',
+            confirmDelete: 'Вы сапраўды хочаце выдаліць гэты субцітр?',
             placeholder: 'Увядзіце тэкст субцітра...',
             
             // Accents

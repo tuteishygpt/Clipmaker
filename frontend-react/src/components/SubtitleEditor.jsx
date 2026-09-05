@@ -307,6 +307,7 @@ export default function SubtitleEditor({ projectId, videoUrl: propVideoUrl, onCl
     }
 
     const deleteEntry = (id) => {
+        if (!confirm('Are you sure you want to delete this subtitle?')) return
         setEntries(prev => prev.filter(e => e.id !== id))
         setHasChanges(true)
     }

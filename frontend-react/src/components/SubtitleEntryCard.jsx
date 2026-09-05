@@ -278,6 +278,11 @@ function SubtitleEntryCard({
         onSplit(entry.id, cursor)
     }
 
+    // Trigger delete flow
+    const handleDelete = () => {
+        onDelete?.(entry.id, entry)
+    }
+
     // Custom highlight styling colors from studio presets with unified defaults
     const highlightBg = styling?.highlight_bg_color || '#FF0000'
     const highlightColor = styling?.highlight_font_color || '#FFFFFF'
@@ -326,7 +331,7 @@ function SubtitleEntryCard({
                     <button
                         type="button"
                         className="btn-card-seek"
-                        onClick={() => onSeek?.(startSec)}
+                        onClick={() => onSeek?.(startSec, entry.id)}
                         title={t('subtitles.card.seekTitle')}
                     >
                         {t('subtitles.card.seek')}
@@ -334,7 +339,7 @@ function SubtitleEntryCard({
                     <button
                         type="button"
                         className="btn-card-delete"
-                        onClick={() => onDelete?.(entry.id)}
+                        onClick={handleDelete}
                         title={t('subtitles.card.deleteTitle')}
                     >
                         🗑️

@@ -148,6 +148,8 @@ export default {
             seek: '▶ 定位',
             seekTitle: '跳转到视频该时刻',
             deleteTitle: '删除此字幕',
+            confirmDeleteTitle: '删除此字幕？',
+            confirmDelete: '您确定要删除此字幕吗？',
             placeholder: '输入字幕文本...',
             
             // Accents
