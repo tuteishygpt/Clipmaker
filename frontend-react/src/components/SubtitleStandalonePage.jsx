@@ -385,7 +385,10 @@ export default function SubtitleStandalonePage() {
                 setProjectId(proj.id)
                 setProjectTitle(proj.title || 'Project')
                 setFormat(proj.format || '9:16')
-                setVideoUrl(api.getVideoUrl(proj.id))
+                const effectiveVideoUrl = proj.video_output
+                    ? `${api.BASE_URL}${proj.video_output}?t=${Date.now()}`
+                    : api.getVideoUrl(proj.id)
+                setVideoUrl(effectiveVideoUrl)
                 await loadSubtitles(proj.id)
 
                 // Check render status

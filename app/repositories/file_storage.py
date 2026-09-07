@@ -182,12 +182,12 @@ class FileStorage:
         return target
     
     def get_video_path(self, project_id: str) -> Path | None:
-        """Get the uploaded video file path for a project."""
+        """Get the video file path for a project (source video or rendered output)."""
         source_dir = self._project_path(project_id) / "source"
-        if not source_dir.exists():
-            return None
+        if source_dir.exists():
+            for file_path in source_dir.glob("video.*"):
+                return file_path
         
-        for file_path in source_dir.glob("video.*"):
-            return file_path
-        return None
+        # Fallback to latest render if available (e.g. for Studio-generated projects)
+        return self.get_latest_render(project_id)
 

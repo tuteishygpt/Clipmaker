@@ -102,9 +102,12 @@ async function fetchJSON(url, options = {}) {
 }
 
 // Projects
-export async function getProjects(search = '') {
-    const query = search ? `?search=${encodeURIComponent(search)}` : ''
-    return fetchJSON(`/projects${query}`)
+export async function getProjects(search = '', standalone = null) {
+    const params = new URLSearchParams()
+    if (search) params.append('search', search)
+    if (standalone !== null && standalone !== undefined) params.append('standalone', String(standalone))
+    const queryString = params.toString()
+    return fetchJSON(`/projects${queryString ? `?${queryString}` : ''}`)
 }
 
 export async function getProject(projectId) {

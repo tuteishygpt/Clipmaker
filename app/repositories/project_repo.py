@@ -81,8 +81,8 @@ class ProjectRepository:
         """Check if a project exists."""
         return self._get_repo(project_id).exists("project.json")
     
-    def list_all(self, search: str | None = None) -> list[dict[str, Any]]:
-        """List all projects, sorted by updated_at descending, optionally filtered by search."""
+    def list_all(self, search: str | None = None, standalone: bool | None = None) -> list[dict[str, Any]]:
+        """List all projects, sorted by updated_at descending, optionally filtered by search and standalone mode."""
         projects = []
         if not self.data_dir.exists():
             return projects
@@ -97,6 +97,12 @@ class ProjectRepository:
                     if not project:
                         continue
                     
+                    # Standalone filter
+                    if standalone is not None:
+                        is_standalone = bool(project.get("standalone_mode", False))
+                        if is_standalone != standalone:
+                            continue
+
                     # Search filtering
                     if search_lower:
                         project_id = str(project.get("id", "")).lower()

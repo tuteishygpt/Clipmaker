@@ -66,10 +66,11 @@ def get_subtitle_service() -> SubtitleService:
 @router.get("", response_model=list[ProjectResponse])
 async def list_projects(
     search: Optional[str] = None,
+    standalone: Optional[bool] = None,
     user: Optional[AuthenticatedUser] = Depends(get_optional_user)
 ) -> list[dict[str, Any]]:
-    """List projects (optionally filtered by user or search query)."""
-    return project_repo.list_all(search=search)
+    """List projects (optionally filtered by standalone mode, user or search query)."""
+    return project_repo.list_all(search=search, standalone=standalone)
 
 
 @router.post("", response_model=ProjectResponse)

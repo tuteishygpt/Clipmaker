@@ -82,8 +82,10 @@ export const useProjectStore = create((set, get) => ({
     // Project Actions
     loadProjects: async (search = '') => {
         try {
-            const projects = await api.getProjects(search)
-            set({ projects })
+            const projects = await api.getProjects(search, false)
+            // Extra client-side filter: only show Studio projects (not standalone subtitles)
+            const studioProjects = (projects || []).filter(p => !p.standalone_mode)
+            set({ projects: studioProjects })
         } catch (error) {
             console.error('Failed to load projects:', error)
         }
