@@ -37,6 +37,8 @@ export default {
         dropzoneSubtitle: 'альбо клікніце для выбару файла (MP4, MOV, WebM)',
         speechLanguage: 'Мова маўлення:',
         langAuto: 'Аўтавызначэнне (AI)',
+        langGroupPopular: '⭐ Рэкамендаваныя',
+        langGroupAll: '🌐 Усе падтрымліваемыя мовы (A-Z)',
         langBe: 'Беларуская',
         langEn: 'English',
         langEs: 'Іспанская',

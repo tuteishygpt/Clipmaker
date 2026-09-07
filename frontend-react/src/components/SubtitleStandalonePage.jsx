@@ -10,6 +10,10 @@ import { useTranslation } from '../i18n'
 import './SubtitleStudio.css'
 import * as api from '../api'
 import { useProjectStore } from '../stores/projectStore'
+import {
+    POPULAR_TRANSCRIBE_LANGUAGES,
+    ALL_TRANSCRIBE_LANGUAGES
+} from '../constants/transcribeLanguages'
 
 const FONT_CATEGORIES = {
     'Sans-serif': [
@@ -853,11 +857,20 @@ export default function SubtitleStandalonePage() {
                                 onChange={(e) => setSelectedLanguage(e.target.value)}
                             >
                                 <option value="auto">{t('subtitles.langAuto')}</option>
-                                <option value="be">{t('subtitles.langBe')}</option>
-                                <option value="en">{t('subtitles.langEn')}</option>
-                                <option value="ru">{t('subtitles.langRu')}</option>
-                                <option value="uk">{t('subtitles.langUk')}</option>
-                                <option value="pl">{t('subtitles.langPl')}</option>
+                                <optgroup label={t('subtitles.langGroupPopular') || '⭐ Popular'}>
+                                    {POPULAR_TRANSCRIBE_LANGUAGES.map((lang) => (
+                                        <option key={`pop-${lang.code}`} value={lang.code}>
+                                            {lang.label}
+                                        </option>
+                                    ))}
+                                </optgroup>
+                                <optgroup label={t('subtitles.langGroupAll') || '🌐 All languages (85+)'}>
+                                    {ALL_TRANSCRIBE_LANGUAGES.map((lang) => (
+                                        <option key={`all-${lang.code}`} value={lang.code}>
+                                            {lang.label}
+                                        </option>
+                                    ))}
+                                </optgroup>
                             </select>
                         </div>
 
@@ -1237,13 +1250,43 @@ export default function SubtitleStandalonePage() {
                                         <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px' }}>
                                             {t('subtitles.noEntries')}
                                         </p>
-                                        <button
-                                            className="btn-studio-secondary"
-                                            style={{ margin: '12px auto' }}
-                                            onClick={handleTranscribeAgain}
-                                        >
-                                            🎤 {t('subtitles.transcribeAgain')}
-                                        </button>
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', margin: '12px auto', maxWidth: '280px' }}>
+                                            <select
+                                                value={selectedLanguage}
+                                                onChange={(e) => setSelectedLanguage(e.target.value)}
+                                                style={{
+                                                    width: '100%',
+                                                    background: '#141424',
+                                                    border: '1.5px solid rgba(255, 255, 255, 0.18)',
+                                                    borderRadius: '8px',
+                                                    color: '#fff',
+                                                    padding: '7px 12px',
+                                                    fontSize: '13px',
+                                                }}
+                                            >
+                                                <option value="auto">{t('subtitles.langAuto')}</option>
+                                                <optgroup label={t('subtitles.langGroupPopular') || '⭐ Popular'}>
+                                                    {POPULAR_TRANSCRIBE_LANGUAGES.map((lang) => (
+                                                        <option key={`pop-empty-${lang.code}`} value={lang.code}>
+                                                            {lang.label}
+                                                        </option>
+                                                    ))}
+                                                </optgroup>
+                                                <optgroup label={t('subtitles.langGroupAll') || '🌐 All languages (85+)'}>
+                                                    {ALL_TRANSCRIBE_LANGUAGES.map((lang) => (
+                                                        <option key={`all-empty-${lang.code}`} value={lang.code}>
+                                                            {lang.label}
+                                                        </option>
+                                                    ))}
+                                                </optgroup>
+                                            </select>
+                                            <button
+                                                className="btn-studio-secondary"
+                                                onClick={handleTranscribeAgain}
+                                            >
+                                                🎤 {t('subtitles.transcribeAgain')}
+                                            </button>
+                                        </div>
                                     </div>
                                 ) : (
                                     <div className="captions-list">

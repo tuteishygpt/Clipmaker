@@ -37,6 +37,8 @@ export default {
         dropzoneSubtitle: 'o haz clic para explorar archivos (MP4, MOV, WebM)',
         speechLanguage: 'Idioma del audio:',
         langAuto: 'Detección automática (IA)',
+        langGroupPopular: '⭐ Recomendados',
+        langGroupAll: '🌐 Todos los idiomas compatibles (A-Z)',
         langBe: 'Bielorruso',
         langEn: 'Inglés',
         langEs: 'Español',

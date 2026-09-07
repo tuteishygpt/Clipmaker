@@ -524,6 +524,35 @@ class GeminiIntegrationTests(unittest.TestCase):
         self.assertIn("Audio duration constraint", instr)
         self.assertIn("Belarusian", instr)
 
+    def test_resolve_transcribe_language_codes(self):
+        from gemini_integration import _resolve_transcribe_language_codes
+
+        # When env vars are cleared, auto returns empty list for native multilingual detection
+        with unittest.mock.patch.dict(os.environ, {"TRANSCRIBE_LANGUAGE_CODES": "", "LANGUAGE_CODES": ""}):
+            self.assertEqual(_resolve_transcribe_language_codes("auto"), [])
+            self.assertEqual(_resolve_transcribe_language_codes(None), [])
+
+        # Short codes mapped to BCP-47 regardless of env
+        self.assertEqual(_resolve_transcribe_language_codes("be"), ["be-BY"])
+        self.assertEqual(_resolve_transcribe_language_codes("en"), ["en-US"])
+        self.assertEqual(_resolve_transcribe_language_codes("ru"), ["ru-RU"])
+        self.assertEqual(_resolve_transcribe_language_codes("uk"), ["uk-UA"])
+        self.assertEqual(_resolve_transcribe_language_codes("pl"), ["pl-PL"])
+        self.assertEqual(_resolve_transcribe_language_codes("es"), ["es-ES"])
+        self.assertEqual(_resolve_transcribe_language_codes("de"), ["de-DE"])
+        self.assertEqual(_resolve_transcribe_language_codes("fr"), ["fr-FR"])
+        self.assertEqual(_resolve_transcribe_language_codes("ja"), ["ja-JP"])
+        self.assertEqual(_resolve_transcribe_language_codes("zh"), ["zh-CN"])
+
+        # Direct BCP-47 tags preserved
+        self.assertEqual(_resolve_transcribe_language_codes("af-ZA"), ["af-ZA"])
+        self.assertEqual(_resolve_transcribe_language_codes("es-419"), ["es-419"])
+        self.assertEqual(_resolve_transcribe_language_codes("pt-PT"), ["pt-PT"])
+
+        # Env override for auto
+        with unittest.mock.patch.dict(os.environ, {"TRANSCRIBE_LANGUAGE_CODES": "be-BY,ru-RU"}):
+            self.assertEqual(_resolve_transcribe_language_codes("auto"), ["be-BY", "ru-RU"])
+
 
 if __name__ == "__main__":
     unittest.main()

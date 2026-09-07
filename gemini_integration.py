@@ -48,6 +48,111 @@ logger = logging.getLogger(__name__)
 
 _last_transcribed_words: list[dict] | None = None
 
+_LANGUAGE_CODE_MAP: dict[str, str] = {
+    "be": "be-BY",
+    "bel": "be-BY",
+    "by": "be-BY",
+    "ru": "ru-RU",
+    "rus": "ru-RU",
+    "en": "en-US",
+    "eng": "en-US",
+    "uk": "uk-UA",
+    "ukr": "uk-UA",
+    "ua": "uk-UA",
+    "pl": "pl-PL",
+    "pol": "pl-PL",
+    "es": "es-ES",
+    "esp": "es-ES",
+    "spa": "es-ES",
+    "de": "de-DE",
+    "ger": "de-DE",
+    "deu": "de-DE",
+    "fr": "fr-FR",
+    "fra": "fr-FR",
+    "fre": "fr-FR",
+    "it": "it-IT",
+    "ita": "it-IT",
+    "pt": "pt-BR",
+    "por": "pt-BR",
+    "zh": "zh-CN",
+    "zho": "zh-CN",
+    "chi": "zh-CN",
+    "ja": "ja-JP",
+    "jpn": "ja-JP",
+    "ko": "ko-KR",
+    "kor": "ko-KR",
+    "nl": "nl-NL",
+    "nld": "nl-NL",
+    "dut": "nl-NL",
+    "sv": "sv-SE",
+    "swe": "sv-SE",
+    "tr": "tr-TR",
+    "tur": "tr-TR",
+    "vi": "vi-VN",
+    "vie": "vi-VN",
+    "hi": "hi-IN",
+    "hin": "hi-IN",
+    "ar": "ar-EG",
+    "ara": "ar-EG",
+    "he": "he-IL",
+    "heb": "he-IL",
+    "cs": "cs-CZ",
+    "ces": "cs-CZ",
+    "cze": "cs-CZ",
+    "da": "da-DK",
+    "dan": "da-DK",
+    "fi": "fi-FI",
+    "fin": "fi-FI",
+    "el": "el-GR",
+    "ell": "el-GR",
+    "gre": "el-GR",
+    "hu": "hu-HU",
+    "hun": "hu-HU",
+    "id": "id-ID",
+    "ind": "id-ID",
+    "no": "no-NO",
+    "nor": "no-NO",
+    "ro": "ro-RO",
+    "ron": "ro-RO",
+    "rum": "ro-RO",
+    "sk": "sk-SK",
+    "slk": "sk-SK",
+    "slo": "sk-SK",
+    "sl": "sl-SI",
+    "slv": "sl-SI",
+    "bg": "bg-BG",
+    "bul": "bg-BG",
+    "hr": "hr-HR",
+    "hrv": "hr-HR",
+    "lt": "lt-LT",
+    "lit": "lt-LT",
+    "lv": "lv-LV",
+    "lav": "lv-LV",
+    "et": "et-EE",
+    "est": "et-EE",
+}
+
+
+def _resolve_transcribe_language_codes(language: Optional[str] = None) -> list[str]:
+    """Resolve language codes for Gemini 3.5 Transcribe.
+
+    If an explicit language (or BCP-47 tag) is provided (other than 'auto'),
+    it returns the corresponding BCP-47 tag(s).
+    If 'auto' (or None), it checks TRANSCRIBE_LANGUAGE_CODES or LANGUAGE_CODES.
+    If neither is set, it returns an empty list [] so that Gemini 3.5 Transcribe
+    automatically detects the spoken language across all 85+ supported languages.
+    """
+    if language and language.strip().lower() != "auto":
+        clean_lang = language.strip()
+        mapped = _LANGUAGE_CODE_MAP.get(clean_lang.lower(), clean_lang)
+        return [mapped]
+
+    lang_codes_env = os.getenv("TRANSCRIBE_LANGUAGE_CODES", os.getenv("LANGUAGE_CODES", "")).strip()
+    if lang_codes_env:
+        return [c.strip() for c in lang_codes_env.split(",") if c.strip()]
+    return []
+
+
 class GeminiTranscriptionAdapter:
     """Adapter around Vertex AI Gemini for subtitle generation."""
 
@@ -600,25 +705,17 @@ class GeminiTranscriptionAdapter:
                 "timestamp_granularities": ["word"],
             }
 
-        if language and language != "auto":
-            if language.lower() in ("be", "bel", "by"):
-                lang_codes = ["be-BY"]
-            elif language.lower() in ("ru", "rus"):
-                lang_codes = ["ru-RU"]
-            elif language.lower() in ("en", "eng"):
-                lang_codes = ["en-US"]
-            else:
-                lang_codes = [language]
-        else:
-            lang_codes_env = os.getenv("TRANSCRIBE_LANGUAGE_CODES", os.getenv("LANGUAGE_CODES", "be-BY")).strip()
-            lang_codes = [c.strip() for c in lang_codes_env.split(",") if c.strip()] or ["be-BY"]
+        lang_codes = _resolve_transcribe_language_codes(language)
+
+        tx_config: dict[str, Any] = {
+            "word_level_timestamps": True,
+            "mode": mode_payload,
+        }
+        if lang_codes:
+            tx_config["language_codes"] = lang_codes
 
         generation_config: dict[str, Any] = {
-            "transcription_config": {
-                "language_codes": lang_codes,
-                "word_level_timestamps": True,
-                "mode": mode_payload,
-            }
+            "transcription_config": tx_config
         }
 
         custom_vocab_raw = os.getenv("CUSTOM_VOCABULARY", "").strip()
@@ -660,23 +757,23 @@ class GeminiTranscriptionAdapter:
 
         # 1. First attempt: Interactions API (per https://ai.google.dev/gemini-api/docs/transcribe)
         if not is_vertex and not self._interactions_unsupported:
+            cfg1_tx: dict[str, Any] = {
+                "mode": "VERBATIM",
+                "word_level_timestamps": True,
+            }
+            cfg2_tx: dict[str, Any] = {
+                "mode": {
+                    "type": "VERBATIM",
+                    "timestamp_granularities": ["word"],
+                },
+            }
+            if lang_codes:
+                cfg1_tx["language_codes"] = lang_codes
+                cfg2_tx["language_codes"] = lang_codes
+
             generation_configs = [
-                {
-                    "transcription_config": {
-                        "language_codes": ["be-BY"],
-                        "mode": "VERBATIM",
-                        "word_level_timestamps": True,
-                    }
-                },
-                {
-                    "transcription_config": {
-                        "language_codes": ["be-BY"],
-                        "mode": {
-                            "type": "VERBATIM",
-                            "timestamp_granularities": ["word"],
-                        },
-                    }
-                },
+                {"transcription_config": cfg1_tx},
+                {"transcription_config": cfg2_tx},
                 None,
             ]
             for gen_cfg in generation_configs:
@@ -768,24 +865,12 @@ class GeminiTranscriptionAdapter:
                 if hasattr(types, "AudioTranscriptionConfigMode") and hasattr(types.AudioTranscriptionConfigMode, "VERBATIM"):
                     transcribe_mode = types.AudioTranscriptionConfigMode.VERBATIM
 
-                if language and language != "auto":
-                    if language.lower() in ("be", "bel", "by"):
-                        lang_codes = ["be-BY"]
-                    elif language.lower() in ("ru", "rus"):
-                        lang_codes = ["ru-RU"]
-                    elif language.lower() in ("en", "eng"):
-                        lang_codes = ["en-US"]
-                    else:
-                        lang_codes = [language]
-                else:
-                    lang_codes_env = os.getenv("TRANSCRIBE_LANGUAGE_CODES", os.getenv("LANGUAGE_CODES", "be-BY")).strip()
-                    lang_codes = [c.strip() for c in lang_codes_env.split(",") if c.strip()] or ["be-BY"]
-
                 audio_tx_kwargs: dict[str, Any] = {
                     "word_timestamp": True,
-                    "language_codes": lang_codes,
                     "mode": transcribe_mode,
                 }
+                if lang_codes:
+                    audio_tx_kwargs["language_codes"] = lang_codes
                 custom_vocab_raw = os.getenv("CUSTOM_VOCABULARY", "").strip()
                 if custom_vocab_raw:
                     vocab_list = [v.strip() for v in custom_vocab_raw.split(",") if v.strip()]

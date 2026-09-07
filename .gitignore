@@ -12,3 +12,15 @@ node_modules/
 dist/
 frontend-react/dist/
 *.local
+
+# Secrets and Keys
+*.key
+*.pem
+*.pub
+*.ppk
+id_rsa*
+id_ed25519*
+secrets/
+*.env*
+
+SSH_CONNECT.md

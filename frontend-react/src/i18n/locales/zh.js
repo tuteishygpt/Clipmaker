@@ -37,6 +37,8 @@ export default {
         dropzoneSubtitle: '或点击选择视频文件 (MP4, MOV, WebM)',
         speechLanguage: '音频语言:',
         langAuto: '自动识别 (AI)',
+        langGroupPopular: '⭐ 推荐语言',
+        langGroupAll: '🌐 所有支持的语言 (A-Z)',
         langBe: '白俄罗斯语',
         langEn: '英语',
         langEs: '西班牙语',

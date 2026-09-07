@@ -37,6 +37,8 @@ export default {
         dropzoneSubtitle: 'またはクリックして動画ファイルを選択 (MP4, MOV, WebM)',
         speechLanguage: '音声の言語:',
         langAuto: '自動検出 (AI)',
+        langGroupPopular: '⭐ おすすめ',
+        langGroupAll: '🌐 すべての対応言語 (A-Z)',
         langBe: 'ベラルーシ語',
         langEn: '英語',
         langEs: 'スペイン語',
