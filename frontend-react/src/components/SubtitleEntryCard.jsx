@@ -467,4 +467,12 @@ function SubtitleEntryCard({
     )
 }
 
-export default memo(SubtitleEntryCard)
+export default memo(SubtitleEntryCard, (prev, next) => {
+    return (
+        prev.entry === next.entry &&
+        prev.isActive === next.isActive &&
+        prev.idx === next.idx &&
+        prev.hasNext === next.hasNext &&
+        prev.styling === next.styling
+    )
+})

@@ -1,4 +1,4 @@
-import { useRef, useCallback, useEffect } from 'react'
+import { useRef, useCallback, useEffect, useMemo } from 'react'
 import { parseSrtTimeToSeconds } from './SubtitleVideoPlayer'
 import { useTranslation } from '../i18n'
 import './SubtitleTimeline.css'
@@ -71,6 +71,10 @@ export default function SubtitleTimeline({
 
     const handleMouseDown = (e) => {
         if (e.button !== 0) return
+        if (activeCleanupRef.current) {
+            activeCleanupRef.current()
+            activeCleanupRef.current = null
+        }
         isDraggingRef.current = true
         handleSeekFromEvent(e, false)
 
@@ -99,6 +103,10 @@ export default function SubtitleTimeline({
     }
 
     const handleTouchStart = (e) => {
+        if (activeCleanupRef.current) {
+            activeCleanupRef.current()
+            activeCleanupRef.current = null
+        }
         isDraggingRef.current = true
         handleSeekFromEvent(e, false)
 

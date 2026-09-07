@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import Header from './Header'
 import SubtitleVideoPlayer, { parseSrtTimeToSeconds } from './SubtitleVideoPlayer'
@@ -111,6 +111,8 @@ export default function SubtitleStandalonePage() {
     const autoDownloadOnFinishRef = useRef(false)
     const entriesRef = useRef(entries)
     entriesRef.current = entries
+    const stylingRef = useRef(styling)
+    stylingRef.current = styling
 
     // Helper: Trigger browser file download
     const triggerFileDownload = (url, filename) => {
@@ -396,9 +398,9 @@ export default function SubtitleStandalonePage() {
         })
 
         if (match) {
-            setActiveEntryId(match.id)
             if (activeEntryIdRef.current !== match.id) {
                 activeEntryIdRef.current = match.id
+                setActiveEntryId(match.id)
                 // Auto-scroll list only when active entry changes and user is not actively typing
                 if (!isUserTypingRef.current && entriesListRef.current) {
                     const cardEl = entriesListRef.current.querySelector(`[data-entry-id="${match.id}"]`)
@@ -408,8 +410,10 @@ export default function SubtitleStandalonePage() {
                 }
             }
         } else {
-            setActiveEntryId(null)
-            activeEntryIdRef.current = null
+            if (activeEntryIdRef.current !== null) {
+                activeEntryIdRef.current = null
+                setActiveEntryId(null)
+            }
         }
     }, [])
 
@@ -561,32 +565,33 @@ export default function SubtitleStandalonePage() {
     }
 
     // Update entry text or timestamps
-    const handleUpdateEntry = (id, field, val) => {
+    const handleUpdateEntry = useCallback((id, field, val) => {
         setEntries(prev => {
             const updated = prev.map(e => e.id === id ? { ...e, [field]: val } : e)
-            triggerAutosave(updated, styling)
+            triggerAutosave(updated, stylingRef.current)
             return updated
         })
-    }
+    }, [triggerAutosave])
 
     // Delete entry
-    const handleDeleteEntry = (id) => {
-        if (activeEntryId === id) {
+    const handleDeleteEntry = useCallback((id) => {
+        if (activeEntryIdRef.current === id) {
             setActiveEntryId(null)
             activeEntryIdRef.current = null
         }
         setEntries(prev => {
             const updated = prev.filter(e => e.id !== id)
-            triggerAutosave(updated, styling)
+            triggerAutosave(updated, stylingRef.current)
             return updated
         })
-    }
+    }, [triggerAutosave])
 
     // Split entry into two at cursor position or midpoint
-    const handleSplitEntry = (id, cursorPosition = null) => {
-        const entryIdx = entries.findIndex(e => e.id === id)
+    const handleSplitEntry = useCallback((id, cursorPosition = null) => {
+        const currentEntries = entriesRef.current || []
+        const entryIdx = currentEntries.findIndex(e => e.id === id)
         if (entryIdx === -1) return
-        const entry = entries[entryIdx]
+        const entry = currentEntries[entryIdx]
         const text = entry.text || ''
 
         const startSec = parseSrtTimeToSeconds(entry.start_time)
@@ -635,7 +640,7 @@ export default function SubtitleStandalonePage() {
         const midSec = Math.max(startSec + 0.3, Math.min(endSec - 0.3, startSec + duration * ratio))
         const midTimeStr = formatSecondsToSrt(midSec)
 
-        const newId = entries.length > 0 ? Math.max(...entries.map(e => e.id)) + 1 : 1
+        const newId = currentEntries.length > 0 ? Math.max(...currentEntries.map(e => e.id)) + 1 : 1
 
         const updatedEntry1 = {
             ...entry,
@@ -651,23 +656,24 @@ export default function SubtitleStandalonePage() {
         }
 
         const updatedList = [
-            ...entries.slice(0, entryIdx),
+            ...currentEntries.slice(0, entryIdx),
             updatedEntry1,
             newEntry2,
-            ...entries.slice(entryIdx + 1)
+            ...currentEntries.slice(entryIdx + 1)
         ]
 
         setEntries(updatedList)
-        triggerAutosave(updatedList, styling)
-    }
+        triggerAutosave(updatedList, stylingRef.current)
+    }, [triggerAutosave])
 
     // Merge entry with the next entry
-    const handleMergeEntry = (id) => {
-        const entryIdx = entries.findIndex(e => e.id === id)
-        if (entryIdx === -1 || entryIdx >= entries.length - 1) return
+    const handleMergeEntry = useCallback((id) => {
+        const currentEntries = entriesRef.current || []
+        const entryIdx = currentEntries.findIndex(e => e.id === id)
+        if (entryIdx === -1 || entryIdx >= currentEntries.length - 1) return
 
-        const currentEntry = entries[entryIdx]
-        const nextEntry = entries[entryIdx + 1]
+        const currentEntry = currentEntries[entryIdx]
+        const nextEntry = currentEntries[entryIdx + 1]
 
         const mergedText = sanitizeHighlightTags(`${currentEntry.text.trim()} ${nextEntry.text.trim()}`.trim())
 
@@ -678,14 +684,14 @@ export default function SubtitleStandalonePage() {
         }
 
         const updatedList = [
-            ...entries.slice(0, entryIdx),
+            ...currentEntries.slice(0, entryIdx),
             mergedEntry,
-            ...entries.slice(entryIdx + 2)
+            ...currentEntries.slice(entryIdx + 2)
         ]
 
         setEntries(updatedList)
-        triggerAutosave(updatedList, styling)
-    }
+        triggerAutosave(updatedList, stylingRef.current)
+    }, [triggerAutosave])
 
     // Add new entry
     const handleAddEntry = () => {
@@ -819,10 +825,12 @@ export default function SubtitleStandalonePage() {
         return () => window.removeEventListener('keydown', handleKeyDown)
     }, [status])
 
-    // Filtered entries for search
-    const filteredEntries = entries.filter(e =>
-        !searchQuery || e.text.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    // Filtered entries for search (memoized)
+    const filteredEntries = useMemo(() => {
+        return entries.filter(e =>
+            !searchQuery || e.text.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+    }, [entries, searchQuery])
 
     // Download URLs
     const downloadVideoUrl = projectId ? api.getDownloadUrl(projectId) : null
