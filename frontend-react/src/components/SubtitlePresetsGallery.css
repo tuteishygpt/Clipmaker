@@ -104,3 +104,38 @@
 .preset-card.active .preset-apply-btn {
     color: #34d399;
 }
+
+/* Mobile Responsiveness for Presets Gallery */
+@media (max-width: 600px) {
+    .presets-gallery-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 10px;
+    }
+
+    .preset-card {
+        padding: 12px;
+        gap: 8px;
+        border-radius: 12px;
+    }
+
+    .preset-card-header {
+        gap: 8px;
+    }
+
+    .preset-icon {
+        font-size: 20px;
+    }
+
+    .preset-title {
+        font-size: 14px;
+    }
+
+    .preset-visual-preview {
+        height: 60px;
+        padding: 6px;
+    }
+
+    .preset-preview-badge {
+        font-size: 11px;
+    }
+}

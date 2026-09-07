@@ -28,8 +28,11 @@ export default function SubtitleTimeline({
         const track = trackRef.current
         if (!track || validDuration <= 0) return
 
+        const clientX = e.touches?.[0]?.clientX ?? e.changedTouches?.[0]?.clientX ?? e.clientX
+        if (clientX === undefined) return
+
         const rect = track.getBoundingClientRect()
-        const clickX = e.clientX - rect.left
+        const clickX = clientX - rect.left
         const ratio = Math.max(0, Math.min(1, clickX / rect.width))
         const targetTime = ratio * validDuration
         onSeek(targetTime)
@@ -53,6 +56,29 @@ export default function SubtitleTimeline({
 
         window.addEventListener('mousemove', onMouseMove)
         window.addEventListener('mouseup', onMouseUp)
+    }
+
+    const handleTouchStart = (e) => {
+        isDraggingRef.current = true
+        handleSeekFromEvent(e)
+
+        const onTouchMove = (moveEvent) => {
+            if (isDraggingRef.current) {
+                if (moveEvent.cancelable) moveEvent.preventDefault()
+                handleSeekFromEvent(moveEvent)
+            }
+        }
+
+        const onTouchEnd = () => {
+            isDraggingRef.current = false
+            window.removeEventListener('touchmove', onTouchMove)
+            window.removeEventListener('touchend', onTouchEnd)
+            window.removeEventListener('touchcancel', onTouchEnd)
+        }
+
+        window.addEventListener('touchmove', onTouchMove, { passive: false })
+        window.addEventListener('touchend', onTouchEnd)
+        window.addEventListener('touchcancel', onTouchEnd)
     }
 
     // Generate time markers across the timeline (e.g. every 5s, 10s, 30s depending on duration)
@@ -83,6 +109,24 @@ export default function SubtitleTimeline({
                     <span className="time-divider">/</span>
                     <span className="total-time">{formatSeconds(duration)}</span>
                 </div>
+                <div className="timeline-quick-controls">
+                    <button
+                        type="button"
+                        className="btn-timeline-seek-step"
+                        onClick={() => onSeek(Math.max(0, currentTime - 5))}
+                        title="-5s"
+                    >
+                        ⏪ 5s
+                    </button>
+                    <button
+                        type="button"
+                        className="btn-timeline-seek-step"
+                        onClick={() => onSeek(Math.min(validDuration, currentTime + 5))}
+                        title="+5s"
+                    >
+                        5s ⏩
+                    </button>
+                </div>
                 <div className="timeline-entry-count">
                     <span>{formatCount(entries.length, 'subtitles.timeline')}</span>
                 </div>
@@ -109,6 +153,7 @@ export default function SubtitleTimeline({
                 className="timeline-track"
                 ref={trackRef}
                 onMouseDown={handleMouseDown}
+                onTouchStart={handleTouchStart}
             >
                 {/* Subtitle entry blocks */}
                 <div className="timeline-blocks-layer">

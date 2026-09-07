@@ -77,6 +77,7 @@ export default function SubtitleStandalonePage() {
     const [entries, setEntries] = useState([])
     const [styling, setStyling] = useState(DEFAULT_STYLING)
     const [activeTab, setActiveTab] = useState('captions') // captions, styling, presets
+    const [mobileTab, setMobileTab] = useState('preview') // preview, captions, styling, presets
     const [searchQuery, setSearchQuery] = useState('')
     const [selectedLanguage, setSelectedLanguage] = useState('auto')
     const [autosaveStatus, setAutosaveStatus] = useState('saved') // saved, saving, unsaved
@@ -1184,6 +1185,16 @@ export default function SubtitleStandalonePage() {
                                 )}
                             </div>
                         )}
+                        {/* Backdrop for mobile dropdown menus */}
+                        {(isDropdownOpen || isExportDropdownOpen) && (
+                            <div
+                                className="studio-mobile-dropdown-backdrop"
+                                onClick={() => {
+                                    setIsDropdownOpen(false)
+                                    setIsExportDropdownOpen(false)
+                                }}
+                            />
+                        )}
                     </div>
                 </div>
             </header>
@@ -1195,28 +1206,37 @@ export default function SubtitleStandalonePage() {
                 </div>
             )}
 
-            {/* Studio Body: Split View */}
-            <div className="studio-workspace">
+            {/* Studio Body: Split View (Desktop) / Tab-based (Mobile) */}
+            <div className={`studio-workspace mobile-view-${mobileTab}`}>
                 {/* Left Panel: Sidebar (Tabs: Captions, Styling, Presets) */}
-                <aside className="studio-sidebar">
+                <aside className={`studio-sidebar ${mobileTab !== 'preview' ? 'mobile-visible' : 'mobile-hidden'}`}>
                     <div className="studio-sidebar-tabs">
                         <button
                             className={`studio-tab-btn ${activeTab === 'captions' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('captions')}
+                            onClick={() => {
+                                setActiveTab('captions')
+                                setMobileTab('captions')
+                            }}
                         >
                             <span>📝</span>
                             <span>{t('subtitles.tabs.captions', { count: entries.length })}</span>
                         </button>
                         <button
                             className={`studio-tab-btn ${activeTab === 'styling' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('styling')}
+                            onClick={() => {
+                                setActiveTab('styling')
+                                setMobileTab('styling')
+                            }}
                         >
                             <span>🎨</span>
                             <span>{t('subtitles.tabs.styling')}</span>
                         </button>
                         <button
                             className={`studio-tab-btn ${activeTab === 'presets' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('presets')}
+                            onClick={() => {
+                                setActiveTab('presets')
+                                setMobileTab('presets')
+                            }}
                         >
                             <span>⚡</span>
                             <span>{t('subtitles.tabs.presets')}</span>
@@ -1524,7 +1544,7 @@ export default function SubtitleStandalonePage() {
                 </aside>
 
                 {/* Right Stage: Maximized Video Player & Timeline */}
-                <main className="studio-stage">
+                <main className={`studio-stage ${mobileTab === 'preview' ? 'mobile-visible' : 'mobile-hidden'}`}>
                     {/* Centered Video Player Box - Maximized Live Preview */}
                     <div className="studio-player-box">
                         <SubtitleVideoPlayer
@@ -1559,6 +1579,53 @@ export default function SubtitleStandalonePage() {
                     </div>
                 </main>
             </div>
+
+            {/* Mobile Bottom Navigation Bar (< 768px) */}
+            <nav className="studio-mobile-nav-bar" aria-label="Mobile Navigation">
+                <button
+                    type="button"
+                    className={`mobile-nav-btn ${mobileTab === 'preview' ? 'active' : ''}`}
+                    onClick={() => setMobileTab('preview')}
+                >
+                    <span className="mobile-nav-icon">📱</span>
+                    <span className="mobile-nav-label">{t('subtitles.tabs.preview') || 'Preview'}</span>
+                </button>
+                <button
+                    type="button"
+                    className={`mobile-nav-btn ${mobileTab === 'captions' ? 'active' : ''}`}
+                    onClick={() => {
+                        setActiveTab('captions')
+                        setMobileTab('captions')
+                    }}
+                >
+                    <span className="mobile-nav-icon">📝</span>
+                    <span className="mobile-nav-label">
+                        {t('subtitles.tabs.captions', { count: entries.length }).split(' ')[0] || 'Captions'} ({entries.length})
+                    </span>
+                </button>
+                <button
+                    type="button"
+                    className={`mobile-nav-btn ${mobileTab === 'styling' ? 'active' : ''}`}
+                    onClick={() => {
+                        setActiveTab('styling')
+                        setMobileTab('styling')
+                    }}
+                >
+                    <span className="mobile-nav-icon">🎨</span>
+                    <span className="mobile-nav-label">{t('subtitles.tabs.styling') || 'Style'}</span>
+                </button>
+                <button
+                    type="button"
+                    className={`mobile-nav-btn ${mobileTab === 'presets' ? 'active' : ''}`}
+                    onClick={() => {
+                        setActiveTab('presets')
+                        setMobileTab('presets')
+                    }}
+                >
+                    <span className="mobile-nav-icon">⚡</span>
+                    <span className="mobile-nav-label">{t('subtitles.tabs.presets') || 'Presets'}</span>
+                </button>
+            </nav>
 
             {/* Subtitle Delete Confirmation Dialog */}
             <ConfirmDialog
