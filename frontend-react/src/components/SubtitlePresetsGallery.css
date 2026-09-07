@@ -106,7 +106,7 @@
 }
 
 /* Mobile Responsiveness for Presets Gallery */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
     .presets-gallery-grid {
         grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
         gap: 10px;

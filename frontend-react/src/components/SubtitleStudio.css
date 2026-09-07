@@ -23,6 +23,12 @@
     z-index: 998;
 }
 
+@media (min-width: 769px) {
+    .studio-mobile-dropdown-backdrop {
+        display: none !important;
+    }
+}
+
 /* ==================== Top Bar ==================== */
 .studio-top-bar {
     height: 68px;
@@ -1391,10 +1397,10 @@
     .studio-workspace {
         display: flex;
         flex-direction: column;
-        height: calc(100vh - 56px - 60px);
-        height: calc(100dvh - 56px - 60px);
-        max-height: calc(100vh - 56px - 60px);
-        max-height: calc(100dvh - 56px - 60px);
+        flex: 1;
+        min-height: 0;
+        height: auto;
+        max-height: none;
         overflow: hidden;
     }
 
@@ -1618,7 +1624,6 @@
 
     .caption-card-time input {
         width: 78px;
-        font-size: 14px !important;
     }
 }
 

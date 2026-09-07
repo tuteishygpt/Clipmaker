@@ -21,70 +21,118 @@ export default function SubtitleTimeline({
     const { formatCount } = useTranslation()
     const trackRef = useRef(null)
     const isDraggingRef = useRef(false)
+    const activeCleanupRef = useRef(null)
+    const rafIdRef = useRef(null)
 
     const validDuration = (duration > 0 && Number.isFinite(duration)) ? duration : 1
 
-    const handleSeekFromEvent = useCallback((e) => {
+    // Cleanup drag listeners if component unmounts while dragging
+    useEffect(() => {
+        return () => {
+            if (activeCleanupRef.current) {
+                activeCleanupRef.current()
+                activeCleanupRef.current = null
+            }
+            if (rafIdRef.current) {
+                cancelAnimationFrame(rafIdRef.current)
+                rafIdRef.current = null
+            }
+        }
+    }, [])
+
+    const handleSeekFromEvent = useCallback((e, isThrottled = false) => {
         const track = trackRef.current
         if (!track || validDuration <= 0) return
+
+        const rect = track.getBoundingClientRect()
+        if (rect.width <= 0) return
 
         const clientX = e.touches?.[0]?.clientX ?? e.changedTouches?.[0]?.clientX ?? e.clientX
         if (clientX === undefined) return
 
-        const rect = track.getBoundingClientRect()
         const clickX = clientX - rect.left
         const ratio = Math.max(0, Math.min(1, clickX / rect.width))
         const targetTime = ratio * validDuration
-        onSeek(targetTime)
+
+        if (isThrottled) {
+            if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current)
+            rafIdRef.current = requestAnimationFrame(() => {
+                onSeek(targetTime)
+                rafIdRef.current = null
+            })
+        } else {
+            if (rafIdRef.current) {
+                cancelAnimationFrame(rafIdRef.current)
+                rafIdRef.current = null
+            }
+            onSeek(targetTime)
+        }
     }, [validDuration, onSeek])
 
     const handleMouseDown = (e) => {
+        if (e.button !== 0) return
         isDraggingRef.current = true
-        handleSeekFromEvent(e)
+        handleSeekFromEvent(e, false)
 
         const onMouseMove = (moveEvent) => {
             if (isDraggingRef.current) {
-                handleSeekFromEvent(moveEvent)
+                handleSeekFromEvent(moveEvent, true)
             }
         }
 
         const onMouseUp = () => {
             isDraggingRef.current = false
+            if (activeCleanupRef.current) {
+                activeCleanupRef.current()
+                activeCleanupRef.current = null
+            }
+        }
+
+        const cleanup = () => {
             window.removeEventListener('mousemove', onMouseMove)
             window.removeEventListener('mouseup', onMouseUp)
         }
 
+        activeCleanupRef.current = cleanup
         window.addEventListener('mousemove', onMouseMove)
         window.addEventListener('mouseup', onMouseUp)
     }
 
     const handleTouchStart = (e) => {
         isDraggingRef.current = true
-        handleSeekFromEvent(e)
+        handleSeekFromEvent(e, false)
 
         const onTouchMove = (moveEvent) => {
             if (isDraggingRef.current) {
                 if (moveEvent.cancelable) moveEvent.preventDefault()
-                handleSeekFromEvent(moveEvent)
+                handleSeekFromEvent(moveEvent, true)
             }
         }
 
         const onTouchEnd = () => {
             isDraggingRef.current = false
+            if (activeCleanupRef.current) {
+                activeCleanupRef.current()
+                activeCleanupRef.current = null
+            }
+        }
+
+        const cleanup = () => {
             window.removeEventListener('touchmove', onTouchMove)
             window.removeEventListener('touchend', onTouchEnd)
             window.removeEventListener('touchcancel', onTouchEnd)
         }
 
+        activeCleanupRef.current = cleanup
         window.addEventListener('touchmove', onTouchMove, { passive: false })
         window.addEventListener('touchend', onTouchEnd)
         window.addEventListener('touchcancel', onTouchEnd)
     }
 
-    // Generate time markers across the timeline (e.g. every 5s, 10s, 30s depending on duration)
-    const getMarkers = () => {
+    // Generate time markers across the timeline (memoized)
+    const markers = useMemo(() => {
         if (!Number.isFinite(validDuration) || validDuration <= 0) return [0]
-        const markers = []
+        const list = []
         let interval = 5
         if (validDuration > 300) interval = 60
         else if (validDuration > 120) interval = 30
@@ -92,11 +140,28 @@ export default function SubtitleTimeline({
         else if (validDuration > 30) interval = 10
 
         for (let t = 0; t <= validDuration; t += interval) {
-            markers.push(t)
-            if (markers.length > 50) break
+            list.push(t)
+            if (list.length > 50) break
         }
-        return markers
-    }
+        return list
+    }, [validDuration])
+
+    // Memoize parsed entry timings
+    const parsedEntries = useMemo(() => {
+        return entries.map((entry) => {
+            const start = parseSrtTimeToSeconds(entry.start_time)
+            const end = parseSrtTimeToSeconds(entry.end_time)
+            const leftPct = (start / validDuration) * 100
+            const widthPct = Math.max(0.8, ((end - start) / validDuration) * 100)
+            return {
+                ...entry,
+                start,
+                end,
+                leftPct,
+                widthPct
+            }
+        })
+    }, [entries, validDuration])
 
     const playheadPercent = Math.max(0, Math.min(100, (currentTime / validDuration) * 100))
 
@@ -115,6 +180,7 @@ export default function SubtitleTimeline({
                         className="btn-timeline-seek-step"
                         onClick={() => onSeek(Math.max(0, currentTime - 5))}
                         title="-5s"
+                        aria-label="Seek backward 5 seconds"
                     >
                         ⏪ 5s
                     </button>
@@ -123,6 +189,7 @@ export default function SubtitleTimeline({
                         className="btn-timeline-seek-step"
                         onClick={() => onSeek(Math.min(validDuration, currentTime + 5))}
                         title="+5s"
+                        aria-label="Seek forward 5 seconds"
                     >
                         5s ⏩
                     </button>
@@ -134,7 +201,7 @@ export default function SubtitleTimeline({
 
             {/* Time ruler */}
             <div className="timeline-ruler">
-                {getMarkers().map((m) => {
+                {markers.map((m) => {
                     const pct = (m / validDuration) * 100
                     return (
                         <div
@@ -154,28 +221,55 @@ export default function SubtitleTimeline({
                 ref={trackRef}
                 onMouseDown={handleMouseDown}
                 onTouchStart={handleTouchStart}
+                role="slider"
+                aria-label="Video Timeline"
+                aria-valuenow={Math.round(currentTime)}
+                aria-valuemin={0}
+                aria-valuemax={Math.round(validDuration)}
+                tabIndex={0}
+                onKeyDown={(e) => {
+                    if (e.key === 'ArrowLeft') {
+                        e.preventDefault()
+                        onSeek(Math.max(0, currentTime - (e.shiftKey ? 5 : 1)))
+                    } else if (e.key === 'ArrowRight') {
+                        e.preventDefault()
+                        onSeek(Math.min(validDuration, currentTime + (e.shiftKey ? 5 : 1)))
+                    }
+                }}
             >
                 {/* Subtitle entry blocks */}
                 <div className="timeline-blocks-layer">
-                    {entries.map((entry) => {
-                        const start = parseSrtTimeToSeconds(entry.start_time)
-                        const end = parseSrtTimeToSeconds(entry.end_time)
-                        const leftPct = (start / validDuration) * 100
-                        const widthPct = Math.max(0.8, ((end - start) / validDuration) * 100)
-                        const isActive = entry.id === activeEntryId || (currentTime >= start && currentTime <= end)
+                    {parsedEntries.map((entry) => {
+                        const isActive = entry.id === activeEntryId || (currentTime >= entry.start && currentTime <= entry.end)
 
                         return (
                             <div
                                 key={entry.id}
                                 className={`timeline-block ${isActive ? 'active' : ''}`}
                                 style={{
-                                    left: `${leftPct}%`,
-                                    width: `${widthPct}%`
+                                    left: `${entry.leftPct}%`,
+                                    width: `${entry.widthPct}%`
+                                }}
+                                onMouseDown={(e) => e.stopPropagation()}
+                                onTouchStart={(e) => {
+                                    e.stopPropagation()
+                                    onSeek(entry.start)
+                                    onSelectEntry(entry)
                                 }}
                                 onClick={(e) => {
                                     e.stopPropagation()
-                                    onSeek(start)
+                                    onSeek(entry.start)
                                     onSelectEntry(entry)
+                                }}
+                                role="button"
+                                tabIndex={0}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault()
+                                        e.stopPropagation()
+                                        onSeek(entry.start)
+                                        onSelectEntry(entry)
+                                    }
                                 }}
                                 title={`#${entry.id} (${entry.start_time} - ${entry.end_time}): ${entry.text}`}
                             >

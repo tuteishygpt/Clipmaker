@@ -109,6 +109,8 @@ export default function SubtitleStandalonePage() {
     const projectDropdownRef = useRef(null)
     const exportDropdownRef = useRef(null)
     const autoDownloadOnFinishRef = useRef(false)
+    const entriesRef = useRef(entries)
+    entriesRef.current = entries
 
     // Helper: Trigger browser file download
     const triggerFileDownload = (url, filename) => {
@@ -380,15 +382,16 @@ export default function SubtitleStandalonePage() {
         return () => { isCancelled = true }
     }, [projectIdParam, startPolling, loadSubtitles])
 
-    // Video duration and time synchronization
+    // Video duration and time synchronization (stable callback, reads entriesRef)
     const handleTimeUpdate = useCallback((time) => {
         setCurrentTime(time)
 
-        // Find active entry
-        const match = entries.find((e, i) => {
+        // Find active entry using entriesRef to avoid listener churn
+        const currentEntries = entriesRef.current || []
+        const match = currentEntries.find((e, i) => {
             const s = parseSrtTimeToSeconds(e.start_time)
             const end = parseSrtTimeToSeconds(e.end_time)
-            const isLast = i === entries.length - 1
+            const isLast = i === currentEntries.length - 1
             return time >= s && (isLast ? time <= end : time < end)
         })
 
@@ -408,7 +411,22 @@ export default function SubtitleStandalonePage() {
             setActiveEntryId(null)
             activeEntryIdRef.current = null
         }
-    }, [entries])
+    }, [])
+
+    // Stable card action handlers to preserve SubtitleEntryCard memoization
+    const handleDeleteRequest = useCallback((id, entryObj) => {
+        const target = entryObj || entriesRef.current.find(e => e.id === id)
+        if (target) setEntryToDelete(target)
+    }, [])
+
+    const handleSeekRequest = useCallback((time, entryId) => {
+        const targetTime = Math.max(0, Number(time) || 0)
+        playerRef.current?.seekTo(targetTime, true)
+        if (entryId != null) {
+            setActiveEntryId(entryId)
+            activeEntryIdRef.current = entryId
+        }
+    }, [])
 
     // Video metadata
     const getVideoMetadata = (file) => {
@@ -1322,18 +1340,8 @@ export default function SubtitleStandalonePage() {
                                                     isActive={isActive}
                                                     styling={styling}
                                                     onUpdate={handleUpdateEntry}
-                                                    onDelete={(id, entryObj) => {
-                                                        const target = entryObj || entries.find(e => e.id === id) || entry
-                                                        setEntryToDelete(target)
-                                                    }}
-                                                    onSeek={(time, entryId) => {
-                                                        const targetTime = Math.max(0, Number(time) || 0)
-                                                        playerRef.current?.seekTo(targetTime, true)
-                                                        if (entryId != null) {
-                                                            setActiveEntryId(entryId)
-                                                            activeEntryIdRef.current = entryId
-                                                        }
-                                                    }}
+                                                    onDelete={handleDeleteRequest}
+                                                    onSeek={handleSeekRequest}
                                                     onSplit={handleSplitEntry}
                                                     onMergeNext={handleMergeEntry}
                                                     hasNext={hasNext}
@@ -1600,7 +1608,7 @@ export default function SubtitleStandalonePage() {
                 >
                     <span className="mobile-nav-icon">📝</span>
                     <span className="mobile-nav-label">
-                        {t('subtitles.tabs.captions', { count: entries.length }).split(' ')[0] || 'Captions'} ({entries.length})
+                        {(t('subtitles.tabs.captions', { count: entries.length }) || 'Captions').replace(/\s*\(.*?\)/, '')} ({entries.length})
                     </span>
                 </button>
                 <button

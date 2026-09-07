@@ -217,6 +217,8 @@
     border: 2px solid #ffffff;
     box-shadow: 0 2px 8px rgba(239, 68, 68, 0.8);
     position: relative;
+    pointer-events: auto;
+    cursor: grab;
 }
 
 /* 44x44px invisible touch target for smooth touch dragging */
@@ -238,7 +240,7 @@
 }
 
 /* Mobile Responsiveness for Timeline */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
     .subtitle-timeline-container {
         padding: 6px 10px 8px;
         gap: 6px;
