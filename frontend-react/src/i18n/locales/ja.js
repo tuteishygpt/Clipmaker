@@ -81,8 +81,12 @@ export default {
         exportVideo: '字幕付きビデオ (MP4)',
         exportVideoDesc: 'レンダリングしてダウンロード',
         exportVideoReadyDesc: 'ダウンロードの準備完了',
+        exportOriginalVideo: '元の動画 (MP4)',
+        exportOriginalVideoDesc: '字幕なしの元の動画をダウンロード',
         exportSrt: '字幕 (.SRT)',
         exportSrtDesc: '字幕ファイルをダウンロード',
+        exportTxt: '字幕テキスト (.TXT)',
+        exportTxtDesc: 'タイムスタンプなしでテキストをダウンロード',
         rendering: 'レンダリング中 ({progress}%)',
         
         // Tabs

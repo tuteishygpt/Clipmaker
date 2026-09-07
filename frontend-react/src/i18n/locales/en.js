@@ -81,8 +81,12 @@ export default {
         exportVideo: 'Video with Subtitles (MP4)',
         exportVideoDesc: 'Render & download video',
         exportVideoReadyDesc: 'Ready to download',
+        exportOriginalVideo: 'Original Video (MP4)',
+        exportOriginalVideoDesc: 'Download original video without subtitles',
         exportSrt: 'Subtitles (.SRT)',
         exportSrtDesc: 'Download subtitle file',
+        exportTxt: 'Subtitles Text (.TXT)',
+        exportTxtDesc: 'Download plain text transcript without timings',
         rendering: 'Rendering ({progress}%)',
         
         // Tabs

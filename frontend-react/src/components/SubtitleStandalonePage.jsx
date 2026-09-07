@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react'
+import { createPortal } from 'react-dom'
 import { useSearchParams, Link } from 'react-router-dom'
 import Header from './Header'
 import SubtitleVideoPlayer, { parseSrtTimeToSeconds } from './SubtitleVideoPlayer'
@@ -96,6 +97,20 @@ export default function SubtitleStandalonePage() {
     const [isRenderDirty, setIsRenderDirty] = useState(false)
     const [isExportDropdownOpen, setIsExportDropdownOpen] = useState(false)
     const [entryToDelete, setEntryToDelete] = useState(null)
+    const [isMobile, setIsMobile] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return window.innerWidth <= 768
+        }
+        return false
+    })
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth <= 768)
+        }
+        window.addEventListener('resize', handleResize)
+        return () => window.removeEventListener('resize', handleResize)
+    }, [])
 
     // Refs
     const playerRef = useRef(null)
@@ -234,12 +249,14 @@ export default function SubtitleStandalonePage() {
     // Close dropdowns when clicking outside or pressing Escape
     useEffect(() => {
         const handleClickOutside = (e) => {
-            if (projectDropdownRef.current && !projectDropdownRef.current.contains(e.target)) {
-                setIsDropdownOpen(false)
-                setProjectSearchQuery('')
-            }
-            if (exportDropdownRef.current && !exportDropdownRef.current.contains(e.target)) {
-                setIsExportDropdownOpen(false)
+            if (!isMobile) {
+                if (projectDropdownRef.current && !projectDropdownRef.current.contains(e.target)) {
+                    setIsDropdownOpen(false)
+                    setProjectSearchQuery('')
+                }
+                if (exportDropdownRef.current && !exportDropdownRef.current.contains(e.target)) {
+                    setIsExportDropdownOpen(false)
+                }
             }
         }
         const handleKeyDown = (e) => {
@@ -257,7 +274,7 @@ export default function SubtitleStandalonePage() {
             document.removeEventListener('mousedown', handleClickOutside)
             document.removeEventListener('keydown', handleKeyDown)
         }
-    }, [isDropdownOpen, isExportDropdownOpen])
+    }, [isDropdownOpen, isExportDropdownOpen, isMobile])
 
     // Clean up timers on unmount
     useEffect(() => {
@@ -797,6 +814,28 @@ export default function SubtitleStandalonePage() {
         }
     }
 
+    // Export Original Video without subtitles
+    const handleExportOriginalVideo = () => {
+        setIsExportDropdownOpen(false)
+        if (!videoUrl) return
+        triggerFileDownload(videoUrl, `${projectTitle || 'video'}_original.mp4`)
+    }
+
+    // Export Subtitles as Plain Text (.TXT)
+    const handleExportTxt = () => {
+        setIsExportDropdownOpen(false)
+        const currentEntries = entriesRef.current || []
+        if (currentEntries.length === 0) return
+        const textContent = currentEntries
+            .map(e => e.text?.replace(/<\/?h>/gi, '').trim())
+            .filter(Boolean)
+            .join('\n\n')
+        const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' })
+        const blobUrl = URL.createObjectURL(blob)
+        triggerFileDownload(blobUrl, `${projectTitle || 'subtitles'}.txt`)
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 2000)
+    }
+
     // Keyboard Shortcuts (Space to play/pause, arrows to seek)
     useEffect(() => {
         const handleKeyDown = (e) => {
@@ -1011,6 +1050,152 @@ export default function SubtitleStandalonePage() {
         )
     }
 
+    // Helper: Render Export Options (Used by both Desktop Dropdown & Mobile Bottom Sheet)
+    const renderExportOptions = () => (
+        <>
+            {/* 1. Video with Subtitles */}
+            <button
+                type="button"
+                className="export-dropdown-item"
+                onClick={handleExportVideo}
+            >
+                <span className="export-item-icon">🎬</span>
+                <div className="export-item-info">
+                    <span className="export-item-title">{t('subtitles.exportVideo')}</span>
+                    <span className="export-item-desc">
+                        {status === 'done' && !isRenderDirty
+                            ? `✓ ${t('subtitles.exportVideoReadyDesc')}`
+                            : `⚡ ${t('subtitles.exportVideoDesc')}`}
+                    </span>
+                </div>
+                <span className="export-item-badge">MP4</span>
+            </button>
+
+            {/* 2. Original Video without Subtitles */}
+            {videoUrl && (
+                <button
+                    type="button"
+                    className="export-dropdown-item"
+                    onClick={handleExportOriginalVideo}
+                >
+                    <span className="export-item-icon">📹</span>
+                    <div className="export-item-info">
+                        <span className="export-item-title">{t('subtitles.exportOriginalVideo')}</span>
+                        <span className="export-item-desc">{t('subtitles.exportOriginalVideoDesc')}</span>
+                    </div>
+                    <span className="export-item-badge">MP4</span>
+                </button>
+            )}
+
+            {/* 3. Subtitles File (.SRT) */}
+            {srtDownloadUrl && (
+                <button
+                    type="button"
+                    className="export-dropdown-item"
+                    onClick={handleExportSrt}
+                >
+                    <span className="export-item-icon">📄</span>
+                    <div className="export-item-info">
+                        <span className="export-item-title">{t('subtitles.exportSrt')}</span>
+                        <span className="export-item-desc">{t('subtitles.exportSrtDesc')}</span>
+                    </div>
+                    <span className="export-item-badge">SRT</span>
+                </button>
+            )}
+
+            {/* 4. Subtitles Plain Text (.TXT) */}
+            {entries && entries.length > 0 && (
+                <button
+                    type="button"
+                    className="export-dropdown-item"
+                    onClick={handleExportTxt}
+                >
+                    <span className="export-item-icon">📝</span>
+                    <div className="export-item-info">
+                        <span className="export-item-title">{t('subtitles.exportTxt')}</span>
+                        <span className="export-item-desc">{t('subtitles.exportTxtDesc')}</span>
+                    </div>
+                    <span className="export-item-badge">TXT</span>
+                </button>
+            )}
+        </>
+    )
+
+    // Helper: Render Project List Content (Used by both Desktop Dropdown & Mobile Bottom Sheet)
+    const renderProjectListContent = () => (
+        <>
+            <div className="dropdown-search-wrapper">
+                <input
+                    type="text"
+                    className="dropdown-search-input"
+                    placeholder={t('subtitles.searchVideosPlaceholder')}
+                    value={projectSearchQuery}
+                    onChange={(e) => setProjectSearchQuery(e.target.value)}
+                    autoFocus={!isMobile}
+                />
+            </div>
+
+            <div className="dropdown-project-list">
+                {projectsList
+                    .filter(p => !projectSearchQuery || (p.title || p.id).toLowerCase().includes(projectSearchQuery.toLowerCase()))
+                    .map(proj => {
+                        const isActive = proj.id === projectId
+                        const dateStr = proj.updated_at
+                            ? new Date(proj.updated_at).toLocaleDateString()
+                            : (proj.created_at ? new Date(proj.created_at).toLocaleDateString() : '')
+                        return (
+                            <button
+                                key={proj.id}
+                                type="button"
+                                className={`dropdown-project-item ${isActive ? 'active' : ''}`}
+                                onClick={() => {
+                                    setIsDropdownOpen(false)
+                                    handleSwitchProject(proj.id)
+                                }}
+                            >
+                                <span className="dropdown-item-icon">{proj.standalone_mode ? '📝' : '🎬'}</span>
+                                <div className="dropdown-item-info">
+                                    <span className="dropdown-item-title">{proj.title || proj.id.slice(0, 8)}</span>
+                                    <div className="dropdown-item-meta">
+                                        <span className="dropdown-item-badge">{proj.format || '9:16'}</span>
+                                        <span>{proj.status === 'DONE' ? '✓ DONE' : (proj.status || '')}</span>
+                                        {dateStr && <span>• {dateStr}</span>}
+                                    </div>
+                                </div>
+                                {isActive && <span className="dropdown-item-check">✓</span>}
+                            </button>
+                        )
+                    })}
+                {projectsList.length === 0 && (
+                    <div className="dropdown-empty-hint">
+                        {t('subtitles.noRecentVideos')}
+                    </div>
+                )}
+            </div>
+
+            <div className="dropdown-menu-footer">
+                <button
+                    type="button"
+                    className="dropdown-footer-btn"
+                    onClick={() => {
+                        setIsDropdownOpen(false)
+                        handleStartNewVideo()
+                    }}
+                    style={{ color: '#a5b4fc', fontWeight: 700 }}
+                >
+                    ➕ {t('subtitles.newVideo')}
+                </button>
+                <Link
+                    to="/cabinet"
+                    className="dropdown-footer-btn"
+                    onClick={() => setIsDropdownOpen(false)}
+                >
+                    {t('subtitles.allProjectsInCabinet')} →
+                </Link>
+            </div>
+        </>
+    )
+
     // ==================== VIEW 3: FULL SUBTITLE STUDIO WORKSPACE ====================
     return (
         <div className="subtitle-studio-root">
@@ -1052,8 +1237,8 @@ export default function SubtitleStandalonePage() {
                             <span className={`dropdown-caret ${isDropdownOpen ? 'open' : ''}`}>▼</span>
                         </div>
 
-                        {/* Project Switcher Dropdown */}
-                        {isDropdownOpen && (
+                        {/* Project Switcher Dropdown (Desktop) */}
+                        {isDropdownOpen && !isMobile && (
                             <div className="studio-project-dropdown-menu">
                                 <div className="dropdown-menu-header">
                                     <span className="dropdown-menu-title">📂 {t('subtitles.myVideos')}</span>
@@ -1066,70 +1251,7 @@ export default function SubtitleStandalonePage() {
                                         ✕
                                     </button>
                                 </div>
-
-                                <div className="dropdown-search-wrapper">
-                                    <input
-                                        type="text"
-                                        className="dropdown-search-input"
-                                        placeholder={t('subtitles.searchVideosPlaceholder')}
-                                        value={projectSearchQuery}
-                                        onChange={(e) => setProjectSearchQuery(e.target.value)}
-                                        autoFocus
-                                    />
-                                </div>
-
-                                <div className="dropdown-project-list">
-                                    {projectsList
-                                        .filter(p => !projectSearchQuery || (p.title || p.id).toLowerCase().includes(projectSearchQuery.toLowerCase()))
-                                        .map(proj => {
-                                            const isActive = proj.id === projectId
-                                            const dateStr = proj.updated_at
-                                                ? new Date(proj.updated_at).toLocaleDateString()
-                                                : (proj.created_at ? new Date(proj.created_at).toLocaleDateString() : '')
-                                            return (
-                                                <button
-                                                    key={proj.id}
-                                                    type="button"
-                                                    className={`dropdown-project-item ${isActive ? 'active' : ''}`}
-                                                    onClick={() => handleSwitchProject(proj.id)}
-                                                >
-                                                    <span className="dropdown-item-icon">{proj.standalone_mode ? '📝' : '🎬'}</span>
-                                                    <div className="dropdown-item-info">
-                                                        <span className="dropdown-item-title">{proj.title || proj.id.slice(0, 8)}</span>
-                                                        <div className="dropdown-item-meta">
-                                                            <span className="dropdown-item-badge">{proj.format || '9:16'}</span>
-                                                            <span>{proj.status === 'DONE' ? '✓ DONE' : (proj.status || '')}</span>
-                                                            {dateStr && <span>• {dateStr}</span>}
-                                                        </div>
-                                                    </div>
-                                                    {isActive && <span className="dropdown-item-check">✓</span>}
-                                                </button>
-                                            )
-                                        })}
-                                    {projectsList.length === 0 && (
-                                        <div className="dropdown-empty-hint">
-                                            {t('subtitles.noRecentVideos')}
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className="dropdown-menu-footer">
-                                    <button
-                                        type="button"
-                                        className="dropdown-footer-btn"
-                                        onClick={handleStartNewVideo}
-                                        style={{ color: '#a5b4fc', fontWeight: 700 }}
-                                    >
-                                        ➕ {t('subtitles.newVideo')}
-                                    </button>
-                                    <Link
-                                        to="/cabinet"
-                                        className="dropdown-footer-btn"
-                                        onClick={() => setIsDropdownOpen(false)}
-                                    >
-                                        {t('subtitles.allProjectsInCabinet')} →
-                                    </Link>
-                                </div>
+                                {renderProjectListContent()}
                             </div>
                         )}
 
@@ -1174,52 +1296,11 @@ export default function SubtitleStandalonePage() {
                             )}
                         </button>
 
-                        {isExportDropdownOpen && (
+                        {/* Desktop Export Dropdown Menu */}
+                        {isExportDropdownOpen && !isMobile && (
                             <div className="studio-export-dropdown-menu">
-                                <button
-                                    type="button"
-                                    className="export-dropdown-item"
-                                    onClick={handleExportVideo}
-                                >
-                                    <span className="export-item-icon">🎬</span>
-                                    <div className="export-item-info">
-                                        <span className="export-item-title">{t('subtitles.exportVideo')}</span>
-                                        <span className="export-item-desc">
-                                            {status === 'done' && !isRenderDirty
-                                                ? `✓ ${t('subtitles.exportVideoReadyDesc')}`
-                                                : `⚡ ${t('subtitles.exportVideoDesc')}`}
-                                        </span>
-                                    </div>
-                                    {status === 'done' && !isRenderDirty && (
-                                        <span className="export-item-badge">MP4</span>
-                                    )}
-                                </button>
-
-                                {srtDownloadUrl && (
-                                    <button
-                                        type="button"
-                                        className="export-dropdown-item"
-                                        onClick={handleExportSrt}
-                                    >
-                                        <span className="export-item-icon">📄</span>
-                                        <div className="export-item-info">
-                                            <span className="export-item-title">{t('subtitles.exportSrt')}</span>
-                                            <span className="export-item-desc">{t('subtitles.exportSrtDesc')}</span>
-                                        </div>
-                                        <span className="export-item-badge">SRT</span>
-                                    </button>
-                                )}
+                                {renderExportOptions()}
                             </div>
-                        )}
-                        {/* Backdrop for mobile dropdown menus */}
-                        {(isDropdownOpen || isExportDropdownOpen) && (
-                            <div
-                                className="studio-mobile-dropdown-backdrop"
-                                onClick={() => {
-                                    setIsDropdownOpen(false)
-                                    setIsExportDropdownOpen(false)
-                                }}
-                            />
                         )}
                     </div>
                 </div>
@@ -1671,6 +1752,72 @@ export default function SubtitleStandalonePage() {
                     </div>
                 )}
             </ConfirmDialog>
+
+            {/* Mobile Export Bottom Sheet Portal */}
+            {isExportDropdownOpen && isMobile && typeof document !== 'undefined' && createPortal(
+                <div className="studio-portal-container">
+                    <div
+                        className="studio-portal-backdrop"
+                        onClick={() => setIsExportDropdownOpen(false)}
+                    />
+                    <div className="studio-bottom-sheet" role="dialog" aria-modal="true" aria-label={t('subtitles.exportMenu')}>
+                        <div className="bottom-sheet-header">
+                            <div className="bottom-sheet-drag-handle" />
+                            <div className="bottom-sheet-title-row">
+                                <h3>🚀 {t('subtitles.exportMenu')}</h3>
+                                <button
+                                    type="button"
+                                    className="btn-bottom-sheet-close"
+                                    onClick={() => setIsExportDropdownOpen(false)}
+                                    aria-label="Close"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                        </div>
+                        <div className="bottom-sheet-body">
+                            {renderExportOptions()}
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
+
+            {/* Mobile Project Switcher Bottom Sheet Portal */}
+            {isDropdownOpen && isMobile && typeof document !== 'undefined' && createPortal(
+                <div className="studio-portal-container">
+                    <div
+                        className="studio-portal-backdrop"
+                        onClick={() => {
+                            setIsDropdownOpen(false)
+                            setProjectSearchQuery('')
+                        }}
+                    />
+                    <div className="studio-bottom-sheet" role="dialog" aria-modal="true" aria-label={t('subtitles.myVideos')}>
+                        <div className="bottom-sheet-header">
+                            <div className="bottom-sheet-drag-handle" />
+                            <div className="bottom-sheet-title-row">
+                                <h3>📂 {t('subtitles.myVideos')}</h3>
+                                <button
+                                    type="button"
+                                    className="btn-bottom-sheet-close"
+                                    onClick={() => {
+                                        setIsDropdownOpen(false)
+                                        setProjectSearchQuery('')
+                                    }}
+                                    aria-label="Close"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                        </div>
+                        <div className="bottom-sheet-body">
+                            {renderProjectListContent()}
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
         </div>
     )
 }

@@ -81,8 +81,12 @@ export default {
         exportVideo: '带字幕的视频 (MP4)',
         exportVideoDesc: '渲染并下载视频',
         exportVideoReadyDesc: '准备下载',
+        exportOriginalVideo: '原始视频 (MP4)',
+        exportOriginalVideoDesc: '下载不含字幕的原始视频',
         exportSrt: '字幕文件 (.SRT)',
         exportSrtDesc: '下载字幕文件',
+        exportTxt: '字幕纯文本 (.TXT)',
+        exportTxtDesc: '下载不含时间戳的文本字幕',
         rendering: '渲染中 ({progress}%)',
         
         // Tabs

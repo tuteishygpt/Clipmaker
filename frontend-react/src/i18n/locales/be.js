@@ -81,8 +81,12 @@ export default {
         exportVideo: 'Відэа з субцітрамі (MP4)',
         exportVideoDesc: 'Рэндэрынг і спампоўка',
         exportVideoReadyDesc: 'Гатова да спампоўкі',
+        exportOriginalVideo: 'Арыгінальнае відэа (MP4)',
+        exportOriginalVideoDesc: 'Спампаваць зыходнае відэа без субцітраў',
         exportSrt: 'Субцітры (.SRT)',
         exportSrtDesc: 'Спампаваць файл субцітраў',
+        exportTxt: 'Тэкст субцітраў (.TXT)',
+        exportTxtDesc: 'Спампаваць чысты тэкст без таймінгаў',
         rendering: 'Рэндэрынг ({progress}%)',
         
         // Tabs
