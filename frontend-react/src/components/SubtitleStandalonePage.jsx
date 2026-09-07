@@ -99,18 +99,36 @@ export default function SubtitleStandalonePage() {
     const [entryToDelete, setEntryToDelete] = useState(null)
     const [isMobile, setIsMobile] = useState(() => {
         if (typeof window !== 'undefined') {
-            return window.innerWidth <= 768
+            return window.matchMedia ? window.matchMedia('(max-width: 768px)').matches : window.innerWidth <= 768
         }
         return false
     })
 
+    // Listen to media query changes
     useEffect(() => {
-        const handleResize = () => {
-            setIsMobile(window.innerWidth <= 768)
+        if (typeof window === 'undefined' || !window.matchMedia) return
+        const mql = window.matchMedia('(max-width: 768px)')
+        const handleChange = (e) => setIsMobile(e.matches)
+        if (mql.addEventListener) {
+            mql.addEventListener('change', handleChange)
+            return () => mql.removeEventListener('change', handleChange)
+        } else {
+            mql.addListener(handleChange)
+            return () => mql.removeListener(handleChange)
         }
-        window.addEventListener('resize', handleResize)
-        return () => window.removeEventListener('resize', handleResize)
     }, [])
+
+    // Lock body scroll when mobile bottom sheet modal is open
+    useEffect(() => {
+        if (typeof document === 'undefined') return
+        if (isMobile && (isDropdownOpen || isExportDropdownOpen)) {
+            const originalOverflow = document.body.style.overflow
+            document.body.style.overflow = 'hidden'
+            return () => {
+                document.body.style.overflow = originalOverflow
+            }
+        }
+    }, [isMobile, isDropdownOpen, isExportDropdownOpen])
 
     // Refs
     const playerRef = useRef(null)
@@ -788,6 +806,12 @@ export default function SubtitleStandalonePage() {
         }
     }
 
+    // Helper to get safe base project title without file extensions
+    const getBaseTitle = useCallback((fallback = 'video') => {
+        const raw = projectTitle || fallback
+        return raw.replace(/\.[^/.]+$/, '').trim() || fallback
+    }, [projectTitle])
+
     // Export Video: triggers render automatically if modified/not rendered, then downloads
     const handleExportVideo = async () => {
         setIsExportDropdownOpen(false)
@@ -795,7 +819,7 @@ export default function SubtitleStandalonePage() {
 
         // If video is already rendered and no edits were made, download directly
         if (status === 'done' && !isRenderDirty && downloadVideoUrl) {
-            triggerFileDownload(downloadVideoUrl, `${projectTitle || 'video'}.mp4`)
+            triggerFileDownload(downloadVideoUrl, `${getBaseTitle('video')}.mp4`)
             return
         }
 
@@ -810,7 +834,7 @@ export default function SubtitleStandalonePage() {
         if (!projectId) return
         await flushPendingAutosave(entries, styling)
         if (srtDownloadUrl) {
-            triggerFileDownload(srtDownloadUrl, `${projectTitle || 'subtitles'}.srt`)
+            triggerFileDownload(srtDownloadUrl, `${getBaseTitle('subtitles')}.srt`)
         }
     }
 
@@ -818,7 +842,7 @@ export default function SubtitleStandalonePage() {
     const handleExportOriginalVideo = () => {
         setIsExportDropdownOpen(false)
         if (!videoUrl) return
-        triggerFileDownload(videoUrl, `${projectTitle || 'video'}_original.mp4`)
+        triggerFileDownload(videoUrl, `${getBaseTitle('video')}_original.mp4`)
     }
 
     // Export Subtitles as Plain Text (.TXT)
@@ -832,14 +856,15 @@ export default function SubtitleStandalonePage() {
             .join('\n\n')
         const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' })
         const blobUrl = URL.createObjectURL(blob)
-        triggerFileDownload(blobUrl, `${projectTitle || 'subtitles'}.txt`)
+        triggerFileDownload(blobUrl, `${getBaseTitle('subtitles')}.txt`)
         setTimeout(() => URL.revokeObjectURL(blobUrl), 2000)
     }
 
     // Keyboard Shortcuts (Space to play/pause, arrows to seek)
     useEffect(() => {
         const handleKeyDown = (e) => {
-            if (isUserTypingRef.current) return
+            const activeTag = document.activeElement?.tagName
+            if (activeTag === 'INPUT' || activeTag === 'TEXTAREA' || document.activeElement?.isContentEditable || isUserTypingRef.current) return
             if (status !== 'ready' && status !== 'done') return
 
             if (e.code === 'Space') {
@@ -1088,7 +1113,7 @@ export default function SubtitleStandalonePage() {
             )}
 
             {/* 3. Subtitles File (.SRT) */}
-            {srtDownloadUrl && (
+            {srtDownloadUrl && entries && entries.length > 0 && (
                 <button
                     type="button"
                     className="export-dropdown-item"
@@ -1769,7 +1794,7 @@ export default function SubtitleStandalonePage() {
                                     type="button"
                                     className="btn-bottom-sheet-close"
                                     onClick={() => setIsExportDropdownOpen(false)}
-                                    aria-label="Close"
+                                    aria-label={t('common.close') || 'Close'}
                                 >
                                     ✕
                                 </button>
@@ -1805,7 +1830,7 @@ export default function SubtitleStandalonePage() {
                                         setIsDropdownOpen(false)
                                         setProjectSearchQuery('')
                                     }}
-                                    aria-label="Close"
+                                    aria-label={t('common.close') || 'Close'}
                                 >
                                     ✕
                                 </button>

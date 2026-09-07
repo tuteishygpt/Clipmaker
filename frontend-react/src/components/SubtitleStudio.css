@@ -1523,7 +1523,7 @@
         animation: slideUpBottom 0.24s cubic-bezier(0.16, 1, 0.3, 1) !important;
         max-height: 85vh !important;
         max-height: 85dvh !important;
-        overflow-y: auto !important;
+        overflow: hidden !important;
         display: flex !important;
         flex-direction: column !important;
         gap: 12px !important;
@@ -1579,6 +1579,8 @@
         flex-direction: column;
         gap: 8px;
         overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
     }
 
     .bottom-sheet-body .export-dropdown-item {
