@@ -25,9 +25,17 @@ class ShowcaseItem(BaseModel):
 
 
 @router.get("/")
+@router.get("/studio")
 @router.get("/subtitles")
 @router.get("/cabinet")
 @router.get("/auth")
+@router.get("/reset-password")
+@router.get("/privacy")
+@router.get("/terms")
+@router.get("/refund")
+@router.get("/pricing")
+@router.get("/partners")
+@router.get("/contact")
 @router.get("/app")
 async def index() -> FileResponse:
     """Serve the main HTML page."""
