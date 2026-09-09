@@ -485,6 +485,7 @@ class GenAIClient:
         user_style: str = "cinematic",
         user_description: str = "",
         character_description: str = "",
+        video_format: str = "9:16",
         use_batch: bool = False,
     ) -> dict[str, Any] | str:
         """Analyze audio track for video clip creation."""
@@ -509,6 +510,7 @@ class GenAIClient:
         prompt = f"""
         Analyze the audio track in this song to create a PROFESSIONAL music video plan.
         The total duration of the audio is {duration:.2f} seconds.
+        Target Video Format: "{video_format}" (e.g. 9:16 vertical for Shorts/TikTok/Reels, 16:9 widescreen, or 1:1 square).
         
         USER REQUEST / PLOT DESCRIPTION:
         "{user_description}"
@@ -669,12 +671,33 @@ class GenAIClient:
         use_batch: bool = False,
     ) -> dict[str, Any]:
         """Build image generation prompts for segments."""
+        format_ratio = "9:16"
         style_anchor = ""
-        if analysis and "visual_style_anchor" in analysis:
-            style_anchor = analysis["visual_style_anchor"]
+        character_desc = ""
+        user_desc = ""
         
+        if analysis:
+            format_ratio = analysis.get("format") or analysis.get("aspect_ratio") or "9:16"
+            style_anchor = analysis.get("visual_style_anchor") or analysis.get("style") or ""
+            character_desc = analysis.get("character_description") or ""
+            user_desc = analysis.get("user_description") or ""
+            
+        if not style_anchor:
+            style_anchor = "cinematic lighting, photorealistic, intricate detail, sharp focus"
+            
+        format_guidance = (
+            "Vertical portrait framing (9:16 aspect ratio) suited for mobile full-screen viewing (TikTok/Reels/Shorts). "
+            "Compose elements vertically, center subjects or use vertical thirds, emphasize vertical depth and height."
+            if format_ratio == "9:16"
+            else f"Target framing format: {format_ratio}."
+        )
+
         prompt = f"""
         For each of these segments, create a detailed image generation prompt.
+        
+        TARGET FORMAT & FRAMING:
+        Aspect Ratio: {format_ratio}
+        {format_guidance}
         
         Global Style Anchor: "{style_anchor}" 
         (YOU MUST APPEND THIS EXACT STYLE DESCRIPTION TO EVERY SINGLE PROMPT TO ENSURE CONSISTENCY).
@@ -684,8 +707,11 @@ class GenAIClient:
         (Unless the user style explicitly contradicts this, e.g. "pixel art").
 
         CHARACTER CONSISTENCY:
-        Character Description: "{analysis.get('character_description', '')}"
+        Character Description: "{character_desc}"
         (If the character appears, they MUST match this description. If the scene allows, feature this character).
+        
+        USER PLOT CONTEXT:
+        "{user_desc}"
         
         Segments: {segments}
         
@@ -693,6 +719,7 @@ class GenAIClient:
         - image_prompt: the detailed prompt for the AI image generator. MUST include the Style Anchor and Visual Intent.
         - negative_prompt: "blurry, low quality, distorted, bad anatomy, text, watermark, signature, ugly"
         - style_hints: keywords about the style (optional)
+        - aspect_ratio: "{format_ratio}"
         
         Return ONLY the JSON object.
         """
@@ -721,15 +748,36 @@ class GenAIClient:
     def generate_image(self, prompt_payload: dict[str, Any]) -> bytes:
         """Generate an image from a prompt via Vertex AI."""
         prompt = prompt_payload.get("image_prompt", "Cinematic scene")
+        aspect_ratio = (
+            prompt_payload.get("aspect_ratio")
+            or prompt_payload.get("format")
+            or "9:16"
+        )
+        valid_ratios = {"1:1", "9:16", "16:9", "3:4", "4:3"}
+        if aspect_ratio not in valid_ratios:
+            aspect_ratio = "9:16"
+            
+        negative_prompt = prompt_payload.get(
+            "negative_prompt",
+            "blurry, low quality, distorted, bad anatomy, text, watermark, signature, ugly",
+        )
         
         try:
             image_mod = self._normalize_model_name(self.image_model)
             # Check if we are using an Imagen model
             if "imagen" in image_mod.lower():
+                config = None
+                if hasattr(types, "GenerateImagesConfig"):
+                    config = types.GenerateImagesConfig(
+                        number_of_images=1,
+                        aspect_ratio=aspect_ratio,
+                        negative_prompt=negative_prompt,
+                    )
                 response = self._call_with_retry(
                     lambda: self._client.models.generate_images(
                         model=image_mod,
                         prompt=prompt,
+                        config=config,
                     ),
                     operation_label="generate_image (Imagen)",
                 )
@@ -748,35 +796,42 @@ class GenAIClient:
                 ),
             ]
             
-            generate_content_config = types.GenerateContentConfig(
-                response_modalities=["IMAGE"],
-            )
+            config_kwargs: dict[str, Any] = {
+                "response_modalities": ["IMAGE"],
+            }
+            if hasattr(types, "ImageConfig"):
+                try:
+                    config_kwargs["image_config"] = types.ImageConfig(
+                        aspect_ratio=aspect_ratio
+                    )
+                except Exception as ic_err:
+                    logger.warning(f"Could not instantiate types.ImageConfig: {ic_err}")
+
+            generate_content_config = types.GenerateContentConfig(**config_kwargs)
             
-            total_bytes = b""
-            stream = self._call_with_retry(
-                lambda: self._client.models.generate_content_stream(
+            def _fetch_multimodal_image() -> bytes:
+                response = self._client.models.generate_content(
                     model=image_mod,
                     contents=contents,
                     config=generate_content_config,
-                ),
-                operation_label="generate_image (Multimodal Stream)",
-            )
-            for chunk in stream:
+                )
                 if (
-                    chunk.candidates is None
-                    or not chunk.candidates
-                    or chunk.candidates[0].content is None
-                    or chunk.candidates[0].content.parts is None
-                    or not chunk.candidates[0].content.parts
+                    response.candidates
+                    and response.candidates[0].content
+                    and response.candidates[0].content.parts
                 ):
-                    continue
-                
-                part = chunk.candidates[0].content.parts[0]
-                if part.inline_data and part.inline_data.data:
-                    total_bytes += part.inline_data.data
+                    for part in response.candidates[0].content.parts:
+                        if part.inline_data and part.inline_data.data:
+                            return part.inline_data.data
+                raise RuntimeError("Empty image response from multimodal model")
+
+            image_bytes = self._call_with_retry(
+                _fetch_multimodal_image,
+                operation_label="generate_image (Multimodal)",
+            )
             
-            self._log_interaction("generate_image (Multimodal Stream)", prompt, f"<Generated {len(total_bytes)} bytes>")
-            return total_bytes
+            self._log_interaction("generate_image (Multimodal)", prompt, f"<Generated {len(image_bytes)} bytes>")
+            return image_bytes
             
         except Exception as e:
             logger.error(f"Image generation failed: {e}")

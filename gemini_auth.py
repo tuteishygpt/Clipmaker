@@ -55,6 +55,11 @@ def _is_retryable_error(exc: Exception | None) -> bool:
         "quota",
         "rate limit",
         "too many requests",
+        "500",
+        "internal",
+        "internal server error",
+        "502",
+        "bad gateway",
         "503",
         "unavailable",
         "service unavailable",
@@ -65,13 +70,19 @@ def _is_retryable_error(exc: Exception | None) -> bool:
         "connection timed out",
         "read timed out",
         "timeout",
+        "remote end closed connection",
+        "server disconnected",
+        "broken pipe",
+        "empty image response",
+        "try again later",
+        "temporary failure",
     )
     if any(pat in err_text for pat in retryable_patterns):
         return True
 
     if isinstance(
         exc,
-        (TimeoutError, ConnectionResetError, ConnectionRefusedError, ConnectionAbortedError),
+        (TimeoutError, ConnectionResetError, ConnectionRefusedError, ConnectionAbortedError, BrokenPipeError),
     ):
         return True
 

@@ -151,7 +151,10 @@ class PipelineService:
                     "output": str(output_path),
                     "render_duration_seconds": round(render_duration, 1),
                 })
-                self.project_repo.update(project_id, {"status": "DONE"})
+                self.project_repo.update(project_id, {
+                    "status": "DONE",
+                    "video_output": f"/projects/{project_id}/renders/{output_path.name}"
+                })
                 
                 return str(output_path)
             

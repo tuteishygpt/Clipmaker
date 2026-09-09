@@ -301,11 +301,12 @@ class AudioAnalysisService:
         # Technical analysis (librosa)
         technical_analysis = _analyze_audio_technical(audio_path)
         
-        # Get project info for style and description
+        # Get project info for style, format, and description
         project = self.project_repo.get(project_id) or {}
         user_style = project.get("style", "cinematic")
         user_description = project.get("user_description", "")
         character_description = project.get("character_description", "")
+        project_format = project.get("format", "9:16")
         
         # GenAI analysis logic
         if not use_batch:
@@ -316,6 +317,7 @@ class AudioAnalysisService:
                 user_style=user_style,
                 user_description=user_description,
                 character_description=character_description,
+                video_format=project_format,
                 use_batch=False
             )
         else:
@@ -331,6 +333,7 @@ class AudioAnalysisService:
                 user_style=user_style,
                 user_description=user_description,
                 character_description=character_description,
+                video_format=project_format,
                 use_batch=True
             )
             
@@ -367,6 +370,9 @@ class AudioAnalysisService:
         analysis["total_duration"] = duration
         analysis["technical_stats"] = technical_analysis
         analysis["character_description"] = character_description
+        analysis["user_description"] = user_description
+        analysis["style"] = user_style
+        analysis["format"] = project_format
         
         # Handle Video Plan
         # 1. Procedural plan (always good for Drops/Beats)

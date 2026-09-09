@@ -32,6 +32,11 @@ class ImageService:
         use_batch: bool = True
     ) -> dict[str, Any]:
         """Generate image prompts for all segments."""
+        project = self.project_repo.get(project_id) or {}
+        project_format = project.get("format") or analysis.get("format", "9:16")
+        if analysis and "format" not in analysis:
+            analysis["format"] = project_format
+
         if not use_batch:
             prompts = self.genai.build_prompts(segments, analysis, use_batch=False)
         else:
@@ -79,10 +84,18 @@ class ImageService:
             if isinstance(prompts, dict) and "prompts" in prompts:
                  prompts = prompts["prompts"]
 
-        # Ensure version exists for local tracking
+        # Ensure version and aspect ratio exist for local tracking
         for seg_id, data in prompts.items():
-            if "version" not in data:
-                data["version"] = 1
+            if not isinstance(data, dict):
+                continue
+            max_v = self.file_storage.get_max_version(project_id, seg_id)
+            cur_v = data.get("version", 0)
+            # If an image for this segment already exists on disk, advance to next version
+            data["version"] = (max_v + 1) if max_v > 0 else (cur_v or 1)
+            if "aspect_ratio" not in data:
+                data["aspect_ratio"] = project_format
+            if "format" not in data:
+                data["format"] = project_format
 
         self.project_repo.save_prompts(project_id, prompts)
         return prompts
@@ -92,7 +105,8 @@ class ImageService:
         project_id: str,
         prompts: dict[str, Any],
         progress_callback: Callable[[int], None] | None = None,
-        use_batch: bool = True
+        use_batch: bool = True,
+        force: bool = False,
     ) -> None:
         """
         Generate images for all segments.
@@ -102,19 +116,23 @@ class ImageService:
             prompts: Dictionary mapping segment IDs to prompt payloads.
             progress_callback: Callback for progress updates (0-100).
             use_batch: If True, uses Gemini Batch API. If False, uses parallel direct requests.
+            force: If True, regenerates images even if they already exist on disk.
         """
         if not prompts:
             return
 
         if not use_batch:
-            self._generate_images_interactive(project_id, prompts, progress_callback)
+            self._generate_images_interactive(project_id, prompts, progress_callback, force=force)
             return
 
         # --- Batch Mode ---
         from .batch_service import BatchService
         batch_service = BatchService()
         
-        logger.info(f"Starting BATCH image generation for project {project_id} with {len(prompts)} prompts")
+        project = self.project_repo.get(project_id) or {}
+        project_format = project.get("format", "9:16")
+        
+        logger.info(f"Starting BATCH image generation for project {project_id} with {len(prompts)} prompts (format: {project_format})")
         if progress_callback:
             progress_callback(5)
 
@@ -122,6 +140,7 @@ class ImageService:
         batch_requests = []
         for seg_id, payload in prompts.items():
             prompt_text = payload.get("image_prompt", "")
+            aspect_ratio = payload.get("aspect_ratio") or payload.get("format") or project_format
             
             # Construct the request body for generateContent
             # We need to match the structure expected by the model for image generation
@@ -134,7 +153,10 @@ class ImageService:
                     }
                 ],
                 "generationConfig": {
-                    "response_modalities": ["IMAGE"]
+                    "response_modalities": ["IMAGE"],
+                    "imageConfig": {
+                        "aspectRatio": aspect_ratio
+                    }
                 }
             }
             
@@ -227,42 +249,102 @@ class ImageService:
         project_id: str,
         prompts: dict[str, Any],
         progress_callback: Callable[[int], None] | None = None,
+        force: bool = False,
     ) -> None:
-        """Generate images for all segments in parallel (Interactive/Threaded)."""
-        from concurrent.futures import ThreadPoolExecutor, as_completed
+        """Generate images for all segments with strict RPM pacing (e.g. Tier 1: 5 RPM) and retry logic."""
+        import time
+        from ..core.config import settings
+
+        project = self.project_repo.get(project_id) or {}
+        project_format = project.get("format", "9:16")
 
         total = len(prompts)
         completed = 0
-        
-        def _generate_task(item):
-            seg_id, payload = item
-            version = payload.get("version", 1)
-            try:
-                image_bytes = self.genai.generate_image(payload)
-                if image_bytes:
-                    self.file_storage.save_image(project_id, seg_id, version, image_bytes)
-                    return True
-                else:
-                    logger.warning(f"Failed to generate image for {seg_id}")
-                    return False
-            except Exception as e:
-                logger.error(f"Exception generating image for {seg_id}: {e}")
-                return False
+        rpm = getattr(settings, "genai_image_rpm", 5) or 5
+        # 60s / 5 RPM = 12.0s per request + 0.5s safety buffer = 12.5s interval
+        interval = (60.0 / max(rpm, 1)) + 0.5
+        logger.info(f"Generating images for {total} segments (format: {project_format}, RPM limit: {rpm}, pacing interval: {interval:.1f}s, force: {force})")
 
-        # Run up to 5 generations in parallel
-        with ThreadPoolExecutor(max_workers=5) as executor:
-            futures = [executor.submit(_generate_task, item) for item in prompts.items()]
+        last_request_time = 0.0
+
+        def _pace():
+            nonlocal last_request_time
+            if last_request_time > 0:
+                elapsed = time.time() - last_request_time
+                if elapsed < interval:
+                    sleep_time = interval - elapsed
+                    logger.info(f"Pacing ({rpm} RPM): waiting {sleep_time:.1f}s before next image request...")
+                    time.sleep(sleep_time)
+            last_request_time = time.time()
+
+        def _generate_single(seg_id: str, payload: dict[str, Any], max_retries: int = 3) -> bool:
+            version = payload.get("version", 1)
+            if "aspect_ratio" not in payload:
+                payload["aspect_ratio"] = project_format
+            if "format" not in payload:
+                payload["format"] = project_format
             
-            for future in as_completed(futures):
-                completed += 1
-                if progress_callback:
-                    progress = int((completed / total) * 100)
-                    progress_callback(progress)
-                
+            # Check if valid image already exists on disk (avoid redundant generation only if not force)
+            if not force:
+                existing_img = self.file_storage.get_image_path(project_id, f"{seg_id}_v{version}.png")
+                if existing_img and existing_img.exists() and existing_img.stat().st_size > 1000:
+                    logger.info(f"Image for {seg_id} v{version} already exists ({existing_img.stat().st_size} bytes), skipping")
+                    return True
+
+            for attempt in range(1, max_retries + 1):
+                _pace()
                 try:
-                    future.result()
+                    image_bytes = self.genai.generate_image(payload)
+                    if image_bytes and len(image_bytes) > 0:
+                        self.file_storage.save_image(project_id, seg_id, version, image_bytes)
+                        logger.info(f"Successfully generated image for {seg_id} v{version}")
+                        return True
+                    logger.warning(f"Attempt {attempt}/{max_retries} returned empty image for {seg_id}")
                 except Exception as e:
-                     logger.error(f"Task failed with error: {e}")
+                    logger.error(f"Attempt {attempt}/{max_retries} error for {seg_id}: {e}")
+                
+                if attempt < max_retries:
+                    time.sleep(3.0 * attempt)
+
+            logger.error(f"All {max_retries} attempts failed to generate image for {seg_id}")
+            return False
+
+        # Pass 1: Sequential paced generation
+        for seg_id, payload in prompts.items():
+            ok = _generate_single(seg_id, payload)
+            completed += 1
+            if progress_callback:
+                progress = int((completed / total) * 90)
+                progress_callback(progress)
+
+        # Pass 2: Retry any still-missing images
+        missing_items = []
+        for seg_id, payload in prompts.items():
+            version = payload.get("version", 1)
+            img_path = self.file_storage.get_image_path(project_id, f"{seg_id}_v{version}.png")
+            if not img_path or not img_path.exists() or img_path.stat().st_size == 0:
+                missing_items.append((seg_id, payload))
+
+        if missing_items:
+            logger.warning(f"{len(missing_items)} images missing after pass 1. Starting sequential retry pass...")
+            for seg_id, payload in missing_items:
+                ok = _generate_single(seg_id, payload, max_retries=3)
+                if not ok:
+                    logger.error(f"Permanent failure generating image for segment {seg_id}")
+
+        # Final check: Ensure every segment has an image
+        still_missing = []
+        for seg_id, payload in prompts.items():
+            version = payload.get("version", 1)
+            img_path = self.file_storage.get_image_path(project_id, f"{seg_id}_v{version}.png")
+            if not img_path or not img_path.exists() or img_path.stat().st_size == 0:
+                still_missing.append(seg_id)
+
+        if still_missing:
+            raise RuntimeError(
+                f"Failed to generate images for {len(still_missing)} segments: {', '.join(still_missing[:5])}. "
+                f"Please check quota or retry."
+            )
 
         if progress_callback:
             progress_callback(100)
@@ -282,17 +364,29 @@ class ImageService:
         seg_text = current_segment.get('lyric_text', current_segment.get('text', 'NO TEXT'))
         logger.info(f"[REGENERATE_SEGMENT] Found segment with text: '{seg_text[:50]}...'")
 
-        # Fetch analysis for context (style, character)
+        project = self.project_repo.get(project_id) or {}
+        project_format = project.get("format", "9:16")
+
+        # Fetch analysis for context (style, character, format)
         analysis = self.project_repo.get_analysis(project_id) or {}
+        analysis["format"] = project_format
+        if project.get("character_description"):
+            analysis["character_description"] = project["character_description"]
+        if project.get("style"):
+            analysis["style"] = project["style"]
+        if project.get("user_description"):
+            analysis["user_description"] = project["user_description"]
         
         # Log for debugging
-        style = analysis.get('visual_style_anchor', 'NO STYLE')
-        logger.info(f"[REGENERATE_SEGMENT] project_id={project_id}, seg_id={seg_id}, style='{style[:50]}...'")
+        style = analysis.get('visual_style_anchor') or analysis.get('style', 'NO STYLE')
+        logger.info(f"[REGENERATE_SEGMENT] project_id={project_id}, seg_id={seg_id}, format={project_format}, style='{style[:50]}...'")
         
         # Get existing prompt data for version tracking
         prompts = self.project_repo.get_prompts(project_id)
         old_prompt_data = prompts.get(seg_id, {})
-        new_version = int(old_prompt_data.get("version", 1)) + 1
+        max_v = self.file_storage.get_max_version(project_id, seg_id)
+        cur_v = int(old_prompt_data.get("version", 1))
+        new_version = max(max_v, cur_v) + 1
         
         # Re-build prompt using the (potentially updated) segment description
         # We pass a list containing just this segment
@@ -302,10 +396,10 @@ class ImageService:
         if not new_prompt_data:
             logger.warning(f"Failed to rebuild prompt for {seg_id}, using old prompt")
             new_prompt_data = old_prompt_data
-            # Should at least update the prompt text if we can't rebuild fully?
-            # ideally build_prompts works.
         
         new_prompt_data["version"] = new_version
+        new_prompt_data["aspect_ratio"] = project_format
+        new_prompt_data["format"] = project_format
         
         # Save updated prompt
         self.project_repo.update_prompt(project_id, seg_id, new_prompt_data)
@@ -332,8 +426,18 @@ class ImageService:
         if not current_segment:
             raise KeyError(f"Segment {seg_id} not found")
 
+        project = self.project_repo.get(project_id) or {}
+        project_format = project.get("format", "9:16")
+
         # Fetch analysis for context
         analysis = self.project_repo.get_analysis(project_id) or {}
+        analysis["format"] = project_format
+        if project.get("character_description"):
+            analysis["character_description"] = project["character_description"]
+        if project.get("style"):
+            analysis["style"] = project["style"]
+        if project.get("user_description"):
+            analysis["user_description"] = project["user_description"]
         
         # Get existing prompt data for version tracking
         prompts = self.project_repo.get_prompts(project_id)
@@ -349,8 +453,10 @@ class ImageService:
             logger.warning(f"Failed to rebuild prompt for {seg_id}")
             raise RuntimeError(f"Failed to rebuild prompt for {seg_id}")
         
-        # Preserve version
+        # Preserve version and set aspect ratio
         new_prompt_data["version"] = current_version
+        new_prompt_data["aspect_ratio"] = project_format
+        new_prompt_data["format"] = project_format
         
         # Save updated prompt
         self.project_repo.update_prompt(project_id, seg_id, new_prompt_data)
@@ -360,6 +466,9 @@ class ImageService:
 
     def regenerate_image_only(self, project_id: str, seg_id: str) -> dict[str, Any]:
         """Regenerate only the image using existing prompt (new version)."""
+        project = self.project_repo.get(project_id) or {}
+        project_format = project.get("format", "9:16")
+
         # Get existing prompt data
         prompts = self.project_repo.get_prompts(project_id)
         prompt_data = prompts.get(seg_id)
@@ -371,8 +480,12 @@ class ImageService:
             raise ValueError(f"No image_prompt found for segment {seg_id}")
         
         # Increment version for new image
-        new_version = int(prompt_data.get("version", 1)) + 1
+        max_v = self.file_storage.get_max_version(project_id, seg_id)
+        cur_v = int(prompt_data.get("version", 1))
+        new_version = max(max_v, cur_v) + 1
         prompt_data["version"] = new_version
+        prompt_data["aspect_ratio"] = project_format
+        prompt_data["format"] = project_format
         
         # Save updated version
         self.project_repo.update_prompt(project_id, seg_id, prompt_data)
@@ -383,7 +496,7 @@ class ImageService:
             self.file_storage.save_image(
                 project_id, seg_id, new_version, image_bytes
             )
-            logger.info(f"Regenerated image only for {seg_id} as v{new_version}")
+            logger.info(f"Regenerated image only for {seg_id} as v{new_version} (format: {project_format})")
         else:
             logger.error(f"Failed to generate image bytes for {seg_id}")
             raise RuntimeError(f"Failed to generate image for {seg_id}")

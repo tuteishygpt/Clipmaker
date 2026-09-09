@@ -22,6 +22,7 @@ class Settings:
     genai_subtitle_model: str = "gemini-3.5-transcribe"
     genai_text_mode: str = "standard"
     genai_image_mode: str = "standard"
+    genai_image_rpm: int = 5
     
     # Google Cloud Vertex AI
     google_genai_use_vertexai: bool = True
@@ -58,6 +59,7 @@ class Settings:
             genai_subtitle_model=os.getenv("GENAI_SUBTITLE_MODEL") or os.getenv("mod", "gemini-3.5-transcribe"),
             genai_text_mode=os.getenv("GENAI_TEXT_MODE", "standard"),
             genai_image_mode=os.getenv("GENAI_IMAGE_MODE", "standard"),
+            genai_image_rpm=int(os.getenv("GENAI_IMAGE_RPM", "5")),
             google_genai_use_vertexai=use_vertex,
             google_cloud_project=os.getenv("GOOGLE_CLOUD_PROJECT") or os.getenv("GOOGLE_PROJECT"),
             google_cloud_location=os.getenv("GOOGLE_CLOUD_LOCATION") or os.getenv("GOOGLE_VERTEX_LOCATION") or "global",

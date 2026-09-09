@@ -275,7 +275,12 @@ class RenderService:
     ) -> Any:
         """Create final video from segments."""
         fmt = project.get("format", "9:16")
-        size = (720, 1280) if fmt == "9:16" else (1280, 720)
+        if fmt == "9:16":
+            size = (720, 1280)
+        elif fmt == "1:1":
+            size = (1080, 1080)
+        else:
+            size = (1280, 720)
         
         clips = []
         # "Golden rule": Transition is a beat. Needs to be snappy.
@@ -302,6 +307,12 @@ class RenderService:
             img_path = self.file_storage.get_image_path(
                 project_id, f"{seg_id}_v{version}.png"
             )
+            if not img_path:
+                max_v = self.file_storage.get_max_version(project_id, seg_id)
+                if max_v > 0:
+                    img_path = self.file_storage.get_image_path(
+                        project_id, f"{seg_id}_v{max_v}.png"
+                    )
             if not img_path:
                 logger.warning(f"Missing image for segment {seg_id} (version {version})")
                 continue
