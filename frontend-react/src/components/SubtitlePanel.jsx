@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from '../i18n'
 import './SubtitlePanel.css'
 
 import { BASE_URL as API_BASE } from '../api'
@@ -47,6 +48,7 @@ const STYLE_PRESETS = [
 ]
 
 export default function SubtitlePanel({ projectId, isExpanded, onToggle, inSidebar = false }) {
+    const { t } = useTranslation()
     const [entries, setEntries] = useState([])
     const [styling, setStyling] = useState(DEFAULT_STYLING)
     const [loading, setLoading] = useState(false)
@@ -223,24 +225,24 @@ export default function SubtitlePanel({ projectId, isExpanded, onToggle, inSideb
                         onClick={generateSubtitles}
                         disabled={generating || loading}
                     >
-                        {generating ? <span className="spinner" /> : '🎤'} Generate
+                        {generating ? <span className="spinner" /> : '🎤'} {t('studio.subtitlesPanel.generate')}
                     </button>
                     <label className="btn-import">
-                        📄 Import
+                        📄 {t('studio.subtitlesPanel.import')}
                         <input type="file" accept=".srt" hidden onChange={(e) => e.target.files?.[0] && importSrt(e.target.files[0])} />
                     </label>
                     {entries.length > 0 && (
                         <>
-                            <a href={`${API_BASE}/projects/${projectId}/subtitles/download`} className="btn-icon" title="Download SRT">⬇️</a>
-                            <button className="btn-icon btn-danger" onClick={deleteSubtitles} title="Delete all">🗑️</button>
+                            <a href={`${API_BASE}/projects/${projectId}/subtitles/download`} className="btn-icon" title={t('studio.subtitlesPanel.downloadSrt')}>⬇️</a>
+                            <button className="btn-icon btn-danger" onClick={deleteSubtitles} title={t('studio.subtitlesPanel.deleteAll')}>🗑️</button>
                         </>
                     )}
                     {saving ? (
                         <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <span className="spinner" style={{ width: '10px', height: '10px', borderWidth: '1px' }} /> Saving...
+                            <span className="spinner" style={{ width: '10px', height: '10px', borderWidth: '1px' }} /> {t('studio.subtitlesPanel.saving')}
                         </span>
                     ) : hasChanges ? (
-                        <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)' }}>Wait...</span>
+                        <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)' }}>{t('studio.subtitlesPanel.wait')}</span>
                     ) : null}
                     <button className="btn-close" onClick={onToggle}>✕</button>
                 </div>
@@ -252,15 +254,15 @@ export default function SubtitlePanel({ projectId, isExpanded, onToggle, inSideb
                 {loading ? (
                     <div className="subtitle-loading">
                         <span className="spinner large" />
-                        <span>Loading subtitles...</span>
+                        <span>{t('studio.subtitlesPanel.loading')}</span>
                     </div>
                 ) : activeSection === 'entries' ? (
                     <div className="entries-compact">
                         {entries.length === 0 ? (
                             <div className="no-entries">
                                 <span className="empty-icon">💬</span>
-                                <p>No subtitles yet</p>
-                                <span className="empty-hint">Click "Generate" to create from audio or "Import" an SRT file</span>
+                                <p>{t('studio.subtitlesPanel.noSubtitles')}</p>
+                                <span className="empty-hint">{t('studio.subtitlesPanel.noSubtitlesHint')}</span>
                             </div>
                         ) : (
                             <div className="entries-scroll">
@@ -313,13 +315,13 @@ export default function SubtitlePanel({ projectId, isExpanded, onToggle, inSideb
                         <div className={`style-group ${expandedGroup === 'text' ? 'expanded' : ''}`}>
                             <button className="group-header" onClick={() => toggleGroup('text')}>
                                 <span className="group-icon">🔤</span>
-                                <span className="group-title">Text Style</span>
+                                <span className="group-title">{t('studio.subtitlesPanel.textStyle')}</span>
                                 <span className="group-chevron">{expandedGroup === 'text' ? '▼' : '▶'}</span>
                             </button>
                             {expandedGroup === 'text' && (
                                 <div className="group-content">
                                     <div className="control-row">
-                                        <label>Font</label>
+                                        <label>{t('studio.subtitlesPanel.font')}</label>
                                         <select
                                             value={styling.font_family}
                                             onChange={(e) => updateStyling('font_family', e.target.value)}
@@ -333,7 +335,7 @@ export default function SubtitlePanel({ projectId, isExpanded, onToggle, inSideb
                                         </select>
                                     </div>
                                     <div className="control-row">
-                                        <label>Size</label>
+                                        <label>{t('studio.subtitlesPanel.size')}</label>
                                         <div className="slider-with-value">
                                             <input
                                                 type="range"
@@ -347,7 +349,7 @@ export default function SubtitlePanel({ projectId, isExpanded, onToggle, inSideb
                                     </div>
                                     <div className="control-row colors">
                                         <div className="color-control">
-                                            <label>Fill</label>
+                                            <label>{t('studio.subtitlesPanel.fill')}</label>
                                             <div className="color-picker-wrapper">
                                                 <input
                                                     type="color"
@@ -358,7 +360,7 @@ export default function SubtitlePanel({ projectId, isExpanded, onToggle, inSideb
                                             </div>
                                         </div>
                                         <div className="color-control">
-                                            <label>Stroke</label>
+                                            <label>{t('studio.subtitlesPanel.stroke')}</label>
                                             <div className="color-picker-wrapper">
                                                 <input
                                                     type="color"
@@ -370,7 +372,7 @@ export default function SubtitlePanel({ projectId, isExpanded, onToggle, inSideb
                                         </div>
                                     </div>
                                     <div className="control-row">
-                                        <label>Stroke Width</label>
+                                        <label>{t('studio.subtitlesPanel.strokeWidth')}</label>
                                         <div className="slider-with-value">
                                             <input
                                                 type="range"
@@ -389,7 +391,7 @@ export default function SubtitlePanel({ projectId, isExpanded, onToggle, inSideb
                                                 checked={styling.uppercase}
                                                 onChange={(e) => updateStyling('uppercase', e.target.checked)}
                                             />
-                                            <span className="toggle-text">UPPERCASE</span>
+                                            <span className="toggle-text">{t('studio.subtitlesPanel.uppercase')}</span>
                                         </label>
                                     </div>
                                 </div>
@@ -400,7 +402,7 @@ export default function SubtitlePanel({ projectId, isExpanded, onToggle, inSideb
                         <div className={`style-group ${expandedGroup === 'highlight' ? 'expanded' : ''}`}>
                             <button className="group-header" onClick={() => toggleGroup('highlight')}>
                                 <span className="group-icon">✨</span>
-                                <span className="group-title">Highlight Style</span>
+                                <span className="group-title">{t('studio.subtitlesPanel.highlightStyle')}</span>
                                 <span className="group-chevron">{expandedGroup === 'highlight' ? '▼' : '▶'}</span>
                             </button>
                             {expandedGroup === 'highlight' && (

@@ -1,13 +1,15 @@
 import { useProjectStore } from '../stores/projectStore'
+import { useTranslation } from '../i18n'
 import SceneCard from './SceneCard'
 
 function Scenes() {
     const { segments, projectId } = useProjectStore()
+    const { t } = useTranslation()
 
     if (!segments || !Array.isArray(segments) || segments.length === 0) {
         return (
             <div className="scenes">
-                <p className="muted">Scenes not ready yet.</p>
+                <p className="muted">{t('studio.scenes.notReady')}</p>
             </div>
         )
     }

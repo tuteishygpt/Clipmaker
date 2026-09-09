@@ -3,6 +3,7 @@ import { useAuthStore } from '../stores/authStore'
 import { useBillingStore } from '../stores/billingStore'
 import { isSupabaseConfigured } from '../lib/supabase'
 import { useTranslation } from '../i18n'
+import LanguageSwitcher from './common/LanguageSwitcher'
 
 function Header() {
     const { user } = useAuthStore()
@@ -25,6 +26,7 @@ function Header() {
             </div>
 
             <div className="header-right">
+                <LanguageSwitcher compact={true} />
                 <p className="tagline">{t('nav.tagline')}</p>
                 {/* Right side - User info */}
                 {isSupabaseConfigured() && (

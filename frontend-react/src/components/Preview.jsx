@@ -4,6 +4,7 @@ import { getDownloadUrl } from '../api'
 import { fixImageUrl } from '../utils'
 import Timeline from './Timeline'
 import AnalysisVisualization from './AnalysisVisualization'
+import { useTranslation } from '../i18n'
 
 /**
  * Generates text-shadow CSS that mimics PILlow's stroke rendering.
@@ -132,6 +133,7 @@ function renderSubtitleWithHighlights(text, styling, scaleFactor, progress = -1)
 
 function Preview({ showSubtitlePreview = false }) {
     const { projectId, videoOutput, segments, jobs, project } = useProjectStore()
+    const { t } = useTranslation()
     const videoRef = useRef(null)
     const previewBoxRef = useRef(null)
     const [imgError, setImgError] = useState(false)
@@ -431,7 +433,7 @@ function Preview({ showSubtitlePreview = false }) {
                 {!isPipelineRunning && !hasVideo && (!lastImage || imgError) && (
                     <div className="preview-placeholder">
                         <div className="placeholder-icon">🎬</div>
-                        <p>{imgError ? "Preview Image Error" : "Preview will appear here"}</p>
+                        <p>{imgError ? t('studio.preview.error') : t('studio.preview.placeholder')}</p>
                     </div>
                 )}
 

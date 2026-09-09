@@ -3,9 +3,10 @@ import { useAuthStore } from '../stores/authStore'
 import { useBillingStore } from '../stores/billingStore'
 import { isSupabaseConfigured } from '../lib/supabase'
 import ProgressBar from './common/ProgressBar'
+import { useTranslation } from '../i18n'
 
 function GenerationControls() {
-
+    const { t } = useTranslation()
     const {
         projectId,
         jobs,
@@ -39,14 +40,14 @@ function GenerationControls() {
         // If Supabase is configured and user is logged in, check credits
         if (isSupabaseConfigured() && user) {
             if (!canGenerate) {
-                addToast(generationBlockReason || 'Cannot generate at this time', 'error')
+                addToast(generationBlockReason || t('studio.generation.cannotGenerate'), 'error')
                 return
             }
 
             // Note: Credits will be deducted per-image by the backend
             // Here we just verify eligibility
             if (credits < 1) {
-                addToast('Insufficient credits. Please purchase more to continue.', 'error')
+                addToast(t('studio.generation.insufficientCredits'), 'error')
                 return
             }
         }
@@ -61,14 +62,14 @@ function GenerationControls() {
 
     return (
         <div className="generation-controls">
-            <h2>Generation Controls</h2>
+            <h2>{t('studio.generation.title')}</h2>
 
             {/* Credits info for logged-in users */}
             {isSupabaseConfigured() && user && (
                 <div className={`credits-info-box ${isGenerationBlocked ? 'warning' : ''}`}>
                     <div className="credits-display-inline">
                         <span className="credits-icon">💎</span>
-                        <span className="credits-count">{credits} credits</span>
+                        <span className="credits-count">{t('studio.generation.credits', { count: credits })}</span>
                     </div>
                     {isGenerationBlocked && (
                         <div className="credits-warning">
@@ -78,7 +79,7 @@ function GenerationControls() {
                     )}
                     {!isGenerationBlocked && (
                         <div className="credits-hint">
-                            ~{estimatedCredits} credits will be used
+                            {t('studio.generation.creditsUsed', { count: estimatedCredits })}
                         </div>
                     )}
                 </div>
@@ -89,15 +90,15 @@ function GenerationControls() {
                 <div className="step-header">
                     <div className="step-number">1</div>
                     <div className="step-info">
-                        <h3>Generate Scenes</h3>
-                        <p>AI will analyze lyrics/beats and create scene descriptions</p>
+                        <h3>{t('studio.generation.step1Title')}</h3>
+                        <p>{t('studio.generation.step1Desc')}</p>
                     </div>
                 </div>
 
                 {isPipelineRunning ? (
                     <div className="job-progress">
                         <ProgressBar
-                            label="Generating Scenes"
+                            label={t('studio.generation.step1Progress')}
                             progress={pipeJob.progress || 0}
                             step={pipeJob.step}
                         />
@@ -111,19 +112,19 @@ function GenerationControls() {
                         {isGenerationBlocked ? (
                             <>
                                 <span className="lock-icon">🔒</span>
-                                Generation Unavailable
+                                {t('studio.generation.genUnavailable')}
                             </>
                         ) : hasScenes ? (
-                            'Regenerate All Scenes'
+                            t('studio.generation.regenAll')
                         ) : (
-                            'Start Generation'
+                            t('studio.generation.startGen')
                         )}
                     </button>
                 )}
 
                 {isGenerationBlocked && (
                     <a href="/cabinet" className="btn-upgrade-inline">
-                        Upgrade to Continue →
+                        {t('studio.generation.upgradeBtn')}
                     </a>
                 )}
             </div>
@@ -135,7 +136,7 @@ function GenerationControls() {
                         onClick={recalculateTimings}
                         disabled={isPipelineRunning || isRenderRunning || isLoading}
                     >
-                        ⏱️ Recalculate Timings
+                        {t('studio.generation.recalcTimings')}
                     </button>
                 </div>
             )}
@@ -145,15 +146,15 @@ function GenerationControls() {
                 <div className="step-header">
                     <div className="step-number">2</div>
                     <div className="step-info">
-                        <h3>Render Video</h3>
-                        <p>Compile all scenes into the final video</p>
+                        <h3>{t('studio.generation.step2Title')}</h3>
+                        <p>{t('studio.generation.step2Desc')}</p>
                     </div>
                 </div>
 
                 {isRenderRunning ? (
                     <div className="job-progress">
                         <ProgressBar
-                            label="Rendering Video"
+                            label={t('studio.generation.step2Progress')}
                             progress={renderJob.progress || 0}
                         />
                     </div>
@@ -163,7 +164,7 @@ function GenerationControls() {
                         onClick={handleRenderVideo}
                         disabled={!hasScenes || isRenderRunning || isPipelineRunning || isLoading}
                     >
-                        Render Final Video
+                        {t('studio.generation.renderFinal')}
                     </button>
                 )}
             </div>

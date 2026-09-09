@@ -1,7 +1,9 @@
 import { useProjectStore } from '../stores/projectStore'
+import { useTranslation } from '../i18n'
 
 function ProjectSelector() {
     const { projects, projectId, project, openProject, loadProjects, resetProject } = useProjectStore()
+    const { t } = useTranslation()
 
     const handleSelect = (e) => {
         const id = e.target.value
@@ -13,11 +15,11 @@ function ProjectSelector() {
     return (
         <div className="project-selector">
             <div className="selector-header">
-                <h3>Projects</h3>
+                <h3>{t('studio.projectSelector.title')}</h3>
                 <button
                     className="btn-refresh-icon"
                     onClick={() => loadProjects()}
-                    title="Refresh list"
+                    title={t('studio.projectSelector.refresh')}
                 >
                     ↻
                 </button>
@@ -28,7 +30,7 @@ function ProjectSelector() {
                 onChange={handleSelect}
                 className="project-dropdown"
             >
-                <option value="">Open existing...</option>
+                <option value="">{t('studio.projectSelector.openExisting')}</option>
                 {projects.map(p => {
                     const date = new Date(p.created_at).toLocaleDateString()
                     const desc = p.user_description
@@ -56,13 +58,13 @@ function ProjectSelector() {
                         <code className="id">{projectId.slice(0, 8)}</code>
                     </div>
                     <button className="btn-new-minimal" onClick={resetProject}>
-                        + NEW
+                        {t('studio.projectSelector.newProject')}
                     </button>
                 </div>
             )}
 
             {!projectId && projects.length === 0 && (
-                <p className="empty-hint">No projects found.</p>
+                <p className="empty-hint">{t('studio.projectSelector.noProjects')}</p>
             )}
         </div>
     )

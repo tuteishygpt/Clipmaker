@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useProjectStore } from '../stores/projectStore'
 import { fixImageUrl } from '../utils'
+import { useTranslation } from '../i18n'
 
 function SceneCard({ segment }) {
     const { updateSegment, regenerateSegment, regeneratePrompt, regenerateImage, showLightbox, projectId } = useProjectStore()
+    const { t } = useTranslation()
 
     const [isEditing, setIsEditing] = useState(false)
     const [saving, setSaving] = useState(false)
@@ -263,15 +265,15 @@ function SceneCard({ segment }) {
                             className="edit-toggle-btn"
                             onClick={handleRegenerate}
                             disabled={regenerating}
-                            title="Regenerate fully (Prompt + Image)"
+                            title={t('studio.scenes.regenTitle')}
                         >
-                            Regenerate
+                            {t('studio.scenes.regenerate')}
                         </button>
                         <button
                             className="edit-toggle-btn"
                             onClick={() => setIsEditing(!isEditing)}
                         >
-                            {isEditing ? 'Hide' : 'Edit'}
+                            {isEditing ? t('studio.scenes.hide') : t('studio.scenes.edit')}
                         </button>
                     </div>
                 </div>
@@ -279,14 +281,14 @@ function SceneCard({ segment }) {
                 {isEditing && (
                     <div className="collapsible-content expanded">
                         <div className="scene-input-group">
-                            <label className="time-label">Start</label>
+                            <label className="time-label">{t('studio.scenes.start')}</label>
                             <input
                                 className="scene-time-input"
                                 value={startTime}
                                 onChange={(e) => setStartTime(e.target.value)}
                                 placeholder="0:00"
                             />
-                            <label className="time-label" style={{ marginLeft: '8px' }}>End</label>
+                            <label className="time-label" style={{ marginLeft: '8px' }}>{t('studio.scenes.end')}</label>
                             <input
                                 className="scene-time-input"
                                 value={endTime}
@@ -295,7 +297,7 @@ function SceneCard({ segment }) {
                             />
                         </div>
 
-                        <label className="scene-label">Text / Lyric</label>
+                        <label className="scene-label">{t('studio.scenes.lyricText')}</label>
                         <textarea
                             className="scene-text-input"
                             value={lyricText}
@@ -303,7 +305,7 @@ function SceneCard({ segment }) {
                             rows={2}
                         />
 
-                        <label className="scene-label">Visual Description</label>
+                        <label className="scene-label">{t('studio.scenes.visualIntent')}</label>
                         <textarea
                             className="scene-text-input"
                             value={visualIntent}
@@ -311,7 +313,7 @@ function SceneCard({ segment }) {
                             rows={3}
                         />
 
-                        <label className="scene-label prompt-label">Image Prompt</label>
+                        <label className="scene-label prompt-label">{t('studio.scenes.imagePrompt')}</label>
                         <textarea
                             className="scene-text-input"
                             value={imagePrompt}
@@ -321,7 +323,7 @@ function SceneCard({ segment }) {
 
                         <div className="extras-grid">
                             <div>
-                                <label className="scene-label">Camera Angle</label>
+                                <label className="scene-label">{t('studio.scenes.cameraAngle')}</label>
                                 <textarea
                                     className="scene-text-input"
                                     value={cameraAngle}
@@ -330,7 +332,7 @@ function SceneCard({ segment }) {
                                 />
                             </div>
                             <div>
-                                <label className="scene-label">Emotion</label>
+                                <label className="scene-label">{t('studio.scenes.emotion')}</label>
                                 <textarea
                                     className="scene-text-input"
                                     value={emotion}
@@ -342,32 +344,32 @@ function SceneCard({ segment }) {
 
                         <div style={{ marginTop: '12px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                             <div>
-                                <label className="scene-label">Camera Motion (Effect)</label>
+                                <label className="scene-label">{t('studio.scenes.cameraMotion')}</label>
                                 <select
                                     className="scene-text-input"
                                     value={effect}
                                     onChange={(e) => setEffect(e.target.value)}
                                     style={{ height: '36px', padding: '0 8px', width: '100%' }}
                                 >
-                                    <option value="random">Random</option>
-                                    <option value="zoom_in">Zoom In</option>
-                                    <option value="zoom_out">Zoom Out</option>
-                                    <option value="pan_left">Pan Left</option>
-                                    <option value="pan_right">Pan Right</option>
-                                    <option value="pan_up">Pan Up</option>
-                                    <option value="pan_down">Pan Down</option>
+                                    <option value="random">{t('studio.scenes.effects.random')}</option>
+                                    <option value="zoom_in">{t('studio.scenes.effects.zoomIn')}</option>
+                                    <option value="zoom_out">{t('studio.scenes.effects.zoomOut')}</option>
+                                    <option value="pan_left">{t('studio.scenes.effects.panLeft')}</option>
+                                    <option value="pan_right">{t('studio.scenes.effects.panRight')}</option>
+                                    <option value="pan_up">{t('studio.scenes.effects.panUp')}</option>
+                                    <option value="pan_down">{t('studio.scenes.effects.panDown')}</option>
                                 </select>
                             </div>
                             <div>
-                                <label className="scene-label">Transition (In)</label>
+                                <label className="scene-label">{t('studio.scenes.transition')}</label>
                                 <select
                                     className="scene-text-input"
                                     value={transition}
                                     onChange={(e) => setTransition(e.target.value)}
                                     style={{ height: '36px', padding: '0 8px', width: '100%' }}
                                 >
-                                    <option value="random">Random</option>
-                                    <option value="crossfade">Crossfade (Blend)</option>
+                                    <option value="random">{t('studio.scenes.transitions.random')}</option>
+                                    <option value="crossfade">{t('studio.scenes.transitions.crossfade')}</option>
                                     <option value="slide_left">Slide Left</option>
                                     <option value="slide_right">Slide Right</option>
                                     <option value="slide_up">Slide Up</option>
@@ -384,7 +386,7 @@ function SceneCard({ segment }) {
                                 onClick={handleSave}
                                 disabled={saving}
                             >
-                                {saving ? 'Saving...' : 'Save Changes'}
+                                {saving ? t('studio.scenes.saving') : t('studio.scenes.saveScene')}
                             </button>
                         </div>
                         <div className="btn-row" style={{ marginTop: '8px' }}>
@@ -394,7 +396,7 @@ function SceneCard({ segment }) {
                                 disabled={regenerating}
                                 style={{ fontSize: '0.75rem' }}
                             >
-                                {regenerating ? '...' : 'Regenerate Prompt'}
+                                {regenerating ? '...' : t('studio.scenes.regenPrompt')}
                             </button>
                             <button
                                 className="regenerate-btn"
@@ -402,7 +404,7 @@ function SceneCard({ segment }) {
                                 disabled={regenerating}
                                 style={{ fontSize: '0.75rem' }}
                             >
-                                {regenerating ? '...' : 'Regenerate Image'}
+                                {regenerating ? '...' : t('studio.scenes.regenImage')}
                             </button>
                         </div>
                     </div>

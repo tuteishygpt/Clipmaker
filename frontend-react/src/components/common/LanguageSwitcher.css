@@ -1,0 +1,134 @@
+.lang-switcher-container {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    user-select: none;
+    z-index: 50;
+}
+
+.lang-switcher-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    color: #e2e8f0;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    line-height: 1;
+}
+
+.lang-switcher-trigger:hover,
+.lang-switcher-trigger.active {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(99, 102, 241, 0.5);
+    color: #ffffff;
+}
+
+.lang-switcher-trigger.compact {
+    padding: 3px 6px;
+    font-size: 11px;
+    gap: 4px;
+}
+
+.lang-flag {
+    font-size: 13px;
+    line-height: 1;
+}
+
+.lang-code {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    font-size: 11px;
+    color: #cbd5e1;
+}
+
+.lang-caret {
+    font-size: 10px;
+    opacity: 0.6;
+    margin-left: 2px;
+    transition: transform 0.2s ease;
+}
+
+.lang-switcher-trigger.active .lang-caret {
+    transform: rotate(180deg);
+}
+
+.lang-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    min-width: 150px;
+    background: #181826;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    backdrop-filter: blur(12px);
+    animation: langFadeIn 0.15s ease-out;
+    z-index: 1000;
+}
+
+@keyframes langFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.lang-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 6px 10px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: #cbd5e1;
+    font-family: inherit;
+    font-size: 12px;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.12s ease, color 0.12s ease;
+}
+
+.lang-dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+}
+
+.lang-dropdown-item.selected {
+    background: rgba(99, 102, 241, 0.2);
+    color: #818cf8;
+    font-weight: 600;
+}
+
+.lang-item-flag {
+    font-size: 14px;
+    line-height: 1;
+}
+
+.lang-item-name {
+    flex: 1;
+    white-space: nowrap;
+}
+
+.lang-item-code {
+    font-size: 10px;
+    font-weight: 700;
+    opacity: 0.5;
+    letter-spacing: 0.5px;
+}

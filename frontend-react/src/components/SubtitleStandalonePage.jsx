@@ -7,6 +7,7 @@ import SubtitleTimeline from './SubtitleTimeline'
 import SubtitlePresetsGallery, { STUDIO_PRESETS } from './SubtitlePresetsGallery'
 import SubtitleEntryCard, { formatSecondsToSrt, sanitizeHighlightTags } from './SubtitleEntryCard'
 import ConfirmDialog from './common/ConfirmDialog'
+import LanguageSwitcher from './common/LanguageSwitcher'
 import { useTranslation } from '../i18n'
 import './SubtitleStudio.css'
 import * as api from '../api'
@@ -1300,7 +1301,8 @@ export default function SubtitleStandalonePage() {
                     </div>
                 </div>
 
-                <div className="studio-top-right">
+                <div className="studio-top-right" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <LanguageSwitcher compact={true} />
                     {/* Unified Export Dropdown */}
                     <div className="studio-export-wrapper" ref={exportDropdownRef}>
                         <button

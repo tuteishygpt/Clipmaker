@@ -21,6 +21,7 @@ import LandingPage from './components/landing/LandingPage'
 import LegalPage from './components/landing/LegalPage'
 import SubtitleStandalonePage from './components/SubtitleStandalonePage'
 import SubtitlePanel from './components/SubtitlePanel'
+import LanguageSwitcher from './components/common/LanguageSwitcher'
 
 // Cabinet (new module)
 import AuthPage from './components/auth/AuthPage'
@@ -100,6 +101,7 @@ function EditorView() {
                                 <span className="logo-icon">🎬</span>
                                 <span className="logo-text">Studio</span>
                             </Link>
+                            <LanguageSwitcher compact={true} />
                         </div>
                         <p className="sidebar-tagline">{t('nav.tagline')}</p>
 
@@ -144,13 +146,13 @@ function EditorView() {
                             }}
                         >
                             <span>📝</span>
-                            <span>Subtitles Studio</span>
+                            <span>{t('studio.sidebar.subtitlesStudio')}</span>
                         </Link>
                     </div>
 
                     {!projectId && (
                         <div className="project-creation-wrapper">
-                            <div className="divider"><span>OR</span></div>
+                            <div className="divider"><span>{t('studio.sidebar.or')}</span></div>
                             <ProjectForm />
                         </div>
                     )}
@@ -158,13 +160,13 @@ function EditorView() {
                     {projectId && (
                         <>
                             <div className="left-section">
-                                <div className="divider"><span>AUDIO</span></div>
+                                <div className="divider"><span>{t('studio.sidebar.audio')}</span></div>
                                 <AudioUpload />
                             </div>
 
                             {/* Tools Section - Analysis, Subtitles, Download */}
                             <div className="left-section">
-                                <div className="divider"><span>TOOLS</span></div>
+                                <div className="divider"><span>{t('studio.sidebar.tools')}</span></div>
                                 <div className="sidebar-tools-buttons">
                                     <button
                                         className={`sidebar-tool-btn ${showAnalysis ? 'active' : ''}`}
@@ -174,7 +176,7 @@ function EditorView() {
                                         }}
                                     >
                                         <span className="btn-icon-emoji">📊</span>
-                                        Analysis
+                                        {t('studio.sidebar.analysis')}
                                     </button>
                                     <button
                                         className={`sidebar-tool-btn ${showSubtitles ? 'active' : ''}`}
@@ -184,7 +186,7 @@ function EditorView() {
                                         }}
                                     >
                                         <span className="btn-icon-emoji">📝</span>
-                                        Subtitles
+                                        {t('studio.sidebar.subtitles')}
                                     </button>
                                     {videoOutput && (
                                         <a
@@ -193,7 +195,7 @@ function EditorView() {
                                             className="sidebar-tool-btn"
                                         >
                                             <span className="btn-icon-emoji">⬇️</span>
-                                            Download
+                                            {t('studio.sidebar.download')}
                                         </a>
                                     )}
                                 </div>
@@ -218,7 +220,7 @@ function EditorView() {
                             )}
 
                             <div className="left-section">
-                                <div className="divider"><span>ACTIONS</span></div>
+                                <div className="divider"><span>{t('studio.sidebar.actions')}</span></div>
                                 <GenerationControls />
                             </div>
                         </>

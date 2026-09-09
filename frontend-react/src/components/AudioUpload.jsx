@@ -1,9 +1,11 @@
 import { useState, useRef } from 'react'
 import { useProjectStore } from '../stores/projectStore'
 import { getAudioUrl } from '../api'
+import { useTranslation } from '../i18n'
 
 function AudioUpload() {
     const { projectId, uploadAudio, isLoading, audioUploaded } = useProjectStore()
+    const { t } = useTranslation()
     const [isDragging, setIsDragging] = useState(false)
     const fileInputRef = useRef(null)
 
@@ -40,12 +42,12 @@ function AudioUpload() {
         return (
             <div className="audio-upload-container compact">
                 <div className="status-row">
-                    <span className="status-badge success">✓ Audio Track Ready</span>
+                    <span className="status-badge success">{t('studio.audio.ready')}</span>
                     <button
                         className="btn-text small"
                         onClick={() => fileInputRef.current?.click()}
                     >
-                        Replace
+                        {t('studio.audio.replace')}
                     </button>
                 </div>
 
@@ -70,9 +72,9 @@ function AudioUpload() {
 
     return (
         <div className="audio-upload-container">
-            <h2>Upload Audio</h2>
+            <h2>{t('studio.audio.title')}</h2>
             <p className="description">
-                Max file size: 50MB. Supported formats: MP3, WAV, AAC.
+                {t('studio.audio.description')}
             </p>
 
             <div
@@ -93,13 +95,13 @@ function AudioUpload() {
                 {isLoading ? (
                     <div className="loading-state">
                         <div className="spinner large"></div>
-                        <p>Uploading and analyzing audio...</p>
+                        <p>{t('studio.audio.uploading')}</p>
                     </div>
                 ) : (
                     <div className="upload-state">
                         <div className="upload-icon">☁️</div>
-                        <h3>Click or Drag Audio Here</h3>
-                        <p className="upload-hint">Upload your music track to begin</p>
+                        <h3>{t('studio.audio.dropzoneTitle')}</h3>
+                        <p className="upload-hint">{t('studio.audio.dropzoneHint')}</p>
                     </div>
                 )}
             </div>
