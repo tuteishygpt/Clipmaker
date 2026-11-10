@@ -153,3 +153,78 @@ flowchart TD
 | **Да 50 кліпаў у месяц (аптымізаваны бітрэйт 20 МБ)** | **0.00 $ (100% Free)** |
 | **100 кліпаў у месяц** | **~$0.40 – $0.60** (толькі за лішні Egress) |
 | **Максімум квоты (468 кліпаў у месяц)** | **~$2.20 – $2.70** (толькі за лішні Egress) |
+
+---
+
+## 5. Актуальныя налады і прадакшн-рэквізіты (Разгорнута 11.11.2026)
+
+### 5.1. Google Cloud Platform (GCP)
+* **Актыўны акаўнт:** `user69@belarusbeehive.eu`
+* **Праект GCP:** `clipmaker-prod-2026`
+* **Плацежны акаўнт (Billing Account):** `014B92-595C6D-A468F6`
+* **Асноўны рэгіён:** `us-central1` (Зона VM: `us-central1-a`)
+* **Уключаныя API:**
+  * `run.googleapis.com` (Cloud Run Admin API)
+  * `compute.googleapis.com` (Compute Engine API)
+  * `artifactregistry.googleapis.com` (Artifact Registry API)
+  * `storage-component.googleapis.com` (Cloud Storage API)
+
+### 5.2. Cloud Run Job (Рэндэрынг)
+* **Назва Job:** `clipmaker-render`
+* **Канфігурацыя рэсурсаў:** `8 vCPU` / `16 GiB RAM`
+* **Таймаўт задачы:** `1800s` (30 хвілін)
+* **Docker вобраз:** `ghcr.io/tuteishygpt/clipmaker-worker:latest` (і тэгі `sha-*`)
+* **Канфігураваныя зменныя асяроддзя (унутры Job):**
+  * `STORAGE_BACKEND=s3`
+  * `RENDER_BACKEND=cloud_run`
+  * `S3_ENDPOINT_URL=https://e36d7f81ca0e27cb2100b35d5c812b3d.r2.cloudflarestorage.com`
+  * `S3_BUCKET_NAME=clipmaker-assets`
+  * `S3_ACCESS_KEY_ID` / `S3_SECRET_ACCESS_KEY`
+  * `SUPABASE_URL` / `SUPABASE_KEY`
+  * `GOOGLE_CLOUD_PROJECT=clipmaker-prod-2026`
+  * `GOOGLE_CLOUD_LOCATION=us-central1`
+* **Каманда ручнога запуску / тэсту:**
+  ```powershell
+  gcloud run jobs execute clipmaker-render --args="--project_id=PROJECT_ID,--mode=render" --region=us-central1 --project=clipmaker-prod-2026
+  ```
+* **Прагляд логаў рэндэру:**
+  ```powershell
+  gcloud logging read "resource.type=cloud_run_job AND resource.labels.job_name=clipmaker-render" --limit=30 --project=clipmaker-prod-2026 --format="value(textPayload)"
+  ```
+
+### 5.3. Cloudflare R2 (Сховішча ассетаў і MP4)
+* **Акаўнт Cloudflare:** `User69@belarusbeehive.eu` (`e36d7f81ca0e27cb2100b35d5c812b3d`)
+* **Назва бакета:** `clipmaker-assets`
+* **S3 Endpoint:** `https://e36d7f81ca0e27cb2100b35d5c812b3d.r2.cloudflarestorage.com`
+* **Ключы доступу:** наладжаныя ў лакальным `.env` і ў Cloud Run Job
+* **Тэставанне сувязі з R2:**
+  ```powershell
+  & "D:\googlePRJ\clipmaker\.venv\Scripts\python.exe" scripts/test_s3_connection.py
+  ```
+
+### 5.4. Cloudflare Pages (Frontend SPA)
+* **Назва праекта:** `clipmaker-frontend`
+* **Публічны URL:** [https://clipmaker-frontend.pages.dev](https://clipmaker-frontend.pages.dev)
+* **Каманда зборкі:** `npm run build` у каталогу `frontend-react`
+* **Каманда разгортвання:**
+  ```powershell
+  npx wrangler pages deploy "D:\googlePRJ\clipmaker-cloud-run\frontend-react\dist" --project-name="clipmaker-frontend"
+  ```
+
+### 5.5. GCP e2-micro VM (API & Аркестрацыя)
+* **Назва VM:** `clipmaker-api`
+* **Зона:** `us-central1-a`
+* **Тып машыны:** `e2-micro` (2 vCPU burst, 1 GiB RAM)
+* **Дыск:** `30 GB pd-standard`
+* **VPC-сетка:** `clipmaker-vpc` (падсетка `clipmaker-subnet`)
+* **Унутраны IP:** `10.0.0.2`
+* **Вонкавы IPv6:** `2600:1900:4000:224f:0:0:0:0/96`
+* **Вонкавы IPv4:** Няма (`--no-address`, эканомія $3.65/мес)
+* **Падключэнне праз IAP SSH:**
+  ```powershell
+  gcloud compute ssh clipmaker-api --zone=us-central1-a --project=clipmaker-prod-2026 --tunnel-through-iap
+  ```
+
+### 5.6. База дадзеных і Auth (Supabase)
+* **URL праекта:** `https://aqcdxlnzrfxqmftsemek.supabase.co`
+* **Схема дадзеных:** метаданыя праектаў, сцэн і карыстальнікаў (`supabase_schema.sql`)
