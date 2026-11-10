@@ -62,11 +62,21 @@ class ProjectRepository:
         
         repo = self._get_repo(project_id)
         repo.save("project.json", project_data)
+        if settings.storage_backend == "s3":
+            try:
+                self.save_manifest_to_storage(project_id)
+            except Exception:
+                pass
         return project_data
     
     def get(self, project_id: str) -> dict[str, Any] | None:
         """Get a project by ID."""
         repo = self._get_repo(project_id)
+        if not repo.exists("project.json") and settings.storage_backend == "s3":
+            try:
+                self.load_manifest_from_storage(project_id)
+            except Exception:
+                pass
         if not repo.exists("project.json"):
             return None
         return repo.load("project.json", {})
@@ -75,14 +85,51 @@ class ProjectRepository:
         """Update project fields."""
         updates["updated_at"] = _utc_now()
         repo = self._get_repo(project_id)
-        return repo.update("project.json", updates)
+        res = repo.update("project.json", updates)
+        if settings.storage_backend == "s3":
+            try:
+                self.save_manifest_to_storage(project_id)
+            except Exception:
+                pass
+        return res
     
     def exists(self, project_id: str) -> bool:
         """Check if a project exists."""
-        return self._get_repo(project_id).exists("project.json")
+        if self._get_repo(project_id).exists("project.json"):
+            return True
+        if settings.storage_backend == "s3":
+            try:
+                self.load_manifest_from_storage(project_id)
+                return self._get_repo(project_id).exists("project.json")
+            except Exception:
+                return False
+        return False
     
     def list_all(self, search: str | None = None, standalone: bool | None = None) -> list[dict[str, Any]]:
         """List all projects, sorted by updated_at descending, optionally filtered by search and standalone mode."""
+        if settings.storage_backend == "s3":
+            try:
+                from .file_storage import FileStorage
+                storage = FileStorage(self.data_dir)
+                client = storage.get_s3_client()
+                resp = client.list_objects_v2(
+                    Bucket=settings.s3_bucket_name,
+                    Prefix="projects/",
+                    Delimiter="/"
+                )
+                for prefix_obj in resp.get("CommonPrefixes", []):
+                    prefix = prefix_obj.get("Prefix", "")
+                    parts = prefix.strip("/").split("/")
+                    if len(parts) == 2:
+                        p_id = parts[1]
+                        if not (self.data_dir / p_id / "project.json").exists():
+                            try:
+                                self.load_manifest_from_storage(p_id)
+                            except Exception:
+                                pass
+            except Exception:
+                pass
+
         projects = []
         if not self.data_dir.exists():
             return projects
@@ -187,6 +234,24 @@ class ProjectRepository:
             for job_file in jobs_dir.glob("*.json"):
                 jobs[job_file.stem] = repo.load(job_file.name, {})
         
+        # In S3 mode: If jobs missing locally or render job is RUNNING/PENDING,
+        # refresh from S3 manifest to pick up updates written by remote worker.
+        render_status = jobs.get("render", {}).get("status")
+        if settings.storage_backend == "s3" and (not jobs or render_status in ("RUNNING", "PENDING", None)):
+            try:
+                manifest = self.load_manifest_from_storage(project_id, force_refresh=True)
+                s3_jobs = manifest.get("jobs", {})
+                if isinstance(s3_jobs, dict) and s3_jobs:
+                    jobs_dir.mkdir(parents=True, exist_ok=True)
+                    jrepo = JsonRepository(jobs_dir)
+                    for k, v in s3_jobs.items():
+                        # Update if remote worker reached a terminal state or has newer info
+                        if k not in jobs or v.get("status") in ("DONE", "FAILED", "ERROR") or v.get("updated_at", "") > jobs[k].get("updated_at", ""):
+                            jobs[k] = v
+                            jrepo.save(f"{k}.json", v)
+            except Exception:
+                pass
+        
         return jobs
 
     # ==================== Manifest Export / Import ====================
@@ -197,7 +262,14 @@ class ProjectRepository:
         segments = self.get_segments(project_id)
         prompts = self.get_prompts(project_id)
         analysis = self.get_analysis(project_id)
-        jobs = self.get_jobs(project_id)
+        
+        # Read local jobs directly to avoid recursion
+        jobs_dir = self.data_dir / project_id / "jobs"
+        jobs = {}
+        if jobs_dir.exists():
+            repo = JsonRepository(jobs_dir)
+            for job_file in jobs_dir.glob("*.json"):
+                jobs[job_file.stem] = repo.load(job_file.name, {})
         
         manifest = {
             "version": "1.0",
@@ -237,16 +309,25 @@ class ProjectRepository:
                         storage.upload_file(fpath, f"projects/{project_id}/{fname}", content_type="application/json")
                     except Exception:
                         pass
+            
+            # Also upload job status files
+            jobs_dir = project_dir / "jobs"
+            if jobs_dir.exists():
+                for jpath in jobs_dir.glob("*.json"):
+                    try:
+                        storage.upload_file(jpath, f"projects/{project_id}/jobs/{jpath.name}", content_type="application/json")
+                    except Exception:
+                        pass
         return manifest
 
-    def load_manifest_from_storage(self, project_id: str, target_dir: Path | None = None) -> dict[str, Any]:
+    def load_manifest_from_storage(self, project_id: str, target_dir: Path | None = None, force_refresh: bool = False) -> dict[str, Any]:
         """Load manifest from S3/R2 or local storage and populate project files in target_dir."""
         import json
         base_dir = Path(target_dir) if target_dir else (self.data_dir / project_id)
         base_dir.mkdir(parents=True, exist_ok=True)
         manifest_file = base_dir / "manifest.json"
 
-        if settings.storage_backend == "s3" and not manifest_file.exists():
+        if settings.storage_backend == "s3" and (force_refresh or not manifest_file.exists()):
             from .file_storage import FileStorage
             storage = FileStorage(self.data_dir)
             try:
@@ -265,13 +346,20 @@ class ProjectRepository:
         manifest = json.loads(manifest_file.read_text(encoding="utf-8"))
 
         repo = JsonRepository(base_dir)
-        if manifest.get("project") and not repo.exists("project.json"):
+        if manifest.get("project") and (force_refresh or not repo.exists("project.json")):
             repo.save("project.json", manifest["project"])
-        if manifest.get("segments") is not None and not repo.exists("segments.json"):
+        if manifest.get("segments") is not None and (force_refresh or not repo.exists("segments.json")):
             repo.save("segments.json", manifest["segments"])
-        if manifest.get("prompts") is not None and not repo.exists("prompts.json"):
+        if manifest.get("prompts") is not None and (force_refresh or not repo.exists("prompts.json")):
             repo.save("prompts.json", manifest["prompts"])
-        if manifest.get("analysis") is not None and not repo.exists("analysis.json"):
+        if manifest.get("analysis") is not None and (force_refresh or not repo.exists("analysis.json")):
             repo.save("analysis.json", manifest["analysis"])
+        if manifest.get("jobs") and isinstance(manifest["jobs"], dict):
+            jobs_dir = base_dir / "jobs"
+            jobs_dir.mkdir(parents=True, exist_ok=True)
+            jrepo = JsonRepository(jobs_dir)
+            for jname, jdata in manifest["jobs"].items():
+                if force_refresh or not jrepo.exists(f"{jname}.json"):
+                    jrepo.save(f"{jname}.json", jdata)
 
         return manifest

@@ -98,6 +98,33 @@ class FileStorage:
             ExpiresIn=expires_in,
         )
 
+    def get_presigned_put_url(self, s3_key: str, content_type: str = "video/mp4", expires_in: int = 3600) -> str:
+        """Generate a presigned PUT URL for direct upload to S3/R2."""
+        client = self.get_s3_client()
+        return client.generate_presigned_url(
+            "put_object",
+            Params={
+                "Bucket": settings.s3_bucket_name,
+                "Key": s3_key,
+                "ContentType": content_type,
+            },
+            ExpiresIn=expires_in,
+        )
+
+    def get_source_video_s3_key(self, project_id: str) -> str | None:
+        """Find source video S3 key if present."""
+        if not settings.s3_bucket_name:
+            return None
+        client = self.get_s3_client()
+        for ext in [".mp4", ".mov", ".webm", ".avi"]:
+            s3_key = f"projects/{project_id}/source/video{ext}"
+            try:
+                client.head_object(Bucket=settings.s3_bucket_name, Key=s3_key)
+                return s3_key
+            except Exception:
+                continue
+        return None
+
     def download_project_assets(self, project_id: str, target_dir: Path | str) -> list[Path]:
         """Download all files for a project from S3/R2 to target_dir."""
         target_path = Path(target_dir)
@@ -186,11 +213,21 @@ class FileStorage:
     def get_audio_path(self, project_id: str) -> Path | None:
         """Get the audio file path for a project."""
         source_dir = self._project_path(project_id) / "source"
-        if not source_dir.exists():
-            return None
+        if source_dir.exists():
+            for file_path in source_dir.glob("track.*"):
+                return file_path
         
-        for file_path in source_dir.glob("track.*"):
-            return file_path
+        if settings.storage_backend == "s3":
+            client = self.get_s3_client()
+            for ext in [".wav", ".mp3"]:
+                s3_key = f"projects/{project_id}/source/track{ext}"
+                try:
+                    client.head_object(Bucket=settings.s3_bucket_name, Key=s3_key)
+                    local_target = source_dir / f"track{ext}"
+                    self.download_file(s3_key, local_target)
+                    return local_target
+                except Exception:
+                    continue
         return None
     
     def save_image(self, project_id: str, seg_id: str, version: int, data: bytes) -> Path:
@@ -283,8 +320,17 @@ class FileStorage:
     
     def get_subtitles_path(self, project_id: str) -> Path | None:
         """Get path to SRT file."""
-        path = self._project_path(project_id) / "subtitles" / "subtitles.srt"
-        return path if path.exists() else None
+        subs_dir = self._project_path(project_id) / "subtitles"
+        path = subs_dir / "subtitles.srt"
+        if path.exists():
+            return path
+        if settings.storage_backend == "s3":
+            try:
+                self.download_file(f"projects/{project_id}/subtitles/subtitles.srt", path)
+                return path
+            except Exception:
+                pass
+        return None
     
     def save_subtitle_styling(self, project_id: str, styling: dict) -> Path:
         """Save subtitle styling config as JSON."""
@@ -305,7 +351,13 @@ class FileStorage:
     def get_subtitle_styling(self, project_id: str) -> dict | None:
         """Load subtitle styling config from JSON."""
         import json
-        path = self._project_path(project_id) / "subtitles" / "styling.json"
+        subs_dir = self._project_path(project_id) / "subtitles"
+        path = subs_dir / "styling.json"
+        if not path.exists() and settings.storage_backend == "s3":
+            try:
+                self.download_file(f"projects/{project_id}/subtitles/styling.json", path)
+            except Exception:
+                pass
         if path.exists():
             return json.loads(path.read_text(encoding="utf-8"))
         return None
@@ -329,7 +381,13 @@ class FileStorage:
     def get_subtitle_words(self, project_id: str) -> list[dict] | None:
         """Load word-level timestamps from JSON."""
         import json
-        path = self._project_path(project_id) / "subtitles" / "words.json"
+        subs_dir = self._project_path(project_id) / "subtitles"
+        path = subs_dir / "words.json"
+        if not path.exists() and settings.storage_backend == "s3":
+            try:
+                self.download_file(f"projects/{project_id}/subtitles/words.json", path)
+            except Exception:
+                pass
         if path.exists():
             return json.loads(path.read_text(encoding="utf-8"))
         return None
@@ -368,5 +426,18 @@ class FileStorage:
             for file_path in source_dir.glob("video.*"):
                 return file_path
         
+        # If not present locally and in S3 mode, download from S3
+        if settings.storage_backend == "s3":
+            client = self.get_s3_client()
+            for ext in [".mp4", ".mov", ".webm", ".avi"]:
+                s3_key = f"projects/{project_id}/source/video{ext}"
+                try:
+                    client.head_object(Bucket=settings.s3_bucket_name, Key=s3_key)
+                    local_target = source_dir / f"video{ext}"
+                    self.download_file(s3_key, local_target)
+                    return local_target
+                except Exception:
+                    continue
+
         # Fallback to latest render if available (e.g. for Studio-generated projects)
         return self.get_latest_render(project_id)

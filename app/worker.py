@@ -124,11 +124,18 @@ async def run_worker(project_id: str, mode: str = "render") -> None:
         # Attempt to record failure in project repo
         try:
             repo = ProjectRepository()
+            if settings.storage_backend == "s3":
+                try:
+                    repo.load_manifest_from_storage(project_id, force_refresh=True)
+                except Exception:
+                    pass
             repo.update_job(project_id, "render", {
                 "status": "FAILED",
                 "error": str(exc),
             })
             repo.update(project_id, {"status": "FAILED"})
+            if settings.storage_backend == "s3":
+                repo.save_manifest_to_storage(project_id)
         except Exception:
             pass
         sys.exit(1)

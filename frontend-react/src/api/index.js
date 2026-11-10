@@ -254,19 +254,80 @@ export function getSubtitleDownloadUrl(projectId) {
 }
 
 export async function uploadVideoStandalone(projectId, file) {
+    const token = await getAuthToken()
+    const authHeaders = {}
+    if (token) {
+        authHeaders['Authorization'] = `Bearer ${token}`
+    }
+
+    // Attempt direct R2/S3 upload via presigned URL (bypasses Cloud Run 32MB limit)
+    try {
+        const urlRes = await fetch(`${BASE_URL}/projects/${projectId}/upload-video-url`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                ...authHeaders
+            },
+            body: JSON.stringify({
+                filename: file.name || 'video.mp4',
+                content_type: file.type || 'video/mp4'
+            })
+        })
+
+        if (urlRes.ok) {
+            const urlData = await urlRes.json()
+            if (urlData.direct_upload && urlData.upload_url) {
+                const putRes = await fetch(urlData.upload_url, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': file.type || 'video/mp4'
+                    },
+                    body: file
+                })
+
+                if (!putRes.ok) {
+                    throw new Error(`Direct upload failed: ${putRes.status}`)
+                }
+
+                const compRes = await fetch(`${BASE_URL}/projects/${projectId}/upload-video-complete`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...authHeaders
+                    },
+                    body: JSON.stringify({
+                        filename: file.name || 'video.mp4',
+                        s3_key: urlData.s3_key
+                    })
+                })
+
+                if (!compRes.ok) {
+                    let errMsg = `Video processing failed: ${compRes.status}`
+                    try {
+                        const errData = await compRes.json()
+                        if (errData.detail) errMsg = errData.detail
+                    } catch (_) {}
+                    throw new Error(errMsg)
+                }
+
+                return compRes.json()
+            }
+        }
+    } catch (directErr) {
+        console.warn('Direct R2 upload failed or unavailable, trying standard upload:', directErr)
+        if (file.size > 30 * 1024 * 1024) {
+            throw directErr
+        }
+    }
+
+    // Fallback: standard multipart upload
     const formData = new FormData()
     formData.append('video', file)
-
-    const token = await getAuthToken()
-    const headers = {}
-    if (token) {
-        headers['Authorization'] = `Bearer ${token}`
-    }
 
     const response = await fetch(`${BASE_URL}/projects/${projectId}/upload-video`, {
         method: 'POST',
         body: formData,
-        headers
+        headers: authHeaders
     })
 
     if (!response.ok) {

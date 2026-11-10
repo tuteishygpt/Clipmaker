@@ -1,10 +1,12 @@
 """Project API routes."""
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any, Optional
 
 from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse, StreamingResponse, Response, RedirectResponse
+from pydantic import BaseModel
 
 from ..schemas.project import ProjectCreate, ProjectResponse
 from ..schemas.segment import SegmentUpdate
@@ -926,6 +928,12 @@ async def list_fonts() -> dict[str, Any]:
 @router.head("/{project_id}/video")
 async def get_project_video(project_id: str, request: Request) -> Response:
     """Get the uploaded source video for standalone subtitle mode with Range support."""
+    if settings.storage_backend == "s3":
+        key = file_storage.get_source_video_s3_key(project_id)
+        if key:
+            url = file_storage.get_presigned_url(key)
+            return RedirectResponse(url=url, status_code=307)
+
     video_path = file_storage.get_video_path(project_id)
     if not video_path or not video_path.exists():
         raise HTTPException(status_code=404, detail="Video not found")
@@ -937,28 +945,16 @@ async def get_project_video(project_id: str, request: Request) -> Response:
     return stream_video_file(video_path, request, media_type=media_type)
 
 
-@router.post("/{project_id}/upload-video", response_model=RunResponse)
-async def upload_video_standalone(
+async def _process_uploaded_video_file(
     project_id: str,
-    video: UploadFile = File(...),
-    user: Optional[AuthenticatedUser] = Depends(get_optional_user)
+    video_path: Path,
+    filename: str,
+    user: Optional[AuthenticatedUser]
 ) -> RunResponse:
-    """Upload video for standalone subtitle mode."""
-    if not project_repo.exists(project_id):
-        raise HTTPException(status_code=404, detail="Project not found")
-    
-    # Validate video format
-    valid_types = ['video/mp4', 'video/quicktime', 'video/webm', 'video/avi', 'video/x-msvideo']
-    if video.content_type not in valid_types:
-        raise HTTPException(status_code=400, detail="Invalid video format")
-    
-    project_repo.ensure_dirs(project_id)
-    
-    # Save video to project
-    video_path = file_storage.save_video(project_id, video.file, video.filename or "video.mp4")
-    
-    # Strict duration validation via ffprobe before extracting audio (max 15 minutes / 900 seconds)
-    try:
+    """Run duration probe, extract audio, and link project after video file is on disk."""
+    from fastapi.concurrency import run_in_threadpool
+
+    def _probe_and_extract() -> bool:
         import subprocess
         import json
         probe_cmd = [
@@ -995,6 +991,37 @@ async def upload_video_standalone(
                 status_code=400,
                 detail=f"Video duration ({duration:.1f}s) exceeds maximum allowed limit of 15 minutes (900 seconds)."
             )
+
+        # Safe audio extraction for transcription
+        has_audio = True
+        audio_path = video_path.parent / "track.wav"
+        try:
+            res = subprocess.run([
+                "ffmpeg", "-y", "-i", str(video_path),
+                "-vn", "-acodec", "pcm_s16le", "-ar", "44100", "-ac", "2",
+                str(audio_path)
+            ], capture_output=True, check=False)
+            if res.returncode != 0 or not audio_path.exists() or audio_path.stat().st_size == 0:
+                logger.warning(f"Video may not have audio track: {res.stderr.decode('utf-8', errors='ignore')[:200]}")
+                has_audio = False
+                if audio_path.exists():
+                    audio_path.unlink(missing_ok=True)
+            else:
+                logger.info(f"Extracted audio to {audio_path}")
+                if settings.storage_backend == "s3":
+                    try:
+                        file_storage.upload_file(audio_path, f"projects/{project_id}/source/track.wav")
+                    except Exception as s3_err:
+                        logger.warning(f"Failed to sync extracted track.wav to S3: {s3_err}")
+        except Exception as e:
+            logger.warning(f"Could not extract audio from video: {e}")
+            has_audio = False
+            if audio_path.exists():
+                audio_path.unlink(missing_ok=True)
+        return has_audio
+
+    try:
+        has_audio = await run_in_threadpool(_probe_and_extract)
     except HTTPException:
         raise
     except Exception as e:
@@ -1002,29 +1029,6 @@ async def upload_video_standalone(
             video_path.unlink()
         logger.error(f"Could not probe video duration: {e}")
         raise HTTPException(status_code=400, detail=f"Unable to verify video duration: {str(e)}")
-    
-    # Safe audio extraction for transcription
-    has_audio = True
-    audio_path = video_path.parent / "track.wav"
-    try:
-        import subprocess
-        res = subprocess.run([
-            "ffmpeg", "-y", "-i", str(video_path),
-            "-vn", "-acodec", "pcm_s16le", "-ar", "44100", "-ac", "2",
-            str(audio_path)
-        ], capture_output=True, check=False)
-        if res.returncode != 0 or not audio_path.exists() or audio_path.stat().st_size == 0:
-            logger.warning(f"Video may not have audio track: {res.stderr.decode('utf-8', errors='ignore')[:200]}")
-            has_audio = False
-            if audio_path.exists():
-                audio_path.unlink(missing_ok=True)
-        else:
-            logger.info(f"Extracted audio to {audio_path}")
-    except Exception as e:
-        logger.warning(f"Could not extract audio from video: {e}")
-        has_audio = False
-        if audio_path.exists():
-            audio_path.unlink(missing_ok=True)
     
     project_updates = {
         "status": "VIDEO_UPLOADED",
@@ -1037,11 +1041,93 @@ async def upload_video_standalone(
         await billing_service.link_user_project(
             user_id=user.id,
             project_id=project_id,
-            title=project.get("title") or video.filename or f"Project {project_id[:8]}",
+            title=project.get("title") or filename or f"Project {project_id[:8]}",
             settings=project
         )
     
     return RunResponse(status="OK", message="Video uploaded")
+
+
+class DirectUploadUrlRequest(BaseModel):
+    filename: str = "video.mp4"
+    content_type: str = "video/mp4"
+
+
+class DirectUploadCompleteRequest(BaseModel):
+    filename: str = "video.mp4"
+    s3_key: str
+
+
+@router.post("/{project_id}/upload-video-url")
+async def get_upload_video_url(
+    project_id: str,
+    req: DirectUploadUrlRequest = DirectUploadUrlRequest(),
+    user: Optional[AuthenticatedUser] = Depends(get_optional_user)
+) -> dict[str, Any]:
+    """Get presigned PUT URL for direct-to-S3/R2 video upload."""
+    if not project_repo.exists(project_id):
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    if settings.storage_backend != "s3" or not settings.s3_bucket_name:
+        return {"direct_upload": False}
+
+    ext = Path(req.filename).suffix or ".mp4"
+    s3_key = f"projects/{project_id}/source/video{ext}"
+    upload_url = file_storage.get_presigned_put_url(s3_key, content_type=req.content_type)
+    return {
+        "direct_upload": True,
+        "upload_url": upload_url,
+        "s3_key": s3_key,
+        "filename": req.filename,
+    }
+
+
+@router.post("/{project_id}/upload-video-complete", response_model=RunResponse)
+async def complete_upload_video(
+    project_id: str,
+    req: DirectUploadCompleteRequest,
+    user: Optional[AuthenticatedUser] = Depends(get_optional_user)
+) -> RunResponse:
+    """Process video after client direct upload to S3/R2."""
+    if not project_repo.exists(project_id):
+        raise HTTPException(status_code=404, detail="Project not found")
+    if not req.s3_key.startswith(f"projects/{project_id}/"):
+        raise HTTPException(status_code=400, detail="Invalid s3_key for project")
+
+    project_repo.ensure_dirs(project_id)
+    source_dir = project_repo.data_dir / project_id / "source"
+    source_dir.mkdir(parents=True, exist_ok=True)
+    ext = Path(req.filename).suffix or ".mp4"
+    video_path = source_dir / f"video{ext}"
+
+    # Download from S3 to local container disk for ffprobe and audio extraction
+    from fastapi.concurrency import run_in_threadpool
+    await run_in_threadpool(file_storage.download_file, req.s3_key, video_path)
+
+    return await _process_uploaded_video_file(project_id, video_path, req.filename, user)
+
+
+@router.post("/{project_id}/upload-video", response_model=RunResponse)
+async def upload_video_standalone(
+    project_id: str,
+    video: UploadFile = File(...),
+    user: Optional[AuthenticatedUser] = Depends(get_optional_user)
+) -> RunResponse:
+    """Upload video for standalone subtitle mode."""
+    if not project_repo.exists(project_id):
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Validate video format
+    valid_types = ['video/mp4', 'video/quicktime', 'video/webm', 'video/avi', 'video/x-msvideo']
+    if video.content_type not in valid_types:
+        raise HTTPException(status_code=400, detail="Invalid video format")
+    
+    project_repo.ensure_dirs(project_id)
+    
+    # Save video to project
+    video_path = file_storage.save_video(project_id, video.file, video.filename or "video.mp4")
+    
+    return await _process_uploaded_video_file(project_id, video_path, video.filename or "video.mp4", user)
 
 
 @router.post("/{project_id}/render-standalone", response_model=RunResponse)
