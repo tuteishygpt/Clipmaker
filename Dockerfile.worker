@@ -27,6 +27,7 @@ RUN fc-cache -f -v
 # Copy root python modules and application code
 COPY *.py /app/
 COPY app/ /app/app/
+COPY frontend-react/dist /app/frontend-react/dist
 
 ENV PYTHONPATH=/app
 

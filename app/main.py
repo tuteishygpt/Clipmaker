@@ -21,20 +21,25 @@ app = FastAPI(title="Studio MVP")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+        "https://clipmaker-frontend.pages.dev",
         "https://hukflow.com",
         "https://www.hukflow.com",
         "http://hukflow.com",
         "http://localhost:3000",
         "http://127.0.0.1:3000",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
     ],
+    allow_origin_regex=r"https://.*\.pages\.dev",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Mount static files (frontend assets)
-# We mount /assets to point to dist/assets
-app.mount("/assets", StaticFiles(directory=settings.frontend_dir / "assets"), name="assets")
+# Mount static files (frontend assets) if directory exists
+assets_dir = settings.frontend_dir / "assets"
+if assets_dir.exists():
+    app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
 
 # Include routers
 app.include_router(web_router)

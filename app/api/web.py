@@ -37,9 +37,12 @@ class ShowcaseItem(BaseModel):
 @router.get("/partners")
 @router.get("/contact")
 @router.get("/app")
-async def index() -> FileResponse:
-    """Serve the main HTML page."""
-    return FileResponse(settings.frontend_dir / "index.html")
+async def index():
+    """Serve the main HTML page or health status if running standalone API."""
+    index_path = settings.frontend_dir / "index.html"
+    if index_path.exists():
+        return FileResponse(index_path)
+    return {"status": "ok", "service": "clipmaker-api"}
 
 
 @router.get("/showcase", response_model=List[ShowcaseItem])
