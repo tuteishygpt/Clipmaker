@@ -91,26 +91,57 @@ flowchart TD
 
 ---
 
-## 3. Неабходныя змены ў кодзе Clipmaker
+## 3. Дакладны пафайлавы спіс змен і прынцып лакальнага Fallback
 
-Для таго каб сістэма магла працаваць у безсерверным рэжыме, выконваюцца наступныя крокі:
+Усе змены распрацоўваюцца па прынцыпе **зваротнай сумяшчальнасці (Backward Compatibility)**: калі зменныя воблака не зададзеныя, праект працуе **на 100% як раней на лакальным ПК або звычайнай VM**.
 
-### 3.1. Выпраўленне `Clipmaker/app/worker.py`
-* Выправіць біты імпарт (`from .pipeline import run_pipeline` -> скарыстаць `PipelineService`).
-* Загарнуць выкананне ў `asyncio.run()`.
-* Дадаць магчымасць запуску выключна фазы рэндэрынгу (`--mode render_only`).
+### 3.1. Канфігурацыя: `Clipmaker/app/core/config.py`
+* Дадаюцца перамыкачы рэжымаў (з дэфолтнымі значэннямі для лакальнага запуску):
+  * `RENDER_BACKEND: str = "local"` (варыянты: `"local"` | `"cloud_run"`).
+  * `STORAGE_BACKEND: str = "local"` (варыянты: `"local"` | `"s3"`).
+  * Параметры падключэння да Cloud Run (`GCP_PROJECT_ID`, `GCP_REGION`, `CLOUD_RUN_JOB_NAME`).
+  * Параметры падключэння да Cloudflare R2 / S3 (`S3_ENDPOINT_URL`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_BUCKET_NAME`).
 
-### 3.2. Адаптацыя `FileStorage` пад воблачнае сховішча
-* Cloud Run Job не мае агульнага лакальнага дыска з `e2-micro`.
-* Дадаць падтрымку S3 API (праз бібліятэку `boto3` або `aioboto3` для Cloudflare R2).
-* У воркеры перад рэндэрам спампоўваць неабходныя ассеты (аўдыё і выявы) у эфемеральны `/tmp/{project_id}` кантэйнера, а пасля рэндэру загружаць фінальны `output.mp4` у бакет R2.
+### 3.2. Эндпоінты API: `Clipmaker/app/api/projects.py`
+* У функцыі запуску рэндэру `render_project` (і `render_standalone`) дадаецца праверка рэжыму:
+  * **Калі `RENDER_BACKEND == "local"`:** запускаецца лакальны фанавы паток `background.add_task(pipeline_service.render_only, project_id)` (як і зараз).
+  * **Калі `RENDER_BACKEND == "cloud_run"`:** праз кліент `google.cloud.run_v2.JobsClient` адпраўляецца лёгкі HTTP-запыт у GCP для старту кантэйнера воркера з перадачай `--project_id`.
 
-### 3.3. Міграцыя метададзеных у Supabase PostgreSQL
-* Зараз праекты і сцэны захоўваюцца лакальна ў JSON-файлах (`app/repositories/project_repo.py`).
-* Каб Cloud Run Job мог прачытаць спіс сцэн, таймкоды і налады, неабходна пераключыць `ProjectRepository` на выкарыстанне **Supabase** (табліцы праектаў і сегментаў ужо ёсць у `supabase_schema.sql`).
+### 3.3. Залежнасці: `Clipmaker/requirements.txt`
+* Дадаюцца дзве лёгкія бібліятэкі:
+  * `boto3>=1.34.0` — для працы з S3/R2 сховішчам.
+  * `google-cloud-run>=0.10.0` — для запуску Cloud Run Jobs з FastAPI.
 
-### 3.4. Шрыфты ў Docker-вобразе
-* Дадаць у `Dockerfile` пакеты `fonts-dejavu-core fonts-liberation`, а таксама скапіяваць кастомныя шрыфты з `Clipmaker/app/static/fonts` у кантэйнер, каб RenderService не марнаваў час і трафік на іх спампоўку з Google Fonts.
+### 3.4. Воркер рэндэрынгу: `Clipmaker/app/worker.py`
+* Выпраўленне бітага імпарту (`from .pipeline import run_pipeline` -> імпарт `PipelineService`).
+* Адаптацыя пад асінхронны запуск праз `asyncio.run()`.
+* Падтрымка рэжымаў запуску:
+  * Калі `STORAGE_BACKEND == "s3"`: спампоўка ассетаў праекта з R2 у часовы каталог кантэйнера `/tmp/{project_id}`, рэндэрынг і загрузка фінальнага MP4 назад у бакет R2.
+  * Калі `STORAGE_BACKEND == "local"`: праца наўпрост з лакальнай тэчкай `data/` без звароту ў воблака.
+
+### 3.5. Сховішча файлаў: `Clipmaker/app/repositories/file_storage.py`
+* Даданне ўніверсальнага адаптара для S3/R2:
+  * Метады атрымання і захавання файлаў падтрымліваюць як лакальны шлях `Path`, так і спампоўку/выгрузку ў S3-сумяшчальнае сховішча.
+  * Генерацыя Presigned URLs для прамой аддачы відэа і выяваў кліенту (эканомія трафіку сервера).
+
+### 3.6. Метаданыя праекта: `Clipmaker/app/repositories/project_repo.py`
+* Захаванне маніфеста праекта:
+  * Перад запускам рэндэру ў воблаку актуальныя `segments.json` і `prompts.json` сінхранізуюцца ў бакет R2 (альбо чытаюцца з Supabase PostgreSQL). Гэта дазваляе ізаляванаму кантэйнеру воркера Cloud Run атрымаць усе патрэбныя таймкоды і налады без наяўнасці агульнага жорсткага дыска з серверам.
+
+### 3.7. Кантэйнерызацыя: новы файл `Dockerfile.worker`
+* Кантэйнер на базе `python:3.11-slim`:
+  * Устаноўка `ffmpeg`, `libsndfile1`, а таксама сістэмных шрыфтоў (`fonts-dejavu-core`, `fonts-liberation`).
+  * Капіяванне лакальных шрыфтоў з `app/static/fonts`.
+  * Устаноўка `requirements.txt`.
+  * Кропка ўваходу: `ENTRYPOINT ["python", "-m", "app.worker"]`.
+
+### 3.8. Фронтэнд: `Clipmaker/frontend-react`
+* У самім кодзе React змены не патрэбныя.
+* У файле `.env.production` адрас `VITE_API_BASE_URL` указваецца на дамен Cloudflare Tunnel (напрыклад, `https://api.yourdomain.com`).
+* Білд (`npm run build`) дэплоіцца ў Cloudflare Pages (бясплатны глабальны хостынг).
+
+### 3.9. Сетка на e2-micro: Cloudflare Tunnel (`cloudflared`)
+* Налады службы `cloudflared` для праксіравання знешніх HTTPS-запытаў на лакальны порт `8000` FastAPI. Гэта цалкам пазбаўляе ад неабходнасці купляць знешні IPv4 і адкрываць парты ў фаерволе.
 
 ---
 
