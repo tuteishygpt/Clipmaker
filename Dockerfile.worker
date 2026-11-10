@@ -24,7 +24,8 @@ RUN mkdir -p /usr/local/share/fonts/custom
 COPY app/static/fonts/ /usr/local/share/fonts/custom/
 RUN fc-cache -f -v
 
-# Copy application code
+# Copy root python modules and application code
+COPY *.py /app/
 COPY app/ /app/app/
 
 ENV PYTHONPATH=/app
