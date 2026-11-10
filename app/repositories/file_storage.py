@@ -3,17 +3,163 @@ from __future__ import annotations
 
 import shutil
 from pathlib import Path
-from typing import BinaryIO
+from typing import BinaryIO, Any
 
 from ..core.config import settings
+from ..core.logging import get_logger
+
+logger = get_logger(__name__)
 
 
 class FileStorage:
-    """Storage for binary files."""
+    """Storage for binary files supporting local filesystem and S3/R2."""
     
     def __init__(self, data_dir: Path | None = None) -> None:
         self.data_dir = data_dir or settings.data_dir
+        self._s3_client: Any = None
     
+    # ==================== Cloud (S3/R2) Methods ====================
+
+    def get_s3_client(self) -> Any:
+        """Get or initialize boto3 S3 client."""
+        if self._s3_client is not None:
+            return self._s3_client
+            
+        import boto3
+        from botocore.config import Config
+
+        is_r2 = bool(settings.s3_endpoint_url and "r2.cloudflarestorage.com" in settings.s3_endpoint_url)
+        region = "auto" if is_r2 else "us-east-1"
+
+        self._s3_client = boto3.client(
+            "s3",
+            endpoint_url=settings.s3_endpoint_url,
+            aws_access_key_id=settings.s3_access_key_id,
+            aws_secret_access_key=settings.s3_secret_access_key,
+            region_name=region,
+            config=Config(signature_version="s3v4"),
+        )
+        return self._s3_client
+
+    def upload_file(self, local_path: Path | str, s3_key: str, content_type: str | None = None) -> str:
+        """Upload a local file to S3/R2."""
+        path = Path(local_path)
+        if not path.exists():
+            raise FileNotFoundError(f"Local file not found for S3 upload: {path}")
+        
+        extra_args: dict[str, Any] = {}
+        if content_type:
+            extra_args["ContentType"] = content_type
+        else:
+            suffix = path.suffix.lower()
+            if suffix == ".mp4":
+                extra_args["ContentType"] = "video/mp4"
+            elif suffix == ".png":
+                extra_args["ContentType"] = "image/png"
+            elif suffix in (".wav", ".mp3"):
+                extra_args["ContentType"] = "audio/wav" if suffix == ".wav" else "audio/mpeg"
+            elif suffix == ".json":
+                extra_args["ContentType"] = "application/json"
+            elif suffix == ".srt":
+                extra_args["ContentType"] = "text/plain; charset=utf-8"
+
+        client = self.get_s3_client()
+        client.upload_file(
+            Filename=str(path),
+            Bucket=settings.s3_bucket_name,
+            Key=s3_key,
+            ExtraArgs=extra_args if extra_args else None,
+        )
+        logger.info(f"Uploaded file to s3://{settings.s3_bucket_name}/{s3_key}")
+        return s3_key
+
+    def download_file(self, s3_key: str, local_target_path: Path | str) -> Path:
+        """Download an S3 object to local target path."""
+        target = Path(local_target_path)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        client = self.get_s3_client()
+        client.download_file(
+            Bucket=settings.s3_bucket_name,
+            Key=s3_key,
+            Filename=str(target),
+        )
+        logger.info(f"Downloaded s3://{settings.s3_bucket_name}/{s3_key} -> {target}")
+        return target
+
+    def get_presigned_url(self, s3_key: str, expires_in: int = 3600) -> str:
+        """Generate a presigned GET URL for an S3 object."""
+        client = self.get_s3_client()
+        return client.generate_presigned_url(
+            "get_object",
+            Params={
+                "Bucket": settings.s3_bucket_name,
+                "Key": s3_key,
+            },
+            ExpiresIn=expires_in,
+        )
+
+    def download_project_assets(self, project_id: str, target_dir: Path | str) -> list[Path]:
+        """Download all files for a project from S3/R2 to target_dir."""
+        target_path = Path(target_dir)
+        target_path.mkdir(parents=True, exist_ok=True)
+        client = self.get_s3_client()
+
+        prefixes = [f"projects/{project_id}/", f"{project_id}/"]
+        downloaded: list[Path] = []
+
+        for prefix in prefixes:
+            paginator = client.get_paginator("list_objects_v2")
+            for page in paginator.paginate(Bucket=settings.s3_bucket_name, Prefix=prefix):
+                contents = page.get("Contents", [])
+                for obj in contents:
+                    key = obj.get("Key", "")
+                    if not key or key.endswith("/"):
+                        continue
+                    rel_path = key[len(prefix):]
+                    local_dest = target_path / rel_path
+                    self.download_file(key, local_dest)
+                    downloaded.append(local_dest)
+            if downloaded:
+                break
+
+        return downloaded
+
+    def upload_render_result(self, project_id: str, local_video_path: Path | str) -> str:
+        """Upload a rendered video to S3 and return the S3 key."""
+        path = Path(local_video_path)
+        s3_key = f"projects/{project_id}/renders/{path.name}"
+        self.upload_file(path, s3_key, content_type="video/mp4")
+        return s3_key
+
+    def get_render_s3_key(self, project_id: str, render_name: str) -> str:
+        """Get standard S3 key for a specific render."""
+        return f"projects/{project_id}/renders/{render_name}"
+
+    def get_latest_render_key(self, project_id: str) -> str | None:
+        """Find the latest render S3 key for a project."""
+        if not settings.s3_bucket_name:
+            return None
+        client = self.get_s3_client()
+        prefixes = [f"projects/{project_id}/renders/", f"{project_id}/renders/"]
+        candidates: list[tuple[Any, str]] = []
+        for prefix in prefixes:
+            try:
+                resp = client.list_objects_v2(Bucket=settings.s3_bucket_name, Prefix=prefix)
+                for obj in resp.get("Contents", []):
+                    key = obj.get("Key", "")
+                    if key.endswith(".mp4"):
+                        candidates.append((obj.get("LastModified"), key))
+            except Exception as e:
+                logger.warning(f"Error querying S3 renders with prefix {prefix}: {e}")
+            if candidates:
+                break
+        if not candidates:
+            return None
+        candidates.sort(key=lambda x: x[0], reverse=True)
+        return candidates[0][1]
+
+    # ==================== Local Storage Methods ====================
+
     def _project_path(self, project_id: str) -> Path:
         """Get the base path for a project."""
         return self.data_dir / project_id
@@ -29,6 +175,12 @@ class FileStorage:
         with target.open("wb") as buffer:
             shutil.copyfileobj(file, buffer)
         
+        if settings.storage_backend == "s3":
+            try:
+                self.upload_file(target, f"projects/{project_id}/source/{target.name}")
+            except Exception as e:
+                logger.warning(f"Failed to upload audio to S3: {e}")
+
         return target
     
     def get_audio_path(self, project_id: str) -> Path | None:
@@ -48,6 +200,13 @@ class FileStorage:
         
         filename = images_dir / f"{seg_id}_v{version}.png"
         filename.write_bytes(data)
+
+        if settings.storage_backend == "s3":
+            try:
+                self.upload_file(filename, f"projects/{project_id}/images/{filename.name}")
+            except Exception as e:
+                logger.warning(f"Failed to upload image to S3: {e}")
+
         return filename
     
     def get_image_path(self, project_id: str, image_name: str) -> Path | None:
@@ -95,12 +254,6 @@ class FileStorage:
         for file in images_dir.glob(f"{seg_id}_v*.png"):
             name = file.name
             try:
-                # Extract N from seg_vN.png
-                # name is like "segment_id_v2.png"
-                # We know it ends with .png
-                # We strip prefix and suffix
-                
-                # Careful if seg_id contains 'v', handle strictly
                 if name.startswith(prefix) and name.endswith(suffix):
                     v_str = name[len(prefix):-len(suffix)]
                     v = int(v_str)
@@ -119,6 +272,13 @@ class FileStorage:
         subs_dir.mkdir(parents=True, exist_ok=True)
         path = subs_dir / "subtitles.srt"
         path.write_text(content, encoding="utf-8")
+
+        if settings.storage_backend == "s3":
+            try:
+                self.upload_file(path, f"projects/{project_id}/subtitles/{path.name}")
+            except Exception as e:
+                logger.warning(f"Failed to upload subtitles to S3: {e}")
+
         return path
     
     def get_subtitles_path(self, project_id: str) -> Path | None:
@@ -133,6 +293,13 @@ class FileStorage:
         subs_dir.mkdir(parents=True, exist_ok=True)
         path = subs_dir / "styling.json"
         path.write_text(json.dumps(styling, indent=2), encoding="utf-8")
+
+        if settings.storage_backend == "s3":
+            try:
+                self.upload_file(path, f"projects/{project_id}/subtitles/{path.name}")
+            except Exception as e:
+                logger.warning(f"Failed to upload subtitle styling to S3: {e}")
+
         return path
     
     def get_subtitle_styling(self, project_id: str) -> dict | None:
@@ -150,6 +317,13 @@ class FileStorage:
         subs_dir.mkdir(parents=True, exist_ok=True)
         path = subs_dir / "words.json"
         path.write_text(json.dumps(words, indent=2, ensure_ascii=False), encoding="utf-8")
+
+        if settings.storage_backend == "s3":
+            try:
+                self.upload_file(path, f"projects/{project_id}/subtitles/{path.name}")
+            except Exception as e:
+                logger.warning(f"Failed to upload subtitle words to S3: {e}")
+
         return path
 
     def get_subtitle_words(self, project_id: str) -> list[dict] | None:
@@ -178,6 +352,12 @@ class FileStorage:
         
         with target.open("wb") as buffer:
             shutil.copyfileobj(file, buffer)
+
+        if settings.storage_backend == "s3":
+            try:
+                self.upload_file(target, f"projects/{project_id}/source/{target.name}")
+            except Exception as e:
+                logger.warning(f"Failed to upload video to S3: {e}")
         
         return target
     
@@ -190,4 +370,3 @@ class FileStorage:
         
         # Fallback to latest render if available (e.g. for Studio-generated projects)
         return self.get_latest_render(project_id)
-

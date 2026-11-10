@@ -1,6 +1,7 @@
 """Pipeline orchestrator service."""
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any, Callable
 
 from ..clients.genai import GenAIClient
@@ -132,17 +133,26 @@ class PipelineService:
                 self._update_job(project_id, "pipeline", {
                     "status": "RUNNING", "step": "render", "progress": 70
                 })
-                
-                def render_progress(p: int):
-                    self._update_job(project_id, "pipeline", {
-                        "progress": 70 + int(p * 0.3)
-                    })
-                
-                output_path, render_duration = await self._run_step(
-                    project_id, "render",
-                    lambda: self.render_service.render(project_id, render_progress)
-                )
-                
+
+                if settings.render_backend == "cloud_run":
+                    if settings.storage_backend == "s3":
+                        self.project_repo.save_manifest_to_storage(project_id)
+
+                    output_path, render_duration = await self._run_step(
+                        project_id, "render",
+                        lambda: self._execute_cloud_run_render(project_id, mode="render")
+                    )
+                else:
+                    def render_progress(p: int):
+                        self._update_job(project_id, "pipeline", {
+                            "progress": 70 + int(p * 0.3)
+                        })
+
+                    output_path, render_duration = await self._run_step(
+                        project_id, "render",
+                        lambda: self.render_service.render(project_id, render_progress)
+                    )
+
                 # Complete
                 self._update_job(project_id, "pipeline", {
                     "status": "DONE",
@@ -151,11 +161,12 @@ class PipelineService:
                     "output": str(output_path),
                     "render_duration_seconds": round(render_duration, 1),
                 })
+                video_url = f"/projects/{project_id}/rendered-video" if settings.storage_backend == "s3" else f"/projects/{project_id}/renders/{Path(output_path).name}"
                 self.project_repo.update(project_id, {
                     "status": "DONE",
-                    "video_output": f"/projects/{project_id}/renders/{output_path.name}"
+                    "video_output": video_url
                 })
-                
+
                 return str(output_path)
             
             except Exception as e:
@@ -166,6 +177,37 @@ class PipelineService:
                 self.project_repo.update(project_id, {"status": "FAILED"})
                 raise
     
+    def _execute_cloud_run_render(self, project_id: str, mode: str = "render") -> tuple[str, float]:
+        """Trigger Cloud Run Job and wait for its completion."""
+        import time
+        from google.cloud import run_v2
+
+        start_time = time.time()
+        if not settings.gcp_project_id:
+            raise RuntimeError("GCP_PROJECT_ID is not configured for Cloud Run backend")
+
+        client = run_v2.JobsClient()
+        job_name = f"projects/{settings.gcp_project_id}/locations/{settings.gcp_region}/jobs/{settings.cloud_run_job_name}"
+
+        request = run_v2.RunJobRequest(
+            name=job_name,
+            overrides=run_v2.RunJobRequest.Overrides(
+                container_overrides=[
+                    run_v2.RunJobRequest.Overrides.ContainerOverride(
+                        args=["--project_id", project_id, "--mode", mode],
+                    )
+                ]
+            ),
+        )
+        operation = client.run_job(request=request)
+        logger.info(f"Cloud Run Job execution started: {operation.operation.name}. Waiting for completion...")
+        operation.result()
+
+        duration = time.time() - start_time
+        latest_key = self.file_storage.get_latest_render_key(project_id)
+        output_name = latest_key or f"projects/{project_id}/renders/final_v1.mp4"
+        return output_name, duration
+
     async def render_only(self, project_id: str) -> str:
         """Run only the rendering step."""
         async with PIPELINE_SEMAPHORE:
@@ -173,24 +215,33 @@ class PipelineService:
                 self._update_job(project_id, "render", {
                     "status": "RUNNING", "step": "render", "progress": 0
                 })
-                
-                last_reported = -1
-                
-                def render_progress(p: int):
-                    nonlocal last_reported
-                    # Throttle updates: only every 5% or at start/end
-                    if p == 0 or p == 100 or (p > last_reported and p % 5 == 0):
-                        last_reported = p
-                        self._update_job(project_id, "render", {
-                            "progress": p
-                        })
-                
-                loop = asyncio.get_running_loop()
-                output_path, render_duration = await loop.run_in_executor(
-                    None, 
-                    lambda: self.render_service.render(project_id, render_progress)
-                )
-                
+
+                if settings.render_backend == "cloud_run":
+                    if settings.storage_backend == "s3":
+                        self.project_repo.save_manifest_to_storage(project_id)
+                    loop = asyncio.get_running_loop()
+                    output_path, render_duration = await loop.run_in_executor(
+                        None,
+                        lambda: self._execute_cloud_run_render(project_id, mode="render")
+                    )
+                else:
+                    last_reported = -1
+
+                    def render_progress(p: int):
+                        nonlocal last_reported
+                        # Throttle updates: only every 5% or at start/end
+                        if p == 0 or p == 100 or (p > last_reported and p % 5 == 0):
+                            last_reported = p
+                            self._update_job(project_id, "render", {
+                                "progress": p
+                            })
+
+                    loop = asyncio.get_running_loop()
+                    output_path, render_duration = await loop.run_in_executor(
+                        None, 
+                        lambda: self.render_service.render(project_id, render_progress)
+                    )
+
                 self._update_job(project_id, "render", {
                     "status": "DONE",
                     "step": "complete",
@@ -198,8 +249,12 @@ class PipelineService:
                     "output": str(output_path),
                     "render_duration_seconds": round(render_duration, 1),
                 })
-                self.project_repo.update(project_id, {"status": "DONE"})
-                
+                video_url = f"/projects/{project_id}/rendered-video" if settings.storage_backend == "s3" else f"/projects/{project_id}/renders/{Path(output_path).name}"
+                self.project_repo.update(project_id, {
+                    "status": "DONE",
+                    "video_output": video_url
+                })
+
                 return str(output_path)
             
             except Exception as e:

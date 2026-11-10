@@ -188,3 +188,90 @@ class ProjectRepository:
                 jobs[job_file.stem] = repo.load(job_file.name, {})
         
         return jobs
+
+    # ==================== Manifest Export / Import ====================
+
+    def export_manifest(self, project_id: str) -> dict[str, Any]:
+        """Export project, segments, prompts, and analysis into a unified manifest."""
+        project = self.get(project_id) or {}
+        segments = self.get_segments(project_id)
+        prompts = self.get_prompts(project_id)
+        analysis = self.get_analysis(project_id)
+        jobs = self.get_jobs(project_id)
+        
+        manifest = {
+            "version": "1.0",
+            "project_id": project_id,
+            "project": project,
+            "segments": segments,
+            "prompts": prompts,
+            "analysis": analysis,
+            "jobs": jobs,
+            "exported_at": _utc_now(),
+        }
+        return manifest
+
+    def save_manifest_to_storage(self, project_id: str) -> dict[str, Any]:
+        """Save project manifest locally and upload to S3/R2 if storage_backend == 's3'."""
+        import json
+        manifest = self.export_manifest(project_id)
+        project_dir = self.data_dir / project_id
+        project_dir.mkdir(parents=True, exist_ok=True)
+        manifest_path = project_dir / "manifest.json"
+        manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
+
+        if settings.storage_backend == "s3":
+            from .file_storage import FileStorage
+            storage = FileStorage(self.data_dir)
+            s3_key = f"projects/{project_id}/manifest.json"
+            try:
+                storage.upload_file(manifest_path, s3_key, content_type="application/json")
+            except Exception:
+                pass
+            
+            # Also upload individual json metadata files if present
+            for fname in ["project.json", "segments.json", "prompts.json", "analysis.json"]:
+                fpath = project_dir / fname
+                if fpath.exists():
+                    try:
+                        storage.upload_file(fpath, f"projects/{project_id}/{fname}", content_type="application/json")
+                    except Exception:
+                        pass
+        return manifest
+
+    def load_manifest_from_storage(self, project_id: str, target_dir: Path | None = None) -> dict[str, Any]:
+        """Load manifest from S3/R2 or local storage and populate project files in target_dir."""
+        import json
+        base_dir = Path(target_dir) if target_dir else (self.data_dir / project_id)
+        base_dir.mkdir(parents=True, exist_ok=True)
+        manifest_file = base_dir / "manifest.json"
+
+        if settings.storage_backend == "s3" and not manifest_file.exists():
+            from .file_storage import FileStorage
+            storage = FileStorage(self.data_dir)
+            try:
+                storage.download_file(f"projects/{project_id}/manifest.json", manifest_file)
+            except Exception:
+                try:
+                    storage.download_file(f"{project_id}/manifest.json", manifest_file)
+                except Exception:
+                    pass
+
+        if not manifest_file.exists():
+            if (base_dir / "project.json").exists():
+                return self.export_manifest(project_id)
+            raise FileNotFoundError(f"Manifest not found for project {project_id}")
+
+        manifest = json.loads(manifest_file.read_text(encoding="utf-8"))
+
+        repo = JsonRepository(base_dir)
+        if manifest.get("project") and not repo.exists("project.json"):
+            repo.save("project.json", manifest["project"])
+        if manifest.get("segments") is not None and not repo.exists("segments.json"):
+            repo.save("segments.json", manifest["segments"])
+        if manifest.get("prompts") is not None and not repo.exists("prompts.json"):
+            repo.save("prompts.json", manifest["prompts"])
+        if manifest.get("analysis") is not None and not repo.exists("analysis.json"):
+            repo.save("analysis.json", manifest["analysis"])
+
+        return manifest

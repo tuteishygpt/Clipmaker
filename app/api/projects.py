@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Any, Optional
 
 from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, Request, UploadFile
-from fastapi.responses import FileResponse, StreamingResponse, Response
+from fastapi.responses import FileResponse, StreamingResponse, Response, RedirectResponse
 
 from ..schemas.project import ProjectCreate, ProjectResponse
 from ..schemas.segment import SegmentUpdate
@@ -101,9 +101,14 @@ async def get_project(project_id: str) -> dict[str, Any]:
         raise HTTPException(status_code=404, detail="Project not found")
     
     # Check for existing video render
-    latest_render = file_storage.get_latest_render(project_id)
-    if latest_render:
-        project["video_output"] = f"/projects/{project_id}/renders/{latest_render.name}"
+    if settings.storage_backend == "s3":
+        latest_key = file_storage.get_latest_render_key(project_id)
+        if latest_key:
+            project["video_output"] = f"/projects/{project_id}/rendered-video"
+    else:
+        latest_render = file_storage.get_latest_render(project_id)
+        if latest_render:
+            project["video_output"] = f"/projects/{project_id}/renders/{latest_render.name}"
     
     return project
 
@@ -511,6 +516,31 @@ async def recalculate_timings(
         raise HTTPException(status_code=500, detail=f"Recalculation failed: {e}")
 
 
+def trigger_cloud_run_job(project_id: str, mode: str = "render") -> str:
+    """Trigger a Google Cloud Run Job for video rendering."""
+    from google.cloud import run_v2
+
+    if not settings.gcp_project_id:
+        raise RuntimeError("GCP_PROJECT_ID is not configured for Cloud Run backend")
+
+    client = run_v2.JobsClient()
+    job_name = f"projects/{settings.gcp_project_id}/locations/{settings.gcp_region}/jobs/{settings.cloud_run_job_name}"
+
+    request = run_v2.RunJobRequest(
+        name=job_name,
+        overrides=run_v2.RunJobRequest.Overrides(
+            container_overrides=[
+                run_v2.RunJobRequest.Overrides.ContainerOverride(
+                    args=["--project_id", project_id, "--mode", mode],
+                )
+            ]
+        ),
+    )
+    operation = client.run_job(request=request)
+    logger.info(f"Cloud Run Job triggered for project {project_id} (mode={mode}): {operation.operation.name}")
+    return operation.operation.name
+
+
 @router.post("/{project_id}/render", response_model=RunResponse)
 async def render_project(
     project_id: str,
@@ -530,9 +560,20 @@ async def render_project(
     if billing.user:
         logger.info(f"User {billing.user.id} started render for {project_id}")
     
-    background.add_task(pipeline_service.render_only, project_id)
-    
-    return RunResponse(status="OK", message="Render started")
+    if settings.render_backend == "cloud_run":
+        if settings.storage_backend == "s3":
+            project_repo.save_manifest_to_storage(project_id)
+        project_repo.update_job(project_id, "render", {"status": "RUNNING", "progress": 0, "backend": "cloud_run"})
+        try:
+            trigger_cloud_run_job(project_id, mode="render")
+        except Exception as e:
+            logger.error(f"Failed to trigger Cloud Run job: {e}")
+            project_repo.update_job(project_id, "render", {"status": "FAILED", "error": str(e)})
+            raise HTTPException(status_code=500, detail=f"Failed to trigger Cloud Run render job: {e}")
+        return RunResponse(status="OK", message="Cloud Run render job triggered")
+    else:
+        background.add_task(pipeline_service.render_only, project_id)
+        return RunResponse(status="OK", message="Render started")
 
 
 @router.get("/{project_id}/jobs")
@@ -651,6 +692,14 @@ def stream_video_file(path: Any, request: Request, media_type: str = "video/mp4"
 @router.head("/{project_id}/renders/{render_name}")
 async def get_render(project_id: str, render_name: str, request: Request) -> Response:
     """Serve a rendered video with Range request support."""
+    if settings.storage_backend == "s3":
+        key = file_storage.get_render_s3_key(project_id, render_name)
+        try:
+            url = file_storage.get_presigned_url(key)
+            return RedirectResponse(url=url, status_code=307)
+        except Exception as e:
+            logger.warning(f"Failed to generate presigned url for {key}: {e}")
+
     render_path = file_storage.get_render_path(project_id, render_name)
     if not render_path:
         raise HTTPException(status_code=404, detail="Render not found")
@@ -659,8 +708,14 @@ async def get_render(project_id: str, render_name: str, request: Request) -> Res
 
 
 @router.get("/{project_id}/download")
-async def download_project_video(project_id: str) -> FileResponse:
+async def download_project_video(project_id: str) -> Response:
     """Download the latest rendered video."""
+    if settings.storage_backend == "s3":
+        key = file_storage.get_latest_render_key(project_id)
+        if key:
+            url = file_storage.get_presigned_url(key)
+            return RedirectResponse(url=url, status_code=307)
+
     video_path = file_storage.get_latest_render(project_id)
     if not video_path:
         raise HTTPException(status_code=404, detail="Video not found")
@@ -677,6 +732,12 @@ async def download_project_video(project_id: str) -> FileResponse:
 @router.head("/{project_id}/rendered-video")
 async def get_rendered_video(project_id: str, request: Request) -> Response:
     """Stream the latest rendered video inline for video player preview with Range support."""
+    if settings.storage_backend == "s3":
+        key = file_storage.get_latest_render_key(project_id)
+        if key:
+            url = file_storage.get_presigned_url(key)
+            return RedirectResponse(url=url, status_code=307)
+
     video_path = file_storage.get_latest_render(project_id)
     if not video_path or not video_path.exists():
         raise HTTPException(status_code=404, detail="Rendered video not found")
@@ -1007,6 +1068,18 @@ async def render_standalone(
     if not srt_path or not srt_path.exists():
         raise HTTPException(status_code=400, detail="No subtitles available")
     
+    if settings.render_backend == "cloud_run":
+        if settings.storage_backend == "s3":
+            project_repo.save_manifest_to_storage(project_id)
+        project_repo.update_job(project_id, "render", {"status": "RUNNING", "progress": 0, "backend": "cloud_run"})
+        try:
+            trigger_cloud_run_job(project_id, mode="standalone")
+        except Exception as e:
+            logger.error(f"Failed to trigger Cloud Run standalone job: {e}")
+            project_repo.update_job(project_id, "render", {"status": "FAILED", "error": str(e)})
+            raise HTTPException(status_code=500, detail=f"Failed to trigger Cloud Run render job: {e}")
+        return RunResponse(status="OK", message="Cloud Run standalone render job triggered")
+
     async def render_with_subtitles():
         from ..services.render_service import RenderService
         from fastapi.concurrency import run_in_threadpool

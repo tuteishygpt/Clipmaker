@@ -1,0 +1,32 @@
+FROM python:3.11-slim
+
+# Prevent Python from writing pyc files and keep stdout unbuffered
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Install system dependencies: ffmpeg, audio libs, fonts and font tools
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg \
+    libsndfile1 \
+    fonts-dejavu-core \
+    fonts-liberation \
+    fontconfig \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy custom fonts into system font cache
+RUN mkdir -p /usr/local/share/fonts/custom
+COPY app/static/fonts/ /usr/local/share/fonts/custom/
+RUN fc-cache -f -v
+
+# Copy application code
+COPY app/ /app/app/
+
+ENV PYTHONPATH=/app
+
+ENTRYPOINT ["python", "-m", "app.worker"]

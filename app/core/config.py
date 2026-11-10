@@ -34,6 +34,17 @@ class Settings:
     
     # Validation
     max_audio_duration_minutes: int = 10
+
+    # Render & Storage Backends (Cloud Run / S3 / R2)
+    render_backend: str = "local"  # "local", "cloud_run"
+    storage_backend: str = "local"  # "local", "s3"
+    gcp_project_id: str | None = None
+    gcp_region: str = "us-central1"
+    cloud_run_job_name: str = "clipmaker-render"
+    s3_endpoint_url: str | None = None
+    s3_access_key_id: str | None = None
+    s3_secret_access_key: str | None = None
+    s3_bucket_name: str | None = None
     
     # Supabase
     supabase_url: str | None = None
@@ -73,6 +84,15 @@ class Settings:
             base_dir=base_dir,
             data_dir=Path(os.getenv("PROJECTS_DATA_DIR")) if os.getenv("PROJECTS_DATA_DIR") else base_dir / "data" / "projects",
             frontend_dir=base_dir / "frontend-react" / "dist",
+            render_backend=os.getenv("RENDER_BACKEND", "local").strip().lower(),
+            storage_backend=os.getenv("STORAGE_BACKEND", "local").strip().lower(),
+            gcp_project_id=os.getenv("GCP_PROJECT_ID") or os.getenv("GOOGLE_CLOUD_PROJECT") or os.getenv("GOOGLE_PROJECT"),
+            gcp_region=os.getenv("GCP_REGION", "us-central1"),
+            cloud_run_job_name=os.getenv("CLOUD_RUN_JOB_NAME", "clipmaker-render"),
+            s3_endpoint_url=os.getenv("S3_ENDPOINT_URL") or os.getenv("R2_ENDPOINT_URL"),
+            s3_access_key_id=os.getenv("S3_ACCESS_KEY_ID") or os.getenv("R2_ACCESS_KEY_ID") or os.getenv("AWS_ACCESS_KEY_ID"),
+            s3_secret_access_key=os.getenv("S3_SECRET_ACCESS_KEY") or os.getenv("R2_SECRET_ACCESS_KEY") or os.getenv("AWS_SECRET_ACCESS_KEY"),
+            s3_bucket_name=os.getenv("S3_BUCKET_NAME") or os.getenv("R2_BUCKET_NAME"),
         )
     
     @property

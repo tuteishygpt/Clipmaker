@@ -11,3 +11,6 @@ numpy
 supabase>=2.10.0
 pyjwt>=2.10.0
 httpx>=0.28.1
+boto3>=1.34.0
+google-cloud-run>=0.10.0
+
