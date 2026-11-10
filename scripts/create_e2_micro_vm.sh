@@ -39,8 +39,11 @@ gcloud compute instances create "$VM_NAME" \
     --project="$PROJECT_ID" \
     --zone="$ZONE" \
     --machine-type="$MACHINE_TYPE" \
-    --network-interface=stack-type=IPV4_IPV6,ipv6-network-tier=PREMIUM,no-address \
-    --create-boot-disk=auto-delete=yes,boot=yes,image-family="$IMAGE_FAMILY",image-project="$IMAGE_PROJECT",size="$DISK_SIZE",type="$DISK_TYPE" \
+    --network-interface="subnet=clipmaker-subnet,stack-type=IPV4_IPV6,ipv6-network-tier=PREMIUM,no-address" \
+    --boot-disk-size="$DISK_SIZE" \
+    --boot-disk-type="$DISK_TYPE" \
+    --image-family="$IMAGE_FAMILY" \
+    --image-project="$IMAGE_PROJECT" \
     --scopes=https://www.googleapis.com/auth/cloud-platform \
     --tags=clipmaker-api
 
