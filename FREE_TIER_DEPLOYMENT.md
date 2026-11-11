@@ -160,20 +160,22 @@ flowchart TD
 
 ### 5.1. Google Cloud Platform (GCP)
 * **Актыўны акаўнт:** `user69@belarusbeehive.eu`
-* **Праект GCP:** `clipmaker-prod-2026`
+* **Праект GCP:** `clipmaker-prod-2026` (нумар `878887026030`)
 * **Плацежны акаўнт (Billing Account):** `014B92-595C6D-A468F6`
 * **Асноўны рэгіён:** `us-central1` (Зона VM: `us-central1-a`)
 * **Уключаныя API:**
   * `run.googleapis.com` (Cloud Run Admin API)
+  * `aiplatform.googleapis.com` (Vertex AI API, лакацыя `global`)
   * `compute.googleapis.com` (Compute Engine API)
   * `artifactregistry.googleapis.com` (Artifact Registry API)
   * `storage-component.googleapis.com` (Cloud Storage API)
 
 ### 5.2. Cloud Run Job (Рэндэрынг)
-* **Назва Job:** `clipmaker-render`
+* **Назва Job:** `clipmaker-render` (праект `clipmaker-prod-2026`, рэгіён `us-central1`)
 * **Канфігурацыя рэсурсаў:** `8 vCPU` / `16 GiB RAM`
 * **Таймаўт задачы:** `1800s` (30 хвілін)
-* **Docker вобраз:** `ghcr.io/tuteishygpt/clipmaker-worker:latest` (і тэгі `sha-*`)
+* **Сэрвісны акаўнт:** `878887026030-compute@developer.gserviceaccount.com`
+* **Docker вобраз:** `ghcr.io/tuteishygpt/clipmaker-worker:latest` (і тэгі `sha-*`, напр. `sha-c2027f3`)
 * **Канфігураваныя зменныя асяроддзя (унутры Job):**
   * `STORAGE_BACKEND=s3`
   * `RENDER_BACKEND=cloud_run`
@@ -181,51 +183,55 @@ flowchart TD
   * `S3_BUCKET_NAME=clipmaker-assets`
   * `S3_ACCESS_KEY_ID` / `S3_SECRET_ACCESS_KEY`
   * `SUPABASE_URL` / `SUPABASE_KEY`
-  * `GOOGLE_CLOUD_PROJECT=tuteishygpt-site` (або `clipmaker-prod-2026`)
+  * `GOOGLE_CLOUD_PROJECT=clipmaker-prod-2026`
+  * `GCP_PROJECT_ID=clipmaker-prod-2026`
   * `GOOGLE_CLOUD_LOCATION=global` (для Vertex AI / Gemini мадэляў)
   * `GCP_REGION=us-central1` (для Cloud Run Jobs)
 * **Каманда ручнога запуску / тэсту:**
   ```powershell
-  gcloud run jobs execute clipmaker-render --args="--project_id=PROJECT_ID,--mode=render" --region=us-central1 --project=tuteishygpt-site --account=svsvec@gmail.com
+  gcloud run jobs execute clipmaker-render --args="--project_id=PROJECT_ID,--mode=render" --region=us-central1 --project=clipmaker-prod-2026 --account=user69@belarusbeehive.eu
   ```
 * **Прагляд логаў рэндэру:**
   ```powershell
-  gcloud logging read "resource.type=cloud_run_job AND resource.labels.job_name=clipmaker-render" --limit=30 --project=tuteishygpt-site --account=svsvec@gmail.com --format="value(textPayload)"
+  gcloud logging read "resource.type=cloud_run_job AND resource.labels.job_name=clipmaker-render" --limit=30 --project=clipmaker-prod-2026 --account=user69@belarusbeehive.eu --format="value(textPayload)"
   ```
 
 ### 5.3. Cloudflare R2 (Сховішча ассетаў і MP4)
 * **Акаўнт Cloudflare:** `User69@belarusbeehive.eu` (`e36d7f81ca0e27cb2100b35d5c812b3d`)
 * **Назва бакета:** `clipmaker-assets`
 * **S3 Endpoint:** `https://e36d7f81ca0e27cb2100b35d5c812b3d.r2.cloudflarestorage.com`
-* **CORS палітыка:** Наладжана праз `wrangler r2 bucket cors set` для прамой загрузкі (`PUT`) і прайгравання (`GET`/`HEAD`) з `https://clipmaker-frontend.pages.dev` (абыходзіць ліміт 32 MB Cloud Run).
-* **Ключы доступу:** наладжаныя ў лакальным `.env` і ў Cloud Run Service / Job.
+* **CORS палітыка:** Наладжана праз `wrangler r2 bucket cors set` для прамой загрузкі (`PUT`) і прайгравання (`GET`/`HEAD`) з `https://clipmaker-frontend.pages.dev` (абыходзіць ліміты памеру запыту).
+* **Ключы доступу:** наладжаныя ў `/opt/clipmaker/.env` на VM, у Cloud Run Job і ў лакальным `.env`.
 * **Тэставанне сувязі з R2:**
   ```powershell
   & "D:\googlePRJ\clipmaker\.venv\Scripts\python.exe" scripts/test_s3_connection.py
   ```
 
-### 5.4. Cloudflare Pages + Edge Proxy (`_worker.js`)
-* **Назва праекта:** `clipmaker-frontend`
+### 5.4. Cloudflare Pages + Workers VPC Proxy (`_worker.js` + `clipmaker-vpc-proxy`)
+* **Назва праекта Pages:** `clipmaker-frontend`
 * **Публічны URL:** [https://clipmaker-frontend.pages.dev](https://clipmaker-frontend.pages.dev)
-* **API Proxy (`public/_worker.js`):** Перанакіроўвае ўсе запыты `/api/*` на публічны сервер Cloud Run API, захоўваючы паводзіны `307 Redirect` для прамога стрымінгу з R2.
+* **Схема маршрутызацыі API (без публічных IPv4 і без парушэння org policy):**
+  1. `clipmaker-frontend` (`frontend-react/public/_worker.js`) прымае `/api/*` і праз **Service Binding (`BACKEND_PROXY`)** выклікае прыватны Cloudflare Worker `clipmaker-vpc-proxy` (`vpc-proxy-worker/`, `workers_dev = false`).
+  2. `clipmaker-vpc-proxy` праз **Workers VPC Service (`clipmaker-api-vpc`, `01a1ca46-20fc-7ef0-88cf-e036cfa828df`)** накіроўвае трафік у **Cloudflare Tunnel `clipmaker-api` (`fc56096b-386a-4c96-97ff-7c80b687d354`)** на `127.0.0.1:8000` унутры VM `clipmaker-prod-2026`.
+  3. Адказ `307 Redirect` перадаецца наўпрост у браўзер для прамога стрымінгу з Cloudflare R2.
 * **Каманда зборкі:** `npm run build` у каталогу `frontend-react`
 * **Каманда разгортвання (у production branch `main`):**
   ```powershell
-  npx wrangler pages deploy "D:\googlePRJ\clipmaker-cloud-run\frontend-react\dist" --project-name="clipmaker-frontend" --branch=main
+  cd D:\googlePRJ\clipmaker-cloud-run\vpc-proxy-worker; npx wrangler deploy
+  cd D:\googlePRJ\clipmaker-cloud-run\frontend-react; npx wrangler pages deploy dist --project-name="clipmaker-frontend" --branch=main
   ```
 
-### 5.5. Cloud Run API (`clipmaker-api` на праекце `tuteishygpt-site`)
-* **Чаму `tuteishygpt-site`:** У праекце `clipmaker-prod-2026` арганізацыйная палітыка `belarusbeehive.eu` (`iam.allowedPolicyMemberDomains`) блакуе публічны доступ `allUsers` да Cloud Run Service. На акаўнце `svsvec@gmail.com` (`tuteishygpt-site`, Billing `01EB6D-CE8B58-4764AF`) публічны доступ працуе наўпрост.
-* **Публічны Endpoint:** `https://clipmaker-api-536283296767.us-central1.run.app`
-* **Сінхранізацыя стану:** Праектныя метаданыя, маніфесты, субцітры і статусы заданняў сінхранізуюцца з Cloudflare R2 для поўнай stateless-працы пры маштабаванні або рэстартах.
-
-### 5.6. Рэзервовая VM (`clipmaker-api` на `clipmaker-prod-2026`)
-* **Назва VM:** `clipmaker-api` (`e2-micro`, `us-central1-a`, 30 GB pd-standard, VPC `clipmaker-vpc`, без вонкавага IPv4).
+### 5.5. API Backend VM (`clipmaker-api` на `clipmaker-prod-2026`, Always Free)
+* **Назва VM:** `clipmaker-api` (`e2-micro`, `us-central1-a`, 30 GB `pd-standard` + 1 GiB `/swapfile`, VPC `clipmaker-vpc`, Dual-Stack са знешнім бясплатным IPv6 `2600:1900:4000:224f:0:0:0:0/96`, **без платнага IPv4**).
+* **Сэрвісы systemd на VM:**
+  * `clipmaker-api.service`: запускае `/opt/clipmaker/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000` (аўтарызацыя ў GCP праз GCE Metadata ADC сэрвіс-акаўнта `878887026030-compute@developer.gserviceaccount.com` без JSON-ключоў).
+  * `cloudflared-tunnel.service`: запускае `cloudflared tunnel --no-autoupdate --edge-ip-version 6 run` па IPv6 QUIC да краёвай сеткі Cloudflare.
+* **Сінхранізацыя стану:** Праектныя метаданыя, маніфесты, субцітры і статусы заданняў сінхранізуюцца з Cloudflare R2 для супольнай працы API VM і Cloud Run Job `clipmaker-render`.
 * **Падключэнне праз IAP SSH:**
   ```powershell
-  gcloud compute ssh clipmaker-api --zone=us-central1-a --project=clipmaker-prod-2026 --tunnel-through-iap
+  gcloud compute ssh user69_belarusbeehive_eu@clipmaker-api --zone=us-central1-a --project=clipmaker-prod-2026 --tunnel-through-iap
   ```
 
-### 5.7. База дадзеных і Auth (Supabase)
-* **URL праекта:** `https://aqcdxlnzrfxqmftsemek.supabase.co`
+### 5.6. База дадзеных і Auth (Supabase)
+* **URL праекта:** `https://aqcdxlnzrfxqmftsemek.supabase.co` *(заўвага: на момант міграцыі 11.11.2026 дамен не рэзальвіцца ў DNS — трэба праверыць/аднавіць праект у Supabase Dashboard для функцый кабінета; Studio субцітраў працуе і без Supabase)*
 * **Схема дадзеных:** метаданыя праектаў, сцэн і карыстальнікаў (`supabase_schema.sql`)

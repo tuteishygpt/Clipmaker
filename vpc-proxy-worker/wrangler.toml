@@ -1,0 +1,8 @@
+name = "clipmaker-vpc-proxy"
+main = "src/index.js"
+compatibility_date = "2026-11-10"
+workers_dev = false
+
+[[vpc_services]]
+binding = "BACKEND_VPC"
+service_id = "01a1ca46-20fc-7ef0-88cf-e036cfa828df"

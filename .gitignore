@@ -24,4 +24,5 @@ secrets/
 *.env*
 !.env.example
 
+.wrangler/
 SSH_CONNECT.md

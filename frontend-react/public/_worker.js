@@ -2,7 +2,26 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    // 1. Handle API requests by proxying to Google Cloud Run backend
+    // 0. Internal Supabase proxy for IPv6-only Compute Engine API backend (protected by secret prefix)
+    if (env.SB_PROXY_PREFIX && url.pathname.startsWith('/' + env.SB_PROXY_PREFIX + '/')) {
+      const upstreamPath = url.pathname.slice(env.SB_PROXY_PREFIX.length + 1);
+      const sbUrl = new URL(upstreamPath + url.search, 'https://aqcdxlnzrfxqmftsemek.supabase.co');
+      const sbHeaders = new Headers(request.headers);
+      sbHeaders.set('host', 'aqcdxlnzrfxqmftsemek.supabase.co');
+
+      const sbInit = {
+        method: request.method,
+        headers: sbHeaders,
+        redirect: 'manual',
+      };
+      if (request.method !== 'GET' && request.method !== 'HEAD') {
+        sbInit.body = request.body;
+        sbInit.duplex = 'half';
+      }
+      return fetch(sbUrl.toString(), sbInit);
+    }
+
+    // 1. Handle API requests by proxying over Cloudflare Workers VPC Tunnel to clipmaker-prod-2026 backend
     if (url.pathname.startsWith('/api')) {
       // Handle CORS preflight options directly
       if (request.method === 'OPTIONS') {
@@ -17,24 +36,20 @@ export default {
         });
       }
 
-      const backendBase = 'https://clipmaker-api-536283296767.us-central1.run.app';
-      const targetUrl = new URL(url.pathname + url.search, backendBase);
-
-      const headers = new Headers(request.headers);
-      headers.set('host', 'clipmaker-api-536283296767.us-central1.run.app');
-
-      const init = {
-        method: request.method,
-        headers: headers,
-        redirect: 'manual', // Pass 307 redirects straight to browser for R2 streaming
-      };
-
-      if (request.method !== 'GET' && request.method !== 'HEAD') {
-        init.body = request.body;
-        init.duplex = 'half';
+      if (!env.BACKEND_PROXY) {
+        return new Response(
+          JSON.stringify({ detail: 'BACKEND_PROXY binding is not configured' }),
+          {
+            status: 503,
+            headers: {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+            },
+          },
+        );
       }
 
-      const response = await fetch(targetUrl.toString(), init);
+      const response = await env.BACKEND_PROXY.fetch(request);
 
       // Pass through 301/302/307/308 redirects directly so browser connects to R2
       if (response.status >= 300 && response.status < 400) {
