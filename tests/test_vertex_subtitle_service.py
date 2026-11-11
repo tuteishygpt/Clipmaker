@@ -145,7 +145,11 @@ class VertexSubtitleServiceTests(unittest.TestCase):
             client=fake_client,
         )
 
-        with tempfile.TemporaryDirectory() as tmp_dir:
+        with tempfile.TemporaryDirectory() as tmp_dir, patch(
+            "app.repositories.file_storage.settings.storage_backend", "local"
+        ), patch(
+            "app.repositories.project_repo.settings.storage_backend", "local"
+        ):
             storage = FileStorage(data_dir=Path(tmp_dir))
             project_id = "test_project_123"
 
@@ -201,7 +205,11 @@ class VertexSubtitleServiceTests(unittest.TestCase):
             ]
         )
 
-        with tempfile.TemporaryDirectory() as tmp_dir:
+        with tempfile.TemporaryDirectory() as tmp_dir, patch(
+            "app.repositories.file_storage.settings.storage_backend", "local"
+        ), patch(
+            "app.repositories.project_repo.settings.storage_backend", "local"
+        ):
             storage = FileStorage(data_dir=Path(tmp_dir))
             project_id = "test_long_duration"
             source_dir = Path(tmp_dir) / project_id / "source"
