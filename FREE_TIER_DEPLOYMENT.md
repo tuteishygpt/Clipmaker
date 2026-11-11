@@ -158,17 +158,24 @@ flowchart TD
 
 ## 5. Актуальныя налады і прадакшн-рэквізіты (Разгорнута 11.11.2026)
 
-### 5.1. Google Cloud Platform (GCP)
+### 5.1. Google Cloud Platform (GCP) і ізаляваная аўтэнтыфікацыя Vertex AI
 * **Актыўны акаўнт:** `user69@belarusbeehive.eu`
-* **Праект GCP:** `clipmaker-prod-2026` (нумар `878887026030`)
+* **Праект GCP (інфраструктура):** `clipmaker-prod-2026` (нумар `878887026030`)
 * **Плацежны акаўнт (Billing Account):** `014B92-595C6D-A468F6`
 * **Асноўны рэгіён:** `us-central1` (Зона VM: `us-central1-a`)
-* **Уключаныя API:**
+* **Уключаныя API (`clipmaker-prod-2026`):**
   * `run.googleapis.com` (Cloud Run Admin API)
-  * `aiplatform.googleapis.com` (Vertex AI API, лакацыя `global`)
+  * `secretmanager.googleapis.com` (Secret Manager API — Always Free: 6 версій, 10 000 доступаў/мес)
   * `compute.googleapis.com` (Compute Engine API)
   * `artifactregistry.googleapis.com` (Artifact Registry API)
   * `storage-component.googleapis.com` (Cloud Storage API)
+* **Строгая аўтэнтыфікацыя Vertex AI (ТОЛЬКІ праз JSON-файл SA, без Metadata ADC і без API-ключоў):**
+  * Код у `gemini_auth.py`, `app/clients/genai.py` і `gemini_integration.py` строга патрабуе існы лакальны JSON-файл сервіснага акаўнта (`type: "service_account"`) праз `GOOGLE_SERVICE_ACCOUNT_JSON_FILE` або `GOOGLE_APPLICATION_CREDENTIALS` і перадае `credentials` непасрэдна ў `genai.Client(vertexai=True, credentials=..., ...)` без глабальнай мутацыі `os.environ["GOOGLE_APPLICATION_CREDENTIALS"]`.
+  * Любы fallback на GCE Metadata ADC, карыстальніцкі `gcloud` ADC, inline/base64 env JSON або `GENAI_API_KEY` цалкам заблакаваны; роля `roles/aiplatform.user` знятая з `878887026030-compute@developer.gserviceaccount.com` у `clipmaker-prod-2026`.
+  * **Сэрвісны акаўнт Vertex AI:** `vertex@gen-lang-client-0338345659.iam.gserviceaccount.com` (праект `gen-lang-client-0338345659`, лакацыя `global`).
+  * **Лакальны ПК:** выкарыстоўвае файл `D:\CodexPRJ\DubbLM\cred\gen-lang-client-0338345659-28b7a70299c.json`.
+  * **Прадакшн VM (`clipmaker-api`):** ключ захоўваецца ў **GCP Secret Manager** (`clipmaker-vertex-sa`, рэплікацыя `us-central1`, 1 актыўная версія; доступ толькі ў `878887026030-compute@...` на гэты сакрэт) і пры старце `clipmaker-api.service` (`User=clipmaker`, `RuntimeDirectory=clipmaker`, `RuntimeDirectoryMode=0700`) дастаўляецца скрыптам `scripts/fetch_vertex_sa.py` у `tmpfs` RAM `/run/clipmaker/vertex-sa.json` з правамі `chmod 400`.
+  * **Cloud Run Job (`clipmaker-render`):** у рэжымах `render` і `standalone` (`app/worker.py`, `RenderService`) **не выклікае Vertex AI**, таму ключ туды не перадаецца.
 
 ### 5.2. Cloud Run Job (Рэндэрынг)
 * **Назва Job:** `clipmaker-render` (праект `clipmaker-prod-2026`, рэгіён `us-central1`)
@@ -224,7 +231,7 @@ flowchart TD
 ### 5.5. API Backend VM (`clipmaker-api` на `clipmaker-prod-2026`, Always Free)
 * **Назва VM:** `clipmaker-api` (`e2-micro`, `us-central1-a`, 30 GB `pd-standard` + 1 GiB `/swapfile`, VPC `clipmaker-vpc`, Dual-Stack са знешнім бясплатным IPv6 `2600:1900:4000:224f:0:0:0:0/96`, **без платнага IPv4**).
 * **Сэрвісы systemd на VM:**
-  * `clipmaker-api.service`: запускае `/opt/clipmaker/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000` (аўтарызацыя ў GCP праз GCE Metadata ADC сэрвіс-акаўнта `878887026030-compute@developer.gserviceaccount.com` без JSON-ключоў).
+  * `clipmaker-api.service`: запускаецца пад ізаляваным карыстальнікам `User=clipmaker`, праз `ExecStartPre=/opt/clipmaker/venv/bin/python /opt/clipmaker/scripts/fetch_vertex_sa.py` дастаўляе Vertex SA JSON з Secret Manager у `tmpfs` `/run/clipmaker/vertex-sa.json` (`chmod 400`), затым запускае `/opt/clipmaker/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000` (а `run_v2.JobsClient()` выкарыстоўвае прывязаны SA `878887026030-compute@developer.gserviceaccount.com` для запуску Cloud Run Job у `clipmaker-prod-2026`).
   * `cloudflared-tunnel.service`: запускае `cloudflared tunnel --no-autoupdate --edge-ip-version 6 run` па IPv6 QUIC да краёвай сеткі Cloudflare.
 * **Сінхранізацыя стану:** Праектныя метаданыя, маніфесты, субцітры і статусы заданняў сінхранізуюцца з Cloudflare R2 для супольнай працы API VM і Cloud Run Job `clipmaker-render`.
 * **Падключэнне праз IAP SSH:**

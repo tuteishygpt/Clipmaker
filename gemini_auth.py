@@ -1,16 +1,27 @@
-import atexit
 import base64
 import json
 import logging
 import os
 import random
 import time
-import tempfile
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Optional
 
+from google.oauth2 import service_account
+
 logger = logging.getLogger(__name__)
-_SERVICE_ACCOUNT_CREDENTIALS_PATH: str | None = None
+VERTEX_CLOUD_SCOPES = ("https://www.googleapis.com/auth/cloud-platform",)
+
+
+@dataclass(frozen=True)
+class VertexServiceAccountConfig:
+    """Validated service account credentials loaded strictly from a local JSON file."""
+
+    credentials: service_account.Credentials
+    project_id: str
+    client_email: str
+    credentials_path: str
 
 class GeminiTranscriptionError(RuntimeError):
     """Raised when Gemini transcription fails."""
@@ -263,19 +274,21 @@ def _load_local_env(env_path: str | Path = ".env") -> None:
         os.environ[key] = value.strip().strip('"').strip("'")
 
 
-def _load_service_account_json_from_env() -> str:
-    raw_json = os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON", "").strip()
-    if raw_json:
-        return raw_json
+def _resolve_service_account_file_path() -> Path:
+    """Resolve and validate the local service account JSON file path from environment variables."""
+    if os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON", "").strip():
+        raise GeminiTranscriptionError(
+            "GOOGLE_SERVICE_ACCOUNT_JSON inline payload is forbidden. "
+            "Vertex AI must authenticate strictly from a local service account JSON file "
+            "(GOOGLE_SERVICE_ACCOUNT_JSON_FILE or GOOGLE_APPLICATION_CREDENTIALS)."
+        )
 
-    raw_b64 = os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON_B64", "").strip()
-    if raw_b64:
-        try:
-            return base64.b64decode(raw_b64, validate=True).decode("utf-8").strip()
-        except Exception as exc:
-            raise GeminiTranscriptionError(
-                "GOOGLE_SERVICE_ACCOUNT_JSON_B64 must contain valid base64-encoded service account JSON."
-            ) from exc
+    if os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON_B64", "").strip():
+        raise GeminiTranscriptionError(
+            "GOOGLE_SERVICE_ACCOUNT_JSON_B64 inline payload is forbidden. "
+            "Vertex AI must authenticate strictly from a local service account JSON file "
+            "(GOOGLE_SERVICE_ACCOUNT_JSON_FILE or GOOGLE_APPLICATION_CREDENTIALS)."
+        )
 
     for key in ("GOOGLE_SERVICE_ACCOUNT_JSON_FILE", "GOOGLE_APPLICATION_CREDENTIALS"):
         path_value = os.environ.get(key, "").strip()
@@ -286,57 +299,96 @@ def _load_service_account_json_from_env() -> str:
         if not path.is_file():
             raise GeminiTranscriptionError(f"{key} points to a missing file: {path}")
 
-        return path.read_text(encoding="utf-8").strip()
+        return path
 
-    return ""
+    raise GeminiTranscriptionError(
+        "Vertex AI requires a local service account JSON file. "
+        "Set GOOGLE_SERVICE_ACCOUNT_JSON_FILE or GOOGLE_APPLICATION_CREDENTIALS to an existing "
+        "service account .json file (GCE Metadata ADC, user gcloud ADC, and API keys are forbidden)."
+    )
+
+
+def _validate_service_account_payload(raw_json: str, source_label: str = "service account file") -> dict[str, Any]:
+    raw_clean = raw_json.strip()
+    if not raw_clean:
+        raise GeminiTranscriptionError(f"{source_label} is empty.")
+
+    try:
+        payload = json.loads(raw_clean)
+    except json.JSONDecodeError as exc:
+        raise GeminiTranscriptionError(f"{source_label} must contain valid JSON.") from exc
+
+    if not isinstance(payload, dict):
+        raise GeminiTranscriptionError(f"{source_label} must contain a JSON object.")
+
+    if payload.get("type") != "service_account":
+        raise GeminiTranscriptionError(
+            f"{source_label} must have type='service_account' (user/authorized_user ADC files are forbidden)."
+        )
+
+    for required_field in ("project_id", "client_email", "private_key"):
+        if not str(payload.get(required_field) or "").strip():
+            raise GeminiTranscriptionError(
+                f"{source_label} is missing required field '{required_field}'."
+            )
+
+    return payload
+
+
+def _load_service_account_json_from_env() -> str:
+    """Strictly read raw JSON from the configured local service account file."""
+    path = _resolve_service_account_file_path()
+    raw_json = path.read_text(encoding="utf-8").strip()
+    _validate_service_account_payload(raw_json, source_label=str(path))
+    return raw_json
+
+
+def load_vertex_service_account_credentials(
+    configured_project: str = "",
+) -> VertexServiceAccountConfig:
+    """Load explicit Vertex AI service account credentials strictly from a local JSON file."""
+    path = _resolve_service_account_file_path()
+    raw_json = path.read_text(encoding="utf-8").strip()
+    payload = _validate_service_account_payload(raw_json, source_label=str(path))
+
+    sa_project_id = str(payload["project_id"]).strip()
+    client_email = str(payload["client_email"]).strip()
+    cfg_proj = (configured_project or "").strip()
+    if cfg_proj and cfg_proj != sa_project_id:
+        logger.warning(
+            "Configured project '%s' differs from service account project_id '%s'; "
+            "using service account project_id '%s' for Vertex AI.",
+            cfg_proj,
+            sa_project_id,
+            sa_project_id,
+        )
+
+    credentials = service_account.Credentials.from_service_account_file(
+        str(path),
+        scopes=list(VERTEX_CLOUD_SCOPES),
+    )
+    return VertexServiceAccountConfig(
+        credentials=credentials,
+        project_id=sa_project_id,
+        client_email=client_email,
+        credentials_path=str(path),
+    )
 
 
 def _configure_adc_from_service_account_json(
     service_account_json: str,
     configured_project: str = "",
 ) -> str:
-    global _SERVICE_ACCOUNT_CREDENTIALS_PATH
-
-    raw_json = service_account_json.strip()
-    if not raw_json:
-        raise GeminiTranscriptionError("GOOGLE_SERVICE_ACCOUNT_JSON is empty.")
-
-    try:
-        service_account = json.loads(raw_json)
-    except json.JSONDecodeError as exc:
-        raise GeminiTranscriptionError(
-            "GOOGLE_SERVICE_ACCOUNT_JSON must contain valid service account JSON."
-        ) from exc
-
-    project_id = (configured_project or service_account.get("project_id") or "").strip()
-    if not project_id:
-        raise GeminiTranscriptionError(
-            "Vertex AI project is not configured. Set GOOGLE_CLOUD_PROJECT "
-            "or include project_id in GOOGLE_SERVICE_ACCOUNT_JSON."
+    """Validate service account JSON and resolve project_id without mutating process ADC env vars."""
+    payload = _validate_service_account_payload(service_account_json)
+    sa_project_id = str(payload["project_id"]).strip()
+    cfg_proj = (configured_project or "").strip()
+    if cfg_proj and cfg_proj != sa_project_id:
+        logger.warning(
+            "Configured project '%s' differs from service account project_id '%s'; using '%s'.",
+            cfg_proj,
+            sa_project_id,
+            sa_project_id,
         )
-
-    if not _SERVICE_ACCOUNT_CREDENTIALS_PATH:
-        credentials_file = tempfile.NamedTemporaryFile(
-            mode="w",
-            encoding="utf-8",
-            suffix=".json",
-            prefix="google-service-account-",
-            delete=False,
-        )
-        with credentials_file:
-            credentials_file.write(raw_json)
-        _SERVICE_ACCOUNT_CREDENTIALS_PATH = credentials_file.name
-
-        def _cleanup_sa_file(path: str) -> None:
-            try:
-                if os.path.exists(path):
-                    os.remove(path)
-            except Exception:
-                pass
-
-        atexit.register(_cleanup_sa_file, _SERVICE_ACCOUNT_CREDENTIALS_PATH)
-
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = _SERVICE_ACCOUNT_CREDENTIALS_PATH
-    os.environ.setdefault("GOOGLE_CLOUD_PROJECT", project_id)
-    return project_id
+    return sa_project_id
 

@@ -18,50 +18,71 @@ from gemini_integration import (
 
 class GeminiIntegrationTests(unittest.TestCase):
     def test_loads_service_account_json_from_file_env(self):
-        payload = '{"type":"service_account","project_id":"demo-project"}'
+        payload = (
+            '{"type":"service_account","project_id":"demo-project",'
+            '"client_email":"sa@demo-project.iam.gserviceaccount.com",'
+            '"private_key":"-----BEGIN PRIVATE KEY-----\\nABC\\n-----END PRIVATE KEY-----\\n"}'
+        )
 
         with tempfile.TemporaryDirectory() as tmp:
             cred_path = Path(tmp) / "service-account.json"
             cred_path.write_text(payload, encoding="utf-8")
 
-            old_json = os.environ.pop("GOOGLE_SERVICE_ACCOUNT_JSON", None)
-            old_file = os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON_FILE")
-            old_adc = os.environ.pop("GOOGLE_APPLICATION_CREDENTIALS", None)
-            os.environ["GOOGLE_SERVICE_ACCOUNT_JSON_FILE"] = str(cred_path)
-            try:
+            with unittest.mock.patch.dict(
+                os.environ,
+                {"GOOGLE_SERVICE_ACCOUNT_JSON_FILE": str(cred_path)},
+                clear=False,
+            ):
+                os.environ.pop("GOOGLE_SERVICE_ACCOUNT_JSON", None)
+                os.environ.pop("GOOGLE_SERVICE_ACCOUNT_JSON_B64", None)
+                os.environ.pop("GOOGLE_APPLICATION_CREDENTIALS", None)
                 self.assertEqual(_load_service_account_json_from_env(), payload)
-            finally:
-                if old_json is not None:
-                    os.environ["GOOGLE_SERVICE_ACCOUNT_JSON"] = old_json
-                if old_file is not None:
-                    os.environ["GOOGLE_SERVICE_ACCOUNT_JSON_FILE"] = old_file
-                else:
-                    os.environ.pop("GOOGLE_SERVICE_ACCOUNT_JSON_FILE", None)
-                if old_adc is not None:
-                    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = old_adc
 
-    def test_loads_service_account_json_from_base64_env(self):
+    def test_rejects_inline_and_missing_service_account_json(self):
         payload = '{"type":"service_account","project_id":"demo-project"}'
         encoded = base64.b64encode(payload.encode("utf-8")).decode("ascii")
 
-        old_json = os.environ.pop("GOOGLE_SERVICE_ACCOUNT_JSON", None)
-        old_b64 = os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON_B64")
-        old_file = os.environ.pop("GOOGLE_SERVICE_ACCOUNT_JSON_FILE", None)
-        old_adc = os.environ.pop("GOOGLE_APPLICATION_CREDENTIALS", None)
-        os.environ["GOOGLE_SERVICE_ACCOUNT_JSON_B64"] = encoded
-        try:
-            self.assertEqual(_load_service_account_json_from_env(), payload)
-        finally:
-            if old_json is not None:
-                os.environ["GOOGLE_SERVICE_ACCOUNT_JSON"] = old_json
-            if old_b64 is not None:
-                os.environ["GOOGLE_SERVICE_ACCOUNT_JSON_B64"] = old_b64
-            else:
+        with unittest.mock.patch.dict(os.environ, {"GOOGLE_SERVICE_ACCOUNT_JSON": payload}, clear=False):
+            os.environ.pop("GOOGLE_SERVICE_ACCOUNT_JSON_B64", None)
+            os.environ.pop("GOOGLE_SERVICE_ACCOUNT_JSON_FILE", None)
+            os.environ.pop("GOOGLE_APPLICATION_CREDENTIALS", None)
+            with self.assertRaises(GeminiTranscriptionError):
+                _load_service_account_json_from_env()
+
+        with unittest.mock.patch.dict(os.environ, {"GOOGLE_SERVICE_ACCOUNT_JSON_B64": encoded}, clear=False):
+            os.environ.pop("GOOGLE_SERVICE_ACCOUNT_JSON", None)
+            os.environ.pop("GOOGLE_SERVICE_ACCOUNT_JSON_FILE", None)
+            os.environ.pop("GOOGLE_APPLICATION_CREDENTIALS", None)
+            with self.assertRaises(GeminiTranscriptionError):
+                _load_service_account_json_from_env()
+
+        with unittest.mock.patch.dict(os.environ, {}, clear=False):
+            os.environ.pop("GOOGLE_SERVICE_ACCOUNT_JSON", None)
+            os.environ.pop("GOOGLE_SERVICE_ACCOUNT_JSON_B64", None)
+            os.environ.pop("GOOGLE_SERVICE_ACCOUNT_JSON_FILE", None)
+            os.environ.pop("GOOGLE_APPLICATION_CREDENTIALS", None)
+            with self.assertRaises(GeminiTranscriptionError):
+                _load_service_account_json_from_env()
+
+    def test_rejects_authorized_user_adc_and_api_key_fallback(self):
+        authorized_user = '{"type":"authorized_user","client_id":"x","client_secret":"y","refresh_token":"z"}'
+        with tempfile.TemporaryDirectory() as tmp:
+            adc_path = Path(tmp) / "adc.json"
+            adc_path.write_text(authorized_user, encoding="utf-8")
+
+            with unittest.mock.patch.dict(
+                os.environ,
+                {
+                    "GOOGLE_APPLICATION_CREDENTIALS": str(adc_path),
+                    "GEMINI_API_KEY": "AIzaFakeKeyOnlyTest",
+                },
+                clear=False,
+            ):
+                os.environ.pop("GOOGLE_SERVICE_ACCOUNT_JSON", None)
                 os.environ.pop("GOOGLE_SERVICE_ACCOUNT_JSON_B64", None)
-            if old_file is not None:
-                os.environ["GOOGLE_SERVICE_ACCOUNT_JSON_FILE"] = old_file
-            if old_adc is not None:
-                os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = old_adc
+                os.environ.pop("GOOGLE_SERVICE_ACCOUNT_JSON_FILE", None)
+                with self.assertRaises(GeminiTranscriptionError):
+                    GeminiTranscriptionAdapter(api_key="AIzaFakeKeyOnlyTest", model="gemini-2.5-flash")
 
     def test_is_transcribe_model_detection(self):
         self.assertTrue(is_transcribe_model("gemini-3.5-transcribe"))

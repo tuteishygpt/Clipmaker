@@ -116,37 +116,6 @@ class BatchService:
         job_base_id = f"batch-{uuid.uuid4().hex[:8]}"
         display_name = job_name or f"Job-{job_base_id}"
         
-        # We need to reuse the connection logic from GenAIClient but use the robust Runner logic
-        # Since we just added 'app/services/gemini_batch_runner.py', let's use it.
-        from app.services.gemini_batch_runner import GeminiBatchRunner, BatchTask
-        
-        runner = GeminiBatchRunner(
-            api_key=self.client.api_key,
-            model=model_name
-        )
-        
-        # 1. Adapt requests to what Runner logic expects (or mimic it here)
-        # Runner logic expects "tasks" (BatchTask) and "prompt_text".
-        # But our requests are pre-formed prompts or complex objects.
-        
-        # To strictly use the USER's code, we should call runner.run_batch().
-        # BUT runner.run_batch() waits for completion. We might want async submission?
-        # The user's code is blocking: "run_batch ... returns results". 
-        # For now, let's keep it blocking as requested implicitly by "use this code".
-        # This means submit_batch_job will now WAIT until completion. 
-        # This changes the behavior of our service (it was asynchronous-ish/manual polling before).
-        # However, the user demand "make it work" with this code implies replacing the broken async flow.
-        
-        # Wait - Pipeline expects 'submit' then 'wait'. 
-        # If I make 'submit' block, then 'wait' step becomes redundant but safe.
-        # Let's try to preserve non-blocking if possible, but the User code IS blocking.
-        # "GeminiBatchRunner... run_batch".
-        
-        # Let's extract the "submission" part from their Runner code or re-implement it here 
-        # to just submit and return the job name.
-        
-        # Re-implementing the "REST CREATE" logic from User's code here to fix our broken submit.
-        
         # 1. Prepare JSONL using our existing method (it works fine for content)
         file_path = self.create_jsonl_file(requests, job_base_id, generation_config)
         
@@ -167,52 +136,7 @@ class BatchService:
                 "dataset_name": display_name,
             }
 
-        import requests as http_requests
-        
-        # 2. Upload file using GenAI SDK (User code: uploads with mime_type="text/plain" or guessed)
-        # User code: _client.files.upload(file=path, config={"mime_type": "text/plain"})
-        logger.info(f"Uploading batch file: {file_path}")
-        file_ref = self.client._client.files.upload(
-            file=str(file_path),
-            config={"mime_type": "text/plain"}
-        )
-        
-        logger.info(f"Uploaded batch file {file_ref.name}. Creating job via REST...")
-        
-        clean_model = model_name.replace("models/", "")
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{clean_model}:batchGenerateContent"
-        headers = {
-            "x-goog-api-key": self.client.api_key,
-            "Content-Type": "application/json",
-        }
-        payload = {
-            "batch": {
-                "display_name": display_name,
-                "input_config": {"file_name": file_ref.name},
-            }
-        }
-        
-        resp = http_requests.post(url, headers=headers, json=payload, timeout=60)
-        if not resp.ok:
-            logger.error(f"REST batch create failed: {resp.status_code} {resp.text}")
-            raise RuntimeError(f"Failed to create batch job: {resp.text}")
-            
-        data = resp.json()
-        created_name = data.get("name")
-        if not created_name and "batch" in data:
-            created_name = data["batch"].get("name")
-            
-        if not created_name:
-             raise RuntimeError(f"Created batch job but got no name. Response: {data}")
-             
-        logger.info(f"Batch job submitted successfully via REST: {created_name}")
-        return {
-            "job_id": created_name,
-            "state": "ACTIVE",
-            "model": model_name,
-            "local_file": str(file_path),
-            "dataset_name": display_name
-        }
+        raise RuntimeError("Batch API is supported exclusively via Vertex AI.")
 
     async def wait_for_job_async(self, job_name: str, poll_interval: int = 10) -> str:
         """

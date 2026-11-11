@@ -76,7 +76,7 @@ class Settings:
             google_cloud_location=os.getenv("GOOGLE_CLOUD_LOCATION") or os.getenv("GOOGLE_VERTEX_LOCATION") or "global",
             google_service_account_json=os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON"),
             google_service_account_json_b64=os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON_B64"),
-            google_application_credentials=os.getenv("GOOGLE_APPLICATION_CREDENTIALS") or os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON_FILE"),
+            google_application_credentials=os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON_FILE") or os.getenv("GOOGLE_APPLICATION_CREDENTIALS"),
             supabase_url=os.getenv("SUPABASE_URL"),
             supabase_key=os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY"),
             supabase_jwt_secret=(os.getenv("SUPABASE_JWT_SECRET") or "").strip().strip('"').strip("'"),

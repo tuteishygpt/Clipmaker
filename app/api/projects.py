@@ -548,7 +548,6 @@ async def render_project(
     project_id: str,
     background: BackgroundTasks,
     billing: BillingContext = Depends(get_billing_context),
-    pipeline_service: PipelineService = Depends(get_pipeline_service)
 ) -> RunResponse:
     """
     Start video rendering.
@@ -574,6 +573,7 @@ async def render_project(
             raise HTTPException(status_code=500, detail=f"Failed to trigger Cloud Run render job: {e}")
         return RunResponse(status="OK", message="Cloud Run render job triggered")
     else:
+        pipeline_service = get_pipeline_service()
         background.add_task(pipeline_service.render_only, project_id)
         return RunResponse(status="OK", message="Render started")
 
@@ -1135,7 +1135,6 @@ async def render_standalone(
     project_id: str,
     background: BackgroundTasks,
     user: Optional[AuthenticatedUser] = Depends(get_optional_user),
-    pipeline_service: PipelineService = Depends(get_pipeline_service)
 ) -> RunResponse:
     """Render video with subtitles only (standalone mode)."""
     if not project_repo.exists(project_id):

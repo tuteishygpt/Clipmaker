@@ -19,8 +19,7 @@ from google.genai import types
 
 from gemini_auth import (
     GeminiTranscriptionError,
-    _load_service_account_json_from_env,
-    _configure_adc_from_service_account_json,
+    load_vertex_service_account_credentials,
     _call_with_retry,
     _is_retryable_error,
     is_transcribe_model,
@@ -60,8 +59,7 @@ class GenAIClient:
         self.subtitle_model = subtitle_model or settings.genai_subtitle_model
         
         # Vertex AI configuration
-        self.service_account_json = _load_service_account_json_from_env()
-        self.project = (
+        configured_project = (
             settings.google_cloud_project
             or os.environ.get("GOOGLE_CLOUD_PROJECT")
             or os.environ.get("GOOGLE_PROJECT")
@@ -74,32 +72,41 @@ class GenAIClient:
             or "global"
         ).strip()
 
-        if self.service_account_json:
-            self.project = _configure_adc_from_service_account_json(
-                self.service_account_json,
-                self.project,
-            )
-
         if client is not None:
+            is_vertex_client = getattr(client, "vertexai", True) is True
+            if not is_vertex_client:
+                raise RuntimeError("Vertex AI is mandatory; non-Vertex client instances are forbidden.")
             self._client = client
-            self.is_vertex = getattr(client, "vertexai", True) is True
+            self._credentials = None
+            self.credentials_path = ""
+            self.service_account_email = ""
+            self.project = configured_project
+            self.is_vertex = True
         else:
-            # When Service Account / ADC credentials are configured, omit api_key so SDK authenticates via Service Account
-            has_service_account = bool(self.service_account_json or os.environ.get("GOOGLE_APPLICATION_CREDENTIALS"))
-            effective_api_key = None if has_service_account else (self.api_key or None)
+            if not settings.google_genai_use_vertexai:
+                raise RuntimeError(
+                    "Vertex AI is mandatory; non-Vertex Gemini API mode is disabled."
+                )
 
-            # Per user requirement: All Gemini models must use Vertex AI
+            # Strict requirement: authenticate ONLY using explicit local Service Account JSON file
+            sa_cfg = load_vertex_service_account_credentials(configured_project)
+            self.project = sa_cfg.project_id
+            self._credentials = sa_cfg.credentials
+            self.credentials_path = sa_cfg.credentials_path
+            self.service_account_email = sa_cfg.client_email
             self._client = genai.Client(
                 vertexai=True,
-                project=self.project or None,
+                credentials=sa_cfg.credentials,
+                project=self.project,
                 location=self.location,
-                api_key=effective_api_key,
             )
             self.is_vertex = True
-        
+
         logger.info(
-            "GenAI client initialized via Vertex AI (project=%s, location=%s, subtitle_model=%s)",
+            "GenAI client initialized via Vertex AI SA file (project=%s, sa=%s, file=%s, location=%s, subtitle_model=%s)",
             self.project or "<default>",
+            self.service_account_email or "<mock>",
+            self.credentials_path or "<mock>",
             self.location,
             self.subtitle_model,
         )
@@ -873,7 +880,10 @@ class GenAIClient:
             if gcs_bucket and source_path.is_file():
                 try:
                     from google.cloud import storage
-                    storage_client = storage.Client(project=self.project or None)
+                    storage_client = storage.Client(
+                        project=self.project or None,
+                        credentials=self._credentials,
+                    )
                     bucket_clean = gcs_bucket.replace("gs://", "").strip("/")
                     bucket = storage_client.bucket(bucket_clean)
                     blob_name = f"batch_inputs/{dataset_name}_{source_path.name}"

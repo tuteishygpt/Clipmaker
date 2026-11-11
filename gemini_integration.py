@@ -27,8 +27,8 @@ from gemini_auth import (
     _clean_time,
     is_transcribe_model,
     _load_service_account_json_from_env,
+    load_vertex_service_account_credentials,
     _load_local_env,
-    _configure_adc_from_service_account_json,
     _validate_api_key_format,
 )
 from gemini_prompts import (
@@ -182,7 +182,6 @@ class GeminiTranscriptionAdapter:
                 "google-genai library is not available. Install google-genai."
             )
 
-        self._service_account_json = _load_service_account_json_from_env()
         self._api_key = api_key or (
             os.environ.get("gemini")
             or os.environ.get("gembeh")
@@ -208,20 +207,9 @@ class GeminiTranscriptionAdapter:
             or "global"
         ).strip()
 
-        if self._service_account_json:
-            self._project = _configure_adc_from_service_account_json(
-                self._service_account_json,
-                self._project,
-            )
-        elif not self._api_key and not (os.environ.get("GOOGLE_APPLICATION_CREDENTIALS") or self._project):
-            raise GeminiTranscriptionError(
-                "GOOGLE_SERVICE_ACCOUNT_JSON, GOOGLE_SERVICE_ACCOUNT_JSON_B64, "
-                "GOOGLE_SERVICE_ACCOUNT_JSON_FILE, GOOGLE_APPLICATION_CREDENTIALS, "
-                "gemini, gembeh, GOOGLE_API_KEY, or GEMINI_API_KEY is not configured."
-            )
-
-        if self._api_key:
-            _validate_api_key_format(self._api_key)
+        self._credentials = None
+        self._credentials_path = ""
+        self._service_account_email = ""
 
         if not self._model:
             raise GeminiTranscriptionError(
@@ -229,8 +217,26 @@ class GeminiTranscriptionAdapter:
             )
 
         self._is_transcribe = is_transcribe_model(self._model)
-        self._client_factory = client_factory or self._default_client_factory
-        self._client = self._client_factory(self._api_key)
+        if client_factory is not None:
+            self._client_factory = client_factory
+            self._client = self._client_factory(self._api_key)
+        else:
+            use_vertex = (
+                os.getenv("GOOGLE_GENAI_USE_VERTEXAI", "true").strip().lower() not in ("0", "false", "no")
+                and os.getenv("VERTEXAI", "true").strip().lower() not in ("0", "false", "no")
+            )
+            if not use_vertex:
+                raise GeminiTranscriptionError(
+                    "Vertex AI is mandatory; non-Vertex Gemini API mode is disabled."
+                )
+
+            sa_cfg = load_vertex_service_account_credentials(self._project)
+            self._project = sa_cfg.project_id
+            self._credentials = sa_cfg.credentials
+            self._credentials_path = sa_cfg.credentials_path
+            self._service_account_email = sa_cfg.client_email
+            self._client_factory = self._default_client_factory
+            self._client = self._default_client_factory(None)
 
     def _call_with_retry(
         self,
@@ -254,22 +260,16 @@ class GeminiTranscriptionAdapter:
         )
 
     def _default_client_factory(self, api_key: Optional[str]) -> Any:
-        use_vertex = (
-            os.getenv("GOOGLE_GENAI_USE_VERTEXAI", "true").strip().lower() not in ("0", "false", "no")
-            and os.getenv("VERTEXAI", "true").strip().lower() not in ("0", "false", "no")
-        )
-        if use_vertex or self._service_account_json or self._project:
-            has_service_account = bool(self._service_account_json or os.environ.get("GOOGLE_APPLICATION_CREDENTIALS"))
-            effective_key = None if has_service_account else (api_key or None)
-            return genai.Client(
-                vertexai=True,
-                project=self._project or None,
-                location=self._location,
-                api_key=effective_key,
+        if self._credentials is None:
+            raise GeminiTranscriptionError(
+                "Vertex AI requires explicit service account credentials from a local JSON file."
             )
-
-        # Standard Gemini Developer API (ai.google.dev per official documentation)
-        return genai.Client(api_key=api_key)
+        return genai.Client(
+            vertexai=True,
+            credentials=self._credentials,
+            project=self._project,
+            location=self._location,
+        )
 
     def _build_user_content(
         self,

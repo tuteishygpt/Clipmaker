@@ -17,6 +17,69 @@ from app.repositories.project_repo import ProjectRepository
 
 
 class VertexSubtitleServiceTests(unittest.TestCase):
+    def test_genai_client_requires_local_sa_json_file_only(self):
+        from gemini_auth import GeminiTranscriptionError
+
+        # 1. Fails without SA file env var (even if API key is provided - no Metadata ADC or API key fallback)
+        with unittest.mock.patch.dict(os.environ, {}, clear=False):
+            os.environ.pop("GOOGLE_SERVICE_ACCOUNT_JSON_FILE", None)
+            os.environ.pop("GOOGLE_APPLICATION_CREDENTIALS", None)
+            os.environ.pop("GOOGLE_SERVICE_ACCOUNT_JSON", None)
+            os.environ.pop("GOOGLE_SERVICE_ACCOUNT_JSON_B64", None)
+            with self.assertRaises(GeminiTranscriptionError):
+                GenAIClient(api_key="AIzaFakeKeyOnlyTest")
+
+    def test_genai_client_passes_explicit_sa_file_credentials_without_mutating_adc(self):
+        from cryptography.hazmat.primitives import serialization
+        from cryptography.hazmat.primitives.asymmetric import rsa
+        import json
+
+        private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        pem = private_key.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.PKCS8,
+            encryption_algorithm=serialization.NoEncryption(),
+        ).decode("utf-8")
+
+        sa_payload = {
+            "type": "service_account",
+            "project_id": "vertex-isolated-proj",
+            "private_key_id": "key-id-1",
+            "private_key": pem,
+            "client_email": "vertex@vertex-isolated-proj.iam.gserviceaccount.com",
+            "client_id": "1234567890",
+            "token_uri": "https://oauth2.googleapis.com/token",
+        }
+
+        with tempfile.TemporaryDirectory() as tmp:
+            sa_path = Path(tmp) / "sa.json"
+            sa_path.write_text(json.dumps(sa_payload), encoding="utf-8")
+
+            with unittest.mock.patch.dict(
+                os.environ,
+                {
+                    "GOOGLE_SERVICE_ACCOUNT_JSON_FILE": str(sa_path),
+                    "GOOGLE_CLOUD_PROJECT": "different-cloud-run-proj",
+                },
+                clear=False,
+            ):
+                os.environ.pop("GOOGLE_APPLICATION_CREDENTIALS", None)
+                os.environ.pop("GOOGLE_SERVICE_ACCOUNT_JSON", None)
+                os.environ.pop("GOOGLE_SERVICE_ACCOUNT_JSON_B64", None)
+
+                with patch("app.clients.genai.genai.Client") as mock_client_cls:
+                    client = GenAIClient(api_key="ignored-key")
+
+                mock_client_cls.assert_called_once()
+                call_kwargs = mock_client_cls.call_args[1]
+                self.assertTrue(call_kwargs["vertexai"])
+                self.assertEqual(call_kwargs["project"], "vertex-isolated-proj")
+                self.assertIsNotNone(call_kwargs["credentials"])
+                self.assertNotIn("api_key", call_kwargs)
+                self.assertEqual(client.service_account_email, "vertex@vertex-isolated-proj.iam.gserviceaccount.com")
+                # Must NOT leak into process-wide GOOGLE_APPLICATION_CREDENTIALS
+                self.assertNotIn("GOOGLE_APPLICATION_CREDENTIALS", os.environ)
+
     def test_genai_client_vertex_ai_default(self):
         fake_client = MagicMock()
         fake_client.vertexai = True
